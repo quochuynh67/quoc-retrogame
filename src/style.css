@@ -1,0 +1,325 @@
+:root {
+  --bg: #111;
+  --text: #eee;
+  --accent: #ff0055;
+  --accent-glow: 0 0 10px #ff0055;
+  --border: #333;
+  --panel-bg: #222;
+  --game-border: #444;
+  --font-main: "Courier New", Courier, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-main);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden; /* Prevent scrolling when playing */
+}
+
+#app {
+  width: 100%;
+  max-width: 1200px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  text-align: center;
+  padding: 10px;
+  background: var(--panel-bg);
+  border-bottom: 2px solid var(--accent);
+  box-shadow: var(--accent-glow);
+  z-index: 10;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+  color: var(--accent);
+  text-shadow: var(--accent-glow);
+  text-transform: uppercase;
+}
+
+.header p {
+  margin: 5px 0 0;
+  font-size: 14px;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    flex-direction: row;
+  }
+}
+
+.game-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #000;
+  position: relative;
+}
+
+.screen-shell {
+  width: 100%;
+  height: 100%;
+  max-height: 60vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 4px solid var(--game-border);
+  box-shadow: 0 0 20px rgba(0,0,0,0.8) inset;
+}
+
+@media (min-width: 768px) {
+  .screen-shell {
+    max-height: 80vh;
+  }
+}
+
+canvas#game {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.controls-bar {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: var(--panel-bg);
+  width: 100%;
+  justify-content: center;
+  border-top: 1px solid var(--border);
+}
+
+button {
+  background: var(--panel-bg);
+  color: var(--text);
+  border: 2px solid var(--border);
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: var(--accent-glow);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+button.primary:hover:not(:disabled) {
+  background: #fff;
+  color: var(--accent);
+}
+
+.sidebar {
+  width: 100%;
+  padding: 15px;
+  background: var(--panel-bg);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+  .sidebar {
+    width: 300px;
+    border-top: none;
+    border-left: 2px solid var(--accent);
+  }
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--accent);
+}
+
+.input {
+  background: #000;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px;
+  font-family: inherit;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.hint {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.log {
+  background: #000;
+  border: 1px solid var(--border);
+  padding: 10px;
+  height: 150px;
+  overflow-y: auto;
+  font-size: 12px;
+  white-space: pre-wrap;
+  color: #0f0;
+}
+
+.status {
+  font-weight: bold;
+  color: var(--accent);
+}
+
+/* VIRTUAL GAMEPAD */
+.virtual-gamepad {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: #1a1a1a;
+  border-top: 2px solid var(--game-border);
+  touch-action: none; /* Prevent zooming/scrolling on mobile */
+  user-select: none;
+}
+
+.dpad {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.dpad-btn {
+  position: absolute;
+  background: #333;
+  border: 2px solid #555;
+  border-radius: 4px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: #888;
+  box-shadow: 0 4px 0 #111;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.dpad-btn:active, .dpad-btn.active {
+  background: var(--accent);
+  box-shadow: 0 0 0 #111;
+  transform: translateY(4px);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.dpad-up { top: 0; left: 40px; }
+.dpad-down { bottom: 0; left: 40px; }
+.dpad-left { top: 40px; left: 0; }
+.dpad-right { top: 40px; right: 0; }
+
+.action-buttons {
+  position: relative;
+  width: 140px;
+  height: 140px;
+}
+
+.action-btn {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #333;
+  border: 2px solid #555;
+  color: #888;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 0 #111;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.action-btn:active, .action-btn.active {
+  box-shadow: 0 0 0 #111;
+  transform: translateY(4px);
+  color: #fff;
+}
+
+.btn-x { top: 0; left: 45px; }
+.btn-y { top: 45px; left: 0; }
+.btn-a { bottom: 0; left: 45px; }
+.btn-b { top: 45px; right: 0; }
+
+.btn-a:active, .btn-a.active { background: #00cc00; border-color: #00cc00; }
+.btn-b:active, .btn-b.active { background: #cc0000; border-color: #cc0000; }
+.btn-x:active, .btn-x.active { background: #0000cc; border-color: #0000cc; }
+.btn-y:active, .btn-y.active { background: #cccc00; border-color: #cccc00; }
+
+.system-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sys-btn {
+  background: #333;
+  color: #888;
+  border: 2px solid #555;
+  border-radius: 20px;
+  padding: 5px 15px;
+  font-size: 12px;
+  box-shadow: 0 3px 0 #111;
+  cursor: pointer;
+  text-transform: uppercase;
+  touch-action: none;
+}
+
+.sys-btn:active, .sys-btn.active {
+  box-shadow: 0 0 0 #111;
+  transform: translateY(3px);
+  background: #555;
+  color: #fff;
+}
