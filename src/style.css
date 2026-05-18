@@ -311,3 +311,99 @@ button.primary:hover:not(:disabled) {
   background: #555;
   color: #fff;
 }
+
+/* --- MOBILE LANDSCAPE RESPONSIVE UI --- */
+@media (max-height: 600px) and (orientation: landscape) {
+  body.playing .header,
+  body.playing .sidebar {
+    display: none !important;
+  }
+
+  body.playing #app {
+    max-width: 100vw;
+    height: 100vh;
+  }
+
+  body.playing .main-content {
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  body.playing .game-area {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 100;
+    margin: 0;
+    padding: 0;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  body.playing .screen-shell {
+    width: 100vw;
+    height: 100vh;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: #000;
+  }
+
+  body.playing .controls-bar {
+    position: fixed;
+    bottom: 5px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 300;
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+
+  body.playing .controls-bar button:not(#exitBtn) {
+    display: none;
+  }
+
+  body.playing #exitBtn {
+    font-size: 10px;
+    padding: 4px 12px;
+    opacity: 0.5;
+  }
+
+  body.playing .virtual-gamepad {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 500;
+    background: transparent;
+    border: none;
+    pointer-events: none;
+    padding: 0;
+  }
+
+  body.playing .joystick-base,
+  body.playing .action-buttons,
+  body.playing .system-buttons {
+    pointer-events: auto;
+    opacity: 0.6;
+  }
+
+  body.playing .joystick-base {
+    position: absolute;
+    bottom: 20px; left: 40px;
+  }
+
+  body.playing .action-buttons {
+    position: absolute;
+    bottom: 20px; right: 40px;
+    transform: scale(1.1);
+  }
+
+  body.playing .system-buttons {
+    position: absolute;
+    bottom: 60px; left: 50%;
+    transform: translateX(-50%);
+    flex-direction: row;
+    gap: 30px;
+  }
+}

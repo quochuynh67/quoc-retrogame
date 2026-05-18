@@ -103,6 +103,11 @@ function setControlState(running) {
   pauseBtn.disabled = !running;
   resumeBtn.disabled = !running;
   exitBtn.disabled = !running;
+  if (running) {
+    document.body.classList.add('playing');
+  } else {
+    document.body.classList.remove('playing');
+  }
 }
 
 async function destroyRunningGame() {
@@ -232,7 +237,7 @@ const vButtons = document.querySelectorAll('.virtual-gamepad [data-key]');
 
 vButtons.forEach(btn => {
   const btnName = btn.getAttribute('data-key');
-  
+
   const nostalgistMap = {
     "Enter": "start",
     "Shift": "select",
@@ -243,9 +248,9 @@ vButtons.forEach(btn => {
   };
 
   const padBtn = nostalgistMap[btnName];
-  
+
   const downHandler = (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     if (!btn.classList.contains('active')) {
       btn.classList.add('active');
       if (emulator && emulator.pressDown && padBtn) {
@@ -253,7 +258,7 @@ vButtons.forEach(btn => {
       }
     }
   };
-  
+
   const upHandler = (e) => {
     e.preventDefault();
     if (btn.classList.contains('active')) {
@@ -267,7 +272,7 @@ vButtons.forEach(btn => {
   btn.addEventListener('touchstart', downHandler, { passive: false });
   btn.addEventListener('touchend', upHandler);
   btn.addEventListener('touchcancel', upHandler);
-  
+
   btn.addEventListener('mousedown', downHandler);
   btn.addEventListener('mouseup', upHandler);
   btn.addEventListener('mouseleave', upHandler);
@@ -283,27 +288,27 @@ let currentDirs = { up: false, down: false, left: false, right: false };
 function handleJoystickEvent(e) {
   if (!isDragging) return;
   e.preventDefault();
-  
+
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  
+
   const rect = joystickBase.getBoundingClientRect();
   const radius = rect.width / 2;
   const centerX = rect.left + radius;
   const centerY = rect.top + radius;
-  
+
   let dx = clientX - centerX;
   let dy = clientY - centerY;
   const distance = Math.hypot(dx, dy);
-  
+
   if (distance > radius) {
     const angle = Math.atan2(dy, dx);
     dx = Math.cos(angle) * radius;
     dy = Math.sin(angle) * radius;
   }
-  
+
   joystickKnob.style.transform = `translate(${dx}px, ${dy}px)`;
-  
+
   const threshold = radius * 0.3;
   const newDirs = {
     up: dy < -threshold,
@@ -311,7 +316,7 @@ function handleJoystickEvent(e) {
     left: dx < -threshold,
     right: dx > threshold
   };
-  
+
   for (const dir in newDirs) {
     if (newDirs[dir] !== currentDirs[dir]) {
       if (newDirs[dir]) {
