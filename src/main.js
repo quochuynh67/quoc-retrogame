@@ -31,8 +31,8 @@ app.innerHTML = `
         </div>
         
         <div class="system-buttons">
-          <div class="sys-btn" data-key="Shift">Select</div>
-          <div class="sys-btn" data-key="Enter">Start</div>
+          <div class="sys-btn" data-key="Shift">Nạp xu</div>
+          <div class="sys-btn" data-key="Enter">Bắt đầu</div>
         </div>
 
         <div class="action-buttons">
