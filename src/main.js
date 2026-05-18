@@ -23,11 +23,8 @@ app.innerHTML = `
 
       <!-- VIRTUAL GAMEPAD -->
       <div class="virtual-gamepad">
-        <div class="dpad">
-          <div class="dpad-btn dpad-up" data-key="ArrowUp">↑</div>
-          <div class="dpad-btn dpad-left" data-key="ArrowLeft">←</div>
-          <div class="dpad-btn dpad-right" data-key="ArrowRight">→</div>
-          <div class="dpad-btn dpad-down" data-key="ArrowDown">↓</div>
+        <div class="joystick-base" id="joystickBase">
+          <div class="joystick-knob" id="joystickKnob"></div>
         </div>
         
         <div class="system-buttons">
@@ -230,17 +227,13 @@ window.addEventListener('beforeunload', () => {
 });
 
 // --- VIRTUAL GAMEPAD LOGIC ---
+// Action and System Buttons
 const vButtons = document.querySelectorAll('.virtual-gamepad [data-key]');
 
 vButtons.forEach(btn => {
   const btnName = btn.getAttribute('data-key');
-
-  // Mapping from our previous data-key to Nostalgist button names
+  
   const nostalgistMap = {
-    "ArrowUp": "up",
-    "ArrowDown": "down",
-    "ArrowLeft": "left",
-    "ArrowRight": "right",
     "Enter": "start",
     "Shift": "select",
     "z": "b",
@@ -250,9 +243,9 @@ vButtons.forEach(btn => {
   };
 
   const padBtn = nostalgistMap[btnName];
-
+  
   const downHandler = (e) => {
-    e.preventDefault(); // Prevent touch scroll/zoom
+    e.preventDefault(); 
     if (!btn.classList.contains('active')) {
       btn.classList.add('active');
       if (emulator && emulator.pressDown && padBtn) {
@@ -260,7 +253,7 @@ vButtons.forEach(btn => {
       }
     }
   };
-
+  
   const upHandler = (e) => {
     e.preventDefault();
     if (btn.classList.contains('active')) {
@@ -274,8 +267,89 @@ vButtons.forEach(btn => {
   btn.addEventListener('touchstart', downHandler, { passive: false });
   btn.addEventListener('touchend', upHandler);
   btn.addEventListener('touchcancel', upHandler);
-
+  
   btn.addEventListener('mousedown', downHandler);
   btn.addEventListener('mouseup', upHandler);
   btn.addEventListener('mouseleave', upHandler);
 });
+
+// Joystick Logic
+const joystickBase = document.getElementById('joystickBase');
+const joystickKnob = document.getElementById('joystickKnob');
+
+let isDragging = false;
+let currentDirs = { up: false, down: false, left: false, right: false };
+
+function handleJoystickEvent(e) {
+  if (!isDragging) return;
+  e.preventDefault();
+  
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  
+  const rect = joystickBase.getBoundingClientRect();
+  const radius = rect.width / 2;
+  const centerX = rect.left + radius;
+  const centerY = rect.top + radius;
+  
+  let dx = clientX - centerX;
+  let dy = clientY - centerY;
+  const distance = Math.hypot(dx, dy);
+  
+  if (distance > radius) {
+    const angle = Math.atan2(dy, dx);
+    dx = Math.cos(angle) * radius;
+    dy = Math.sin(angle) * radius;
+  }
+  
+  joystickKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+  
+  const threshold = radius * 0.3;
+  const newDirs = {
+    up: dy < -threshold,
+    down: dy > threshold,
+    left: dx < -threshold,
+    right: dx > threshold
+  };
+  
+  for (const dir in newDirs) {
+    if (newDirs[dir] !== currentDirs[dir]) {
+      if (newDirs[dir]) {
+        if (emulator && emulator.pressDown) emulator.pressDown({ button: dir, player: 1 });
+      } else {
+        if (emulator && emulator.pressUp) emulator.pressUp({ button: dir, player: 1 });
+      }
+      currentDirs[dir] = newDirs[dir];
+    }
+  }
+}
+
+function resetJoystick(e) {
+  if (e) e.preventDefault();
+  isDragging = false;
+  joystickKnob.style.transform = `translate(0px, 0px)`;
+  for (const dir in currentDirs) {
+    if (currentDirs[dir]) {
+      if (emulator && emulator.pressUp) emulator.pressUp({ button: dir, player: 1 });
+      currentDirs[dir] = false;
+    }
+  }
+}
+
+joystickBase.addEventListener('pointerdown', (e) => {
+  isDragging = true;
+  joystickBase.setPointerCapture(e.pointerId);
+  handleJoystickEvent(e);
+});
+
+joystickBase.addEventListener('pointermove', handleJoystickEvent);
+joystickBase.addEventListener('pointerup', resetJoystick);
+joystickBase.addEventListener('pointercancel', resetJoystick);
+
+joystickBase.addEventListener('touchstart', (e) => {
+  isDragging = true;
+  handleJoystickEvent(e);
+}, { passive: false });
+joystickBase.addEventListener('touchmove', handleJoystickEvent, { passive: false });
+joystickBase.addEventListener('touchend', resetJoystick);
+joystickBase.addEventListener('touchcancel', resetJoystick);
