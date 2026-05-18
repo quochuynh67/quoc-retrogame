@@ -605,6 +605,83 @@ exitBtn.addEventListener('click', async () => {
   setLog('Đã thoát game và dọn dẹp giả lập.');
 });
 
+// --- KEYBOARD CONTROLS LOGIC ---
+const keyboardMap = {
+  // Movement WASD
+  'KeyW': 'up',
+  'KeyA': 'left',
+  'KeyS': 'down',
+  'KeyD': 'right',
+  
+  // Actions - Arrow keys
+  'ArrowUp': 'x',
+  'ArrowLeft': 'y',
+  'ArrowDown': 'a',
+  'ArrowRight': 'b',
+  
+  // System buttons
+  'Space': 'select',
+  'Enter': 'start'
+};
+
+const actionSelectors = {
+  'select': '.sys-btn[data-key="Shift"]',
+  'start': '.sys-btn[data-key="Enter"]',
+  'b': '.btn-b',
+  'a': '.btn-a',
+  'y': '.btn-y',
+  'x': '.btn-x'
+};
+
+window.addEventListener('keydown', (e) => {
+  if (!emulator) return;
+  
+  // Ignore keyboard controls if user is typing in forms/dropdowns
+  if (document.activeElement && (
+    document.activeElement.tagName === 'INPUT' || 
+    document.activeElement.tagName === 'SELECT' || 
+    document.activeElement.tagName === 'TEXTAREA'
+  )) {
+    return;
+  }
+
+  const action = keyboardMap[e.code];
+  if (!action) return;
+
+  e.preventDefault();
+
+  if (e.repeat) return;
+
+  if (emulator.pressDown) {
+    emulator.pressDown({ button: action, player: 1 });
+  }
+
+  const selector = actionSelectors[action];
+  if (selector) {
+    const btn = document.querySelector(selector);
+    if (btn) btn.classList.add('active');
+  }
+});
+
+window.addEventListener('keyup', (e) => {
+  if (!emulator) return;
+
+  const action = keyboardMap[e.code];
+  if (!action) return;
+
+  e.preventDefault();
+
+  if (emulator.pressUp) {
+    emulator.pressUp({ button: action, player: 1 });
+  }
+
+  const selector = actionSelectors[action];
+  if (selector) {
+    const btn = document.querySelector(selector);
+    if (btn) btn.classList.remove('active');
+  }
+});
+
 window.addEventListener('beforeunload', () => {
   if (emulator) emulator.exit().catch(() => { });
 });
