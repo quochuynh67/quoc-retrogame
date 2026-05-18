@@ -5,13 +5,42 @@ const app = document.querySelector('#app');
 
 app.innerHTML = `
   <header class="header">
-    <h1>Hệ Thống Arcade Cổ Điển</h1>
-    <p>Chơi game giả lập ngay trên trình duyệt với giao diện Retro</p>
+    <div class="header-content">
+      <div class="brand">
+        <h1>Hệ Thống Arcade Cổ Điển</h1>
+        <p>Chơi game giả lập ngay trên trình duyệt với giao diện Retro</p>
+      </div>
+      <div class="coin-dashboard">
+        <div class="coin-balance-display">
+          <span class="coin-pulse">🪙</span>
+          <span class="coin-val" id="coinCount">--</span> <span class="coin-unit">xu</span>
+        </div>
+        <button id="shopBtn" class="primary shop-trigger">Nạp Xu</button>
+      </div>
+    </div>
   </header>
 
   <main class="main-content">
     <section class="game-area">
-      <div class="screen-shell">
+      <div class="screen-shell" style="position: relative;">
+        <!-- Timer HUD Overlay -->
+        <div id="timerHud" class="timer-hud hidden">
+          <span class="hud-icon">⏱️</span> THỜI GIAN CÒN LẠI: <span id="timerVal">03:00</span>
+        </div>
+        
+        <!-- Continue Overlay -->
+        <div id="continueOverlay" class="continue-overlay hidden">
+          <div class="continue-box">
+            <h2 class="continue-title">CONTINUE?</h2>
+            <div id="continueCountdown" class="continue-number">9</div>
+            <p class="continue-hint">Nhấn [Shift] hoặc đút xu để tiếp tục</p>
+            <div class="continue-actions">
+              <button id="insertCoinContinueBtn" class="primary neon-btn">Đút Xu Tiếp Tục (1 Xu)</button>
+              <button id="exitGameContinueBtn" class="secondary">Thoát Game</button>
+            </div>
+          </div>
+        </div>
+
         <canvas id="game" style="width: 100%; height: 100%;"></canvas>
       </div>
       <div class="controls-bar">
@@ -456,6 +485,751 @@ app.innerHTML = `
   </main>
 `;
 
+// --- APPEND COIN SHOP MODAL, TOASTS AND CONFETTI TO DOM ---
+app.innerHTML += `
+<!-- COIN SHOP MODAL -->
+<div id="shopModal" class="shop-modal hidden">
+  <div class="modal-backdrop"></div>
+  <div class="modal-content">
+    <button class="modal-close" id="closeShopBtn">×</button>
+    <div class="shop-header">
+      <h2>🏪 CỬA HÀNG ARCADE COIN</h2>
+      <p>Nạp thêm xu để tiếp tục hành trình chiến game huyền thoại</p>
+    </div>
+    
+    <div class="shop-tabs">
+      <button class="tab-btn active" id="tabBuy">Mua Gói Xu</button>
+      <button class="tab-btn" id="tabGiftcode">Nhập Code Quà Tặng</button>
+    </div>
+    
+    <!-- TAB 1: BUY COINS -->
+    <div class="tab-content" id="tabContentBuy">
+      <div class="packages-grid">
+        <div class="package-card" data-package="package_1">
+          <div class="pack-badge">Bình Dân</div>
+          <div class="pack-icon">🪙</div>
+          <div class="pack-title">Gói Đồng</div>
+          <div class="pack-qty">5 Xu</div>
+          <div class="pack-price">10.000đ</div>
+          <button class="buy-now-btn">Nạp Ngay</button>
+        </div>
+        <div class="package-card featured" data-package="package_2">
+          <div class="pack-badge">Hời Nhất</div>
+          <div class="pack-icon">🪙🪙</div>
+          <div class="pack-title">Gói Bạc</div>
+          <div class="pack-qty">12 Xu <span class="bonus">+2 free</span></div>
+          <div class="pack-price">20.000đ</div>
+          <button class="buy-now-btn">Nạp Ngay</button>
+        </div>
+        <div class="package-card" data-package="package_3">
+          <div class="pack-badge">Đại Cao Thủ</div>
+          <div class="pack-icon">💰</div>
+          <div class="pack-title">Gói Vàng</div>
+          <div class="pack-qty">35 Xu <span class="bonus">+10 free</span></div>
+          <div class="pack-price">50.000đ</div>
+          <button class="buy-now-btn">Nạp Ngay</button>
+        </div>
+        <div class="package-card" data-package="package_4">
+          <div class="pack-badge">VIP Pro</div>
+          <div class="pack-icon">💎</div>
+          <div class="pack-title">Gói Kim Cương</div>
+          <div class="pack-qty">80 Xu <span class="bonus">+30 free</span></div>
+          <div class="pack-price">100.000đ</div>
+          <button class="buy-now-btn">Nạp Ngay</button>
+        </div>
+        <div class="package-card unlimited" data-package="package_unlimited">
+          <div class="pack-badge">Không Giới Hạn</div>
+          <div class="pack-icon">♾️</div>
+          <div class="pack-title">Gói Vô Hạn</div>
+          <div class="pack-qty">24 Giờ Chơi</div>
+          <div class="pack-price">150.000đ</div>
+          <button class="buy-now-btn">Nạp Ngay</button>
+        </div>
+      </div>
+      
+      <div class="shop-options">
+        <label class="toggle-switch">
+          <input type="checkbox" id="testSpeedToggle">
+          <span class="slider"></span>
+          <span class="toggle-label">⚡ Chế độ test nhanh (1 Coin = 20 giây chơi - dành cho người kiểm thử)</span>
+        </label>
+      </div>
+    </div>
+    
+    <!-- TAB 2: GIFT CODE -->
+    <div class="tab-content hidden" id="tabContentGiftcode">
+      <div class="giftcode-box">
+        <p>Nhập mã quà tặng hoặc thẻ cào để nhận xu miễn phí:</p>
+        <div class="giftcode-form">
+          <input type="text" id="giftcodeInput" class="input" placeholder="Ví dụ: RETROGAMER5" style="text-transform: uppercase;" />
+          <button id="applyGiftcodeBtn" class="primary">Áp Dụng</button>
+        </div>
+        <p class="hint">Thử nhập code: <strong>RETRO2026</strong> (+10 xu) hoặc <strong>FREECOINS</strong> (+3 xu) hoặc <strong>INFINITYGAME</strong> (Vô hạn 24H) để trải nghiệm!</p>
+        <div id="giftcodeMessage" class="giftcode-msg"></div>
+      </div>
+    </div>
+    
+    <!-- PAYMENT MODAL INNER PANEL -->
+    <div id="paymentPanel" class="payment-panel hidden">
+      <div class="payment-box">
+        <button class="back-to-shop-btn" id="cancelPayBtn">← Trở Về Cửa Hàng</button>
+        <h3 class="payment-title">QUÉT MÃ THANH TOÁN (DEMO)</h3>
+        <p class="payment-desc">Vui lòng quét mã QR Momo/ZaloPay giả lập dưới đây để hoàn tất thanh toán.</p>
+        
+        <div class="payment-details">
+          <div class="payment-info-text">
+            <div>Sản phẩm: <strong id="payItemName">Gói Bạc (12 Xu)</strong></div>
+            <div>Số tiền thanh toán: <strong id="payAmount" class="price-highlight">20.000đ</strong></div>
+          </div>
+          
+          <div class="qr-container">
+            <img id="qrImage" src="" alt="Momo QR Code" />
+            <div class="qr-scanner-line"></div>
+          </div>
+        </div>
+        
+        <div class="payment-status-sim">
+          <div class="spinner"></div>
+          <span>Hệ thống đang chờ bạn quét mã...</span>
+        </div>
+        
+        <button id="simSuccessBtn" class="primary sim-success-btn">Xác Nhận Đã Thanh Toán (Demo)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div id="arcadeToast" class="arcade-toast hidden">
+  <span class="toast-icon">🛎️</span>
+  <span id="toastMsg" class="toast-text">Thông báo</span>
+</div>
+
+<!-- CONFETTI CANVAS -->
+<canvas id="confettiCanvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999;"></canvas>
+`;
+
+// --- AUDIO SYNTHESIS ENGINE ---
+const AudioSynth = {
+  ctx: null,
+  init() {
+    if (!this.ctx) {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  },
+  playCoin() {
+    try {
+      this.init();
+      const ctx = this.ctx;
+      const now = ctx.currentTime;
+      
+      const osc1 = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(987.77, now); // B5
+      osc1.frequency.setValueAtTime(1318.51, now + 0.08); // E6
+      
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      
+      osc1.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc1.start(now);
+      osc1.stop(now + 0.35);
+    } catch (e) {
+      console.warn('Audio play failed:', e);
+    }
+  },
+  playSuccess() {
+    try {
+      this.init();
+      const ctx = this.ctx;
+      const now = ctx.currentTime;
+      const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      freqs.forEach((f, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(f, now + i * 0.08);
+        
+        gain.gain.setValueAtTime(0.08, now + i * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.2);
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.08);
+        osc.stop(now + i * 0.08 + 0.2);
+      });
+    } catch (e) {
+      console.warn('Audio play failed:', e);
+    }
+  },
+  playWarning() {
+    try {
+      this.init();
+      const ctx = this.ctx;
+      const now = ctx.currentTime;
+      
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, now); // A3
+      
+      gain.gain.setValueAtTime(0.04, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.start(now);
+      osc.stop(now + 0.15);
+    } catch (e) {
+      console.warn('Audio play failed:', e);
+    }
+  },
+  playGameOver() {
+    try {
+      this.init();
+      const ctx = this.ctx;
+      const now = ctx.currentTime;
+      const freqs = [392.00, 349.23, 311.13, 246.94]; // G4, F4, D#4, B3
+      freqs.forEach((f, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(f, now + i * 0.15);
+        
+        gain.gain.setValueAtTime(0.08, now + i * 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.35);
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.15);
+        osc.stop(now + i * 0.15 + 0.35);
+      });
+    } catch (e) {
+      console.warn('Audio play failed:', e);
+    }
+  }
+};
+
+// --- CONFETTI CANVAS PARTICLES ---
+const Confetti = {
+  canvas: null,
+  ctx: null,
+  particles: [],
+  animationId: null,
+  
+  init() {
+    this.canvas = document.getElementById('confettiCanvas');
+    if (!this.canvas) return;
+    this.ctx = this.canvas.getContext('2d');
+    this.resizeCanvas();
+    window.addEventListener('resize', () => this.resizeCanvas());
+  },
+  
+  resizeCanvas() {
+    if (this.canvas) {
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
+    }
+  },
+  
+  spawn() {
+    this.init();
+    if (!this.canvas) return;
+    this.particles = [];
+    const colors = ['#ff0055', '#00ffcc', '#ffcc00', '#9900ff', '#33ff33', '#3399ff'];
+    for (let i = 0; i < 150; i++) {
+      this.particles.push({
+        x: Math.random() * this.canvas.width,
+        y: Math.random() * this.canvas.height - this.canvas.height,
+        r: Math.random() * 6 + 4,
+        d: Math.random() * this.canvas.height,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        tilt: Math.random() * 10 - 5,
+        tiltAngleIncremental: Math.random() * 0.07 + 0.02,
+        tiltAngle: 0
+      });
+    }
+    
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+    }
+    this.animate();
+  },
+  
+  animate() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    let active = false;
+    
+    this.particles.forEach((p) => {
+      p.tiltAngle += p.tiltAngleIncremental;
+      p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+      p.x += Math.sin(p.tiltAngle);
+      p.tilt = Math.sin(p.tiltAngle - p.r / 2) * 5;
+      
+      if (p.y <= this.canvas.height) {
+        active = true;
+      }
+      
+      this.ctx.beginPath();
+      this.ctx.lineWidth = p.r;
+      this.ctx.strokeStyle = p.color;
+      this.ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+      this.ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+      this.ctx.stroke();
+    });
+    
+    if (active) {
+      this.animationId = requestAnimationFrame(() => this.animate());
+    } else {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+  }
+};
+
+// --- COIN SYSTEM STATE MANAGEMENT ---
+const CoinSystem = {
+  coins: 5, // Default coins on first load
+  infiniteUntil: 0, // Infinite timestamp
+  isTestSpeed: false, // 1 coin = 20s if true, 180s if false
+  
+  load() {
+    const savedCoins = localStorage.getItem('arcade_coins');
+    if (savedCoins !== null) {
+      this.coins = parseInt(savedCoins) || 0;
+    } else {
+      localStorage.setItem('arcade_coins', this.coins);
+    }
+    
+    this.infiniteUntil = parseInt(localStorage.getItem('arcade_infinite_until')) || 0;
+    this.isTestSpeed = localStorage.getItem('arcade_test_speed') === 'true';
+    
+    const checkbox = document.getElementById('testSpeedToggle');
+    if (checkbox) {
+      checkbox.checked = this.isTestSpeed;
+    }
+    
+    this.updateUI();
+  },
+  
+  save() {
+    localStorage.setItem('arcade_coins', this.coins);
+    localStorage.setItem('arcade_infinite_until', this.infiniteUntil);
+    localStorage.setItem('arcade_test_speed', this.isTestSpeed);
+    this.updateUI();
+  },
+  
+  isInfinite() {
+    return Date.now() < this.infiniteUntil;
+  },
+  
+  getCoinsDisplay() {
+    if (this.isInfinite()) {
+      return '♾️';
+    }
+    return this.coins;
+  },
+  
+  updateUI() {
+    const coinCountEl = document.getElementById('coinCount');
+    if (coinCountEl) {
+      coinCountEl.textContent = this.getCoinsDisplay();
+    }
+  },
+  
+  addCoins(amount) {
+    this.coins += amount;
+    this.save();
+    AudioSynth.playCoin();
+    Confetti.spawn();
+    showToast(`Đã nạp thành công ${amount} xu vào tài khoản!`);
+  },
+  
+  setInfinite(hours) {
+    const duration = hours * 60 * 60 * 1000;
+    const currentInfinite = this.isInfinite() ? this.infiniteUntil : Date.now();
+    this.infiniteUntil = currentInfinite + duration;
+    this.save();
+    AudioSynth.playCoin();
+    Confetti.spawn();
+    showToast(`Đã kích hoạt chế độ Vô Hạn Chơi Game trong ${hours} giờ!`);
+  },
+  
+  consumeCoin() {
+    if (this.isInfinite()) return true;
+    if (this.coins > 0) {
+      this.coins--;
+      this.save();
+      return true;
+    }
+    return false;
+  }
+};
+
+// --- TOAST NOTIFICATIONS ---
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('arcadeToast');
+  const toastMsg = document.getElementById('toastMsg');
+  if (!toast || !toastMsg) return;
+  
+  toastMsg.textContent = msg;
+  toast.className = `arcade-toast ${type}`;
+  toast.classList.remove('hidden');
+  
+  if (window.toastTimeout) clearTimeout(window.toastTimeout);
+  window.toastTimeout = setTimeout(() => {
+    toast.classList.add('hidden');
+  }, 4000);
+}
+
+// --- TIMED PLAYTIME LOGIC ---
+let gameTimer = null;
+let timeLeft = 0;
+let continueTimer = null;
+let continueCountdownVal = 9;
+
+function updateTimerHud() {
+  const timerHud = document.getElementById('timerHud');
+  const timerVal = document.getElementById('timerVal');
+  if (!timerVal) return;
+  
+  if (CoinSystem.isInfinite()) {
+    timerVal.textContent = 'VÔ HẠN';
+    if (timerHud) timerHud.classList.remove('warning');
+    return;
+  }
+  
+  const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+  const seconds = (timeLeft % 60).toString().padStart(2, '0');
+  timerVal.textContent = `${minutes}:${seconds}`;
+  
+  if (timeLeft <= 30) {
+    if (timerHud) timerHud.classList.add('warning');
+  } else {
+    if (timerHud) timerHud.classList.remove('warning');
+  }
+}
+
+function startPlayTimer() {
+  stopPlayTimer();
+  
+  const timerHud = document.getElementById('timerHud');
+  if (timerHud) timerHud.classList.remove('hidden');
+  
+  timeLeft = CoinSystem.isTestSpeed ? 20 : 180; // 20s test or 180s standard
+  updateTimerHud();
+  
+  gameTimer = setInterval(() => {
+    if (CoinSystem.isInfinite()) {
+      updateTimerHud();
+      return;
+    }
+    
+    timeLeft--;
+    updateTimerHud();
+    
+    if (timeLeft <= 30 && timeLeft > 0) {
+      if (timeLeft % 5 === 0) {
+        AudioSynth.playWarning();
+      }
+    }
+    
+    if (timeLeft <= 0) {
+      stopPlayTimer();
+      triggerContinueCountdown();
+    }
+  }, 1000);
+}
+
+function stopPlayTimer() {
+  if (gameTimer) {
+    clearInterval(gameTimer);
+    gameTimer = null;
+  }
+  const timerHud = document.getElementById('timerHud');
+  if (timerHud) timerHud.classList.add('hidden');
+}
+
+function triggerContinueCountdown() {
+  if (continueTimer) return;
+  
+  const continueOverlay = document.getElementById('continueOverlay');
+  const continueCountdown = document.getElementById('continueCountdown');
+  
+  if (continueOverlay) continueOverlay.classList.remove('hidden');
+  
+  if (emulator) {
+    emulator.pause().catch(() => {});
+    setStatus('Đang chờ đút xu...');
+  }
+  
+  AudioSynth.playWarning();
+  continueCountdownVal = 9;
+  if (continueCountdown) continueCountdown.textContent = continueCountdownVal;
+  
+  continueTimer = setInterval(() => {
+    continueCountdownVal--;
+    if (continueCountdown) continueCountdown.textContent = continueCountdownVal;
+    
+    if (continueCountdownVal > 0) {
+      AudioSynth.playWarning();
+    } else {
+      stopContinueCountdown();
+      AudioSynth.playGameOver();
+      showToast('HẾT GIỜ! Game Over!', 'error');
+      destroyRunningGame();
+    }
+  }, 1000);
+}
+
+function stopContinueCountdown() {
+  if (continueTimer) {
+    clearInterval(continueTimer);
+    continueTimer = null;
+  }
+  const continueOverlay = document.getElementById('continueOverlay');
+  if (continueOverlay) continueOverlay.classList.add('hidden');
+}
+
+function handleInsertCoinContinue() {
+  if (CoinSystem.isInfinite() || CoinSystem.coins > 0) {
+    if (CoinSystem.consumeCoin()) {
+      stopContinueCountdown();
+      AudioSynth.playCoin();
+      showToast('Đã tiếp tục lượt chơi thành công!');
+      
+      const textFloat = document.createElement('div');
+      textFloat.className = 'timer-hud-toast';
+      textFloat.textContent = CoinSystem.isTestSpeed ? '+20 GIÂY' : '+3 PHÚT';
+      document.querySelector('.screen-shell').appendChild(textFloat);
+      setTimeout(() => textFloat.remove(), 1200);
+      
+      if (emulator) {
+        emulator.resume().catch(() => {});
+        setStatus('Đang chạy');
+      }
+      
+      startPlayTimer();
+    }
+  } else {
+    if (continueTimer) {
+      clearInterval(continueTimer);
+      continueTimer = null;
+    }
+    showToast('Tài khoản của bạn đã hết xu! Hãy nạp xu để tiếp tục.', 'error');
+    openShopModal();
+  }
+}
+
+function handleExtendPlayTime() {
+  if (CoinSystem.isInfinite()) {
+    showToast('Tài khoản Vô Hạn đang kích hoạt!', 'success');
+    return;
+  }
+  
+  if (CoinSystem.coins > 0) {
+    if (CoinSystem.consumeCoin()) {
+      timeLeft += CoinSystem.isTestSpeed ? 20 : 180;
+      AudioSynth.playCoin();
+      
+      if (timeLeft > 5940) timeLeft = 5940; 
+      
+      updateTimerHud();
+      
+      const textFloat = document.createElement('div');
+      textFloat.className = 'timer-hud-toast';
+      textFloat.textContent = CoinSystem.isTestSpeed ? '+20 GIÂY' : '+3 PHÚT';
+      document.querySelector('.screen-shell').appendChild(textFloat);
+      setTimeout(() => textFloat.remove(), 1200);
+      
+      showToast('Đã đút 1 xu, thêm thời gian chơi!');
+    }
+  } else {
+    showToast('Tài khoản của bạn đã hết xu! Hãy nạp thêm.', 'error');
+    openShopModal();
+  }
+}
+
+function openShopModal() {
+  const shopModal = document.getElementById('shopModal');
+  if (shopModal) shopModal.classList.remove('hidden');
+}
+
+function closeShopModal() {
+  const shopModal = document.getElementById('shopModal');
+  if (shopModal) shopModal.classList.add('hidden');
+  
+  const continueOverlay = document.getElementById('continueOverlay');
+  if (continueOverlay && !continueOverlay.classList.contains('hidden') && !continueTimer) {
+    const continueCountdown = document.getElementById('continueCountdown');
+    continueTimer = setInterval(() => {
+      continueCountdownVal--;
+      if (continueCountdown) continueCountdown.textContent = continueCountdownVal;
+      
+      if (continueCountdownVal > 0) {
+        AudioSynth.playWarning();
+      } else {
+        stopContinueCountdown();
+        AudioSynth.playGameOver();
+        showToast('HẾT GIỜ! Game Over!', 'error');
+        destroyRunningGame();
+      }
+    }, 1000);
+  }
+}
+
+function initShopHandlers() {
+  const shopBtn = document.getElementById('shopBtn');
+  const closeShopBtn = document.getElementById('closeShopBtn');
+  const tabBuy = document.getElementById('tabBuy');
+  const tabGiftcode = document.getElementById('tabGiftcode');
+  const tabContentBuy = document.getElementById('tabContentBuy');
+  const tabContentGiftcode = document.getElementById('tabContentGiftcode');
+  const testSpeedToggle = document.getElementById('testSpeedToggle');
+  const cancelPayBtn = document.getElementById('cancelPayBtn');
+  const simSuccessBtn = document.getElementById('simSuccessBtn');
+  const applyGiftcodeBtn = document.getElementById('applyGiftcodeBtn');
+  
+  if (shopBtn) shopBtn.addEventListener('click', openShopModal);
+  if (closeShopBtn) closeShopBtn.addEventListener('click', closeShopModal);
+  
+  if (tabBuy && tabGiftcode) {
+    tabBuy.addEventListener('click', () => {
+      tabBuy.classList.add('active');
+      tabGiftcode.classList.remove('active');
+      tabContentBuy.classList.remove('hidden');
+      tabContentGiftcode.classList.add('hidden');
+      document.getElementById('paymentPanel').classList.add('hidden');
+    });
+    
+    tabGiftcode.addEventListener('click', () => {
+      tabGiftcode.classList.add('active');
+      tabBuy.classList.remove('active');
+      tabContentGiftcode.classList.remove('hidden');
+      tabContentBuy.classList.add('hidden');
+      document.getElementById('paymentPanel').classList.add('hidden');
+    });
+  }
+  
+  const packageCards = document.querySelectorAll('.package-card');
+  let selectedPackage = null;
+  
+  packageCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const packageId = card.getAttribute('data-package');
+      selectedPackage = packageId;
+      
+      const qtyText = card.querySelector('.pack-qty').childNodes[0].textContent.trim();
+      const priceText = card.querySelector('.pack-price').textContent;
+      const titleText = card.querySelector('.pack-title').textContent;
+      
+      document.getElementById('payItemName').textContent = `${titleText} (${qtyText})`;
+      document.getElementById('payAmount').textContent = priceText;
+      
+      const qrData = `MomoPay_RetroGame_${packageId}_${priceText.replace(/\D/g, '')}`;
+      document.getElementById('qrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}`;
+      
+      document.getElementById('paymentPanel').classList.remove('hidden');
+      AudioSynth.playCoin();
+    });
+  });
+  
+  if (cancelPayBtn) {
+    cancelPayBtn.addEventListener('click', () => {
+      document.getElementById('paymentPanel').classList.add('hidden');
+    });
+  }
+  
+  if (simSuccessBtn) {
+    simSuccessBtn.addEventListener('click', () => {
+      if (selectedPackage === 'package_1') {
+        CoinSystem.addCoins(5);
+      } else if (selectedPackage === 'package_2') {
+        CoinSystem.addCoins(12);
+      } else if (selectedPackage === 'package_3') {
+        CoinSystem.addCoins(35);
+      } else if (selectedPackage === 'package_4') {
+        CoinSystem.addCoins(80);
+      } else if (selectedPackage === 'package_unlimited') {
+        CoinSystem.setInfinite(24);
+      }
+      
+      document.getElementById('paymentPanel').classList.add('hidden');
+      closeShopModal();
+      AudioSynth.playSuccess();
+    });
+  }
+  
+  if (testSpeedToggle) {
+    testSpeedToggle.addEventListener('change', (e) => {
+      CoinSystem.isTestSpeed = e.target.checked;
+      CoinSystem.save();
+      showToast(CoinSystem.isTestSpeed ? 'Đã bật chế độ test nhanh (1 xu = 20s)' : 'Đã tắt chế độ test nhanh (1 xu = 3 phút)');
+    });
+  }
+  
+  if (applyGiftcodeBtn) {
+    applyGiftcodeBtn.addEventListener('click', () => {
+      const code = document.getElementById('giftcodeInput').value.trim().toUpperCase();
+      const msgEl = document.getElementById('giftcodeMessage');
+      if (!msgEl) return;
+      
+      if (!code) {
+        msgEl.className = 'giftcode-msg error';
+        msgEl.textContent = 'Vui lòng nhập mã code!';
+        return;
+      }
+      
+      if (code === 'RETRO2026') {
+        CoinSystem.addCoins(10);
+        msgEl.className = 'giftcode-msg success';
+        msgEl.textContent = 'Mã CODE hợp lệ! Bạn nhận được 10 xu.';
+        AudioSynth.playSuccess();
+      } else if (code === 'FREECOINS') {
+        CoinSystem.addCoins(3);
+        msgEl.className = 'giftcode-msg success';
+        msgEl.textContent = 'Mã CODE hợp lệ! Bạn nhận được 3 xu.';
+        AudioSynth.playSuccess();
+      } else if (code === 'INFINITYGAME') {
+        CoinSystem.setInfinite(24);
+        msgEl.className = 'giftcode-msg success';
+        msgEl.textContent = 'Mã CODE hợp lệ! Kích hoạt 24 Giờ Vô Hạn.';
+        AudioSynth.playSuccess();
+      } else {
+        msgEl.className = 'giftcode-msg error';
+        msgEl.textContent = 'Mã CODE không tồn tại hoặc đã hết hạn!';
+        AudioSynth.playWarning();
+      }
+      
+      document.getElementById('giftcodeInput').value = '';
+    });
+  }
+  
+  const insertCoinContinueBtn = document.getElementById('insertCoinContinueBtn');
+  const exitGameContinueBtn = document.getElementById('exitGameContinueBtn');
+  
+  if (insertCoinContinueBtn) {
+    insertCoinContinueBtn.addEventListener('click', handleInsertCoinContinue);
+  }
+  if (exitGameContinueBtn) {
+    exitGameContinueBtn.addEventListener('click', () => {
+      stopContinueCountdown();
+      AudioSynth.playGameOver();
+      destroyRunningGame();
+    });
+  }
+}
+
+// Call state initializer on boot
+setTimeout(() => {
+  CoinSystem.load();
+  initShopHandlers();
+  Confetti.init();
+}, 100);
+
 const screenShellEl = document.querySelector('.screen-shell');
 const statusEl = document.querySelector('#status');
 const logEl = document.querySelector('#log');
@@ -489,7 +1263,40 @@ function setControlState(running) {
 }
 
 async function destroyRunningGame() {
-  if (!emulator) return;
+  stopPlayTimer();
+  stopContinueCountdown();
+
+  if (!emulator) {
+    screenShellEl.innerHTML = `
+        <!-- Timer HUD Overlay -->
+        <div id="timerHud" class="timer-hud hidden">
+          <span class="hud-icon">⏱️</span> THỜI GIAN CÒN LẠI: <span id="timerVal">03:00</span>
+        </div>
+        
+        <!-- Continue Overlay -->
+        <div id="continueOverlay" class="continue-overlay hidden">
+          <div class="continue-box">
+            <h2 class="continue-title">CONTINUE?</h2>
+            <div id="continueCountdown" class="continue-number">9</div>
+            <p class="continue-hint">Nhấn [Shift] hoặc đút xu để tiếp tục</p>
+            <div class="continue-actions">
+              <button id="insertCoinContinueBtn" class="primary neon-btn">Đút Xu Tiếp Tục (1 Xu)</button>
+              <button id="exitGameContinueBtn" class="secondary">Thoát Game</button>
+            </div>
+          </div>
+        </div>
+        <canvas id="game" style="width: 100%; height: 100%;"></canvas>
+    `;
+    const insertCoinContinueBtn = document.getElementById('insertCoinContinueBtn');
+    const exitGameContinueBtn = document.getElementById('exitGameContinueBtn');
+    if (insertCoinContinueBtn) insertCoinContinueBtn.addEventListener('click', handleInsertCoinContinue);
+    if (exitGameContinueBtn) exitGameContinueBtn.addEventListener('click', () => {
+      stopContinueCountdown();
+      AudioSynth.playGameOver();
+      destroyRunningGame();
+    });
+    return;
+  }
 
   try {
     await emulator.exit();
@@ -498,12 +1305,48 @@ async function destroyRunningGame() {
   }
 
   emulator = null;
-  screenShellEl.innerHTML = '<canvas id="game" style="width: 100%; height: 100%;"></canvas>';
+  screenShellEl.innerHTML = `
+      <!-- Timer HUD Overlay -->
+      <div id="timerHud" class="timer-hud hidden">
+        <span class="hud-icon">⏱️</span> THỜI GIAN CÒN LẠI: <span id="timerVal">03:00</span>
+      </div>
+      
+      <!-- Continue Overlay -->
+      <div id="continueOverlay" class="continue-overlay hidden">
+        <div class="continue-box">
+          <h2 class="continue-title">CONTINUE?</h2>
+          <div id="continueCountdown" class="continue-number">9</div>
+          <p class="continue-hint">Nhấn [Shift] hoặc đút xu để tiếp tục</p>
+          <div class="continue-actions">
+            <button id="insertCoinContinueBtn" class="primary neon-btn">Đút Xu Tiếp Tục (1 Xu)</button>
+            <button id="exitGameContinueBtn" class="secondary">Thoát Game</button>
+          </div>
+        </div>
+      </div>
+      <canvas id="game" style="width: 100%; height: 100%;"></canvas>
+  `;
+  
+  const insertCoinContinueBtn = document.getElementById('insertCoinContinueBtn');
+  const exitGameContinueBtn = document.getElementById('exitGameContinueBtn');
+  if (insertCoinContinueBtn) insertCoinContinueBtn.addEventListener('click', handleInsertCoinContinue);
+  if (exitGameContinueBtn) exitGameContinueBtn.addEventListener('click', () => {
+    stopContinueCountdown();
+    AudioSynth.playGameOver();
+    destroyRunningGame();
+  });
+
   setControlState(false);
   setStatus('Đang chờ...');
 }
 
 async function launchGame() {
+  if (!CoinSystem.isInfinite() && CoinSystem.coins <= 0) {
+    AudioSynth.playWarning();
+    showToast('Tài khoản của bạn đã hết xu! Hãy nạp thêm xu để chơi game.', 'error');
+    openShopModal();
+    return;
+  }
+
   const romUrlRaw = romUrlEl.value.trim();
   const core = coreNameEl.value;
 
@@ -557,10 +1400,13 @@ async function launchGame() {
         setLog([
           'Tải thành công!',
           `Core: ${core}`,
-          `ROM: ${romUrl}`,
+          `ROM: ${romUrlRaw}`,
           '',
           'Bạn có thể dùng nút Tạm Dừng/Tiếp Tục để quản lý tiến trình.'
         ].join('\n'));
+        
+        CoinSystem.consumeCoin();
+        startPlayTimer();
       },
     });
 
@@ -634,8 +1480,6 @@ const actionSelectors = {
 };
 
 window.addEventListener('keydown', (e) => {
-  if (!emulator) return;
-  
   // Ignore keyboard controls if user is typing in forms/dropdowns
   if (document.activeElement && (
     document.activeElement.tagName === 'INPUT' || 
@@ -644,6 +1488,31 @@ window.addEventListener('keydown', (e) => {
   )) {
     return;
   }
+
+  // Intercept Shift/Space for Coin insertion
+  if (e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'Space' || e.code === 'Shift') {
+    const continueOverlay = document.getElementById('continueOverlay');
+    if (continueOverlay && !continueOverlay.classList.contains('hidden')) {
+      e.preventDefault();
+      handleInsertCoinContinue();
+      return;
+    }
+    
+    if (emulator && continueOverlay && continueOverlay.classList.contains('hidden')) {
+      e.preventDefault();
+      if (e.repeat) return;
+      handleExtendPlayTime();
+      
+      if (emulator.pressDown) {
+        emulator.pressDown({ button: 'select', player: 1 });
+      }
+      const btn = document.querySelector('.sys-btn[data-key="Shift"]');
+      if (btn) btn.classList.add('active');
+      return;
+    }
+  }
+
+  if (!emulator) return;
 
   const action = keyboardMap[e.code];
   if (!action) return;
@@ -664,6 +1533,17 @@ window.addEventListener('keydown', (e) => {
 });
 
 window.addEventListener('keyup', (e) => {
+  if (e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'Space' || e.code === 'Shift') {
+    if (emulator) {
+      if (emulator.pressUp) {
+        emulator.pressUp({ button: 'select', player: 1 });
+      }
+      const btn = document.querySelector('.sys-btn[data-key="Shift"]');
+      if (btn) btn.classList.remove('active');
+    }
+    return;
+  }
+
   if (!emulator) return;
 
   const action = keyboardMap[e.code];
@@ -708,6 +1588,17 @@ vButtons.forEach(btn => {
     e.preventDefault();
     if (!btn.classList.contains('active')) {
       btn.classList.add('active');
+      
+      if (btnName === 'Shift') {
+        const continueOverlay = document.getElementById('continueOverlay');
+        if (continueOverlay && !continueOverlay.classList.contains('hidden')) {
+          handleInsertCoinContinue();
+          return;
+        } else {
+          handleExtendPlayTime();
+        }
+      }
+      
       if (emulator && emulator.pressDown && padBtn) {
         emulator.pressDown({ button: padBtn, player: 1 });
       }
