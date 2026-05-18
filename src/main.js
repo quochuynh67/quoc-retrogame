@@ -12,7 +12,7 @@ app.innerHTML = `
   <main class="main-content">
     <section class="game-area">
       <div class="screen-shell">
-        <canvas id="game"></canvas>
+        <canvas id="game" style="width: 100%; height: 100%;"></canvas>
       </div>
       <div class="controls-bar">
         <button id="launchBtn" class="primary">Tải Game</button>
@@ -456,7 +456,7 @@ app.innerHTML = `
   </main>
 `;
 
-const gameEl = document.querySelector('#game');
+const screenShellEl = document.querySelector('.screen-shell');
 const statusEl = document.querySelector('#status');
 const logEl = document.querySelector('#log');
 const romUrlEl = document.querySelector('#romUrl');
@@ -498,7 +498,7 @@ async function destroyRunningGame() {
   }
 
   emulator = null;
-  gameEl.innerHTML = '';
+  screenShellEl.innerHTML = '<canvas id="game" style="width: 100%; height: 100%;"></canvas>';
   setControlState(false);
   setStatus('Đang chờ...');
 }
@@ -536,7 +536,7 @@ async function launchGame() {
       element: '#game',
       core,
       rom: rom,
-      size: 'auto',
+
       respondToGlobalEvents: true,
       style: {
         width: '100%',
