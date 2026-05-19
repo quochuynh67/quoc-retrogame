@@ -986,3 +986,77 @@
     opacity: 0;
   }
 }
+
+/* Premium Switch Toggle */
+.vlog-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 22px;
+}
+
+.vlog-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.vlog-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.15);
+  transition: .3s;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.vlog-slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+.vlog-switch input:checked + .vlog-slider {
+  background-color: var(--vlog-accent);
+}
+
+.vlog-switch input:checked + .vlog-slider:before {
+  transform: translateX(22px);
+  background-color: #000;
+}
+
+/* Video Type Badges */
+.vlog-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-left: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  display: inline-flex;
+  align-items: center;
+}
+
+.vlog-badge-system {
+  background: linear-gradient(135deg, var(--vlog-pink), #ff5e62);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.vlog-badge-user {
+  background: rgba(0, 255, 204, 0.15);
+  color: var(--vlog-accent);
+  border: 1px solid rgba(0, 255, 204, 0.3);
+}

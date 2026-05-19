@@ -1,8 +1,12 @@
+import { createClient } from '@supabase/supabase-js';
 import './vlog.css';
 
 // Supabase environment configs (safely read from .env in Vite build)
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+// Initialize Supabase client
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Global state for Vlog Feature
 let videoList = [];
@@ -116,8 +120,45 @@ function extractUploaderName(fileName) {
   }
 }
 
-// Fetch videos from Supabase storage using direct public REST API
+// Fetch videos from Supabase storage or database tables
 async function fetchVideosFromSupabase() {
+  try {
+    // Attempt querying the Supabase Database vlog_videos table
+    const { data: dbVideos, error } = await supabase
+      .from('vlog_videos')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && dbVideos && dbVideos.length > 0) {
+      console.log("Loaded videos from Supabase database tables successfully.");
+      return dbVideos.map((video, index) => {
+        const spotTemplate = video.spots || MOCK_SPOTS_TEMPLATES[index % MOCK_SPOTS_TEMPLATES.length];
+        const hotelTemplate = video.hotels || MOCK_HOTELS_TEMPLATES[index % MOCK_HOTELS_TEMPLATES.length];
+
+        return {
+          id: video.id,
+          url: video.url,
+          uploaderName: video.uploader_name || 'Người dùng ẩn danh',
+          title: video.title || `Vlog ngắn được đăng tải bởi ${video.uploader_name || 'thành viên'}`,
+          description: video.description || `Khám phá hành trình cùng với ${video.uploader_name || 'thành viên'}.`,
+          isSystem: video.is_system || false,
+          likes: video.likes || 0,
+          views: video.views || 0,
+          spots: spotTemplate,
+          hotels: hotelTemplate
+        };
+      });
+    }
+
+    if (error) {
+      console.warn("Could not load from DB tables (perhaps schema not applied yet?):", error.message);
+    }
+  } catch (dbError) {
+    console.warn("DB fetch exception:", dbError);
+  }
+
+  // FALLBACK: Original storage listing behavior
+  console.log("Falling back to listing files from Supabase storage bucket...");
   const listUrl = `${SUPABASE_URL}/storage/v1/object/list/videos`;
   try {
     const response = await fetch(listUrl, {
@@ -159,6 +200,7 @@ async function fetchVideosFromSupabase() {
             description: `Khám phá cuộc hành trình thú vị và những địa điểm đặc sắc tuyệt vời cùng với ${uploader}. Video được lưu trữ an toàn trên nền tảng đám mây Supabase.`,
             likes: Math.floor(Math.random() * 8000) + 1999,
             views: Math.floor(Math.random() * 50000) + 12000,
+            isSystem: false, // Fallback storage files are user videos
             spots: spotTemplate,
             hotels: hotelTemplate
           };
@@ -244,7 +286,7 @@ export async function initVlog() {
         </div>
 
         <!-- UPLOAD MODAL -->
-        <div class="vlog-modal" id="vlogUploadModal">
+        <div class="vlog-modal" id="vlogUploadModal" style="max-height: 85vh; overflow-y: auto; scrollbar-width: thin;">
           <div class="vlog-modal-header">
             <h3 class="vlog-modal-title">📤 THÊM VLOG CỦA BẠN</h3>
             <button class="vlog-sheet-close" id="closeUploadModalBtn">×</button>
@@ -252,6 +294,25 @@ export async function initVlog() {
           <div class="vlog-form-group">
             <label class="vlog-form-label">Tên của bạn (Nickname)</label>
             <input type="text" id="vlogUploaderInput" class="vlog-form-input" placeholder="Ví dụ: Quốc Đẹp Trai" value="Quốc Khách" />
+          </div>
+          <div class="vlog-form-group">
+            <label class="vlog-form-label">Tiêu Đề Vlog</label>
+            <input type="text" id="vlogTitleInput" class="vlog-form-input" placeholder="Ví dụ: Khám phá Vịnh Hạ Long" value="" />
+          </div>
+          <div class="vlog-form-group">
+            <label class="vlog-form-label">Mô Tả Chi Tiết</label>
+            <textarea id="vlogDescInput" class="vlog-form-input" placeholder="Ví dụ: Cảnh sắc thiên nhiên hùng vĩ..." rows="2" style="font-family: inherit; resize: none;"></textarea>
+          </div>
+          <div class="vlog-form-group" style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+            <label class="vlog-form-label" style="margin-bottom: 0;">Loại Video (System Ads)</label>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 11px; color: var(--vlog-text-secondary);">Thành viên</span>
+              <label class="vlog-switch">
+                <input type="checkbox" id="vlogIsSystemInput">
+                <span class="vlog-slider"></span>
+              </label>
+              <span style="font-size: 11px; color: var(--vlog-accent);">Quảng cáo</span>
+            </div>
           </div>
           <div class="vlog-form-group">
             <label class="vlog-form-label">Chọn File Video (MP4, MOV, WEBM)</label>
@@ -369,6 +430,11 @@ function renderVlogSlides() {
               ${video.uploaderName.charAt(0).toUpperCase()}
             </div>
             <span class="vlog-username">@${video.uploaderName}</span>
+            ${video.isSystem ? `
+              <span class="vlog-badge vlog-badge-system">📢 Quảng Cáo</span>
+            ` : `
+              <span class="vlog-badge vlog-badge-user">👤 Thành Viên</span>
+            `}
           </div>
           <h4 class="vlog-video-title">${video.title}</h4>
           <p class="vlog-video-desc">${video.description}</p>
@@ -771,6 +837,28 @@ function closeVlogModal(selector) {
   document.querySelector('#vlogSheetBackdrop').classList.remove('active');
 }
 
+// Helper to remove Vietnamese tones and non-ASCII characters for storage key safety
+function removeVietnameseTones(str) {
+  str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+  str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+  str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+  str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+  str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+  str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+  str = str.replace(/đ/g, "d");
+  str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A");
+  str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E");
+  str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I");
+  str = str.replace(/Ò|Ó|Ọ|Bả|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O");
+  str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U");
+  str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y");
+  str = str.replace(/Đ/g, "D");
+  str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, "");
+  str = str.replace(/\u02C6|\u0306|\u031B/g, "");
+  str = str.replace(/[^a-zA-Z0-9]/g, "_");
+  return str;
+}
+
 // Setup Upload Flow
 function setupUploadHandlers() {
   const fileZone = document.querySelector('#vlogFileZone');
@@ -803,6 +891,9 @@ function setupUploadHandlers() {
     selectedFile = null;
     fileInput.value = '';
     fileNameDisplay.textContent = 'Chưa chọn file';
+    document.querySelector('#vlogTitleInput').value = '';
+    document.querySelector('#vlogDescInput').value = '';
+    document.querySelector('#vlogIsSystemInput').checked = false;
     confirmBtn.disabled = true;
     progressContainer.style.display = 'none';
     progressBarFill.style.width = '0%';
@@ -827,13 +918,17 @@ function setupUploadHandlers() {
     progressContainer.style.display = 'block';
 
     const nickname = uploaderInput.value.trim() || 'Người dùng ẩn danh';
+    const titleVal = document.querySelector('#vlogTitleInput').value.trim() || `Vlog ngắn tải lên bởi ${nickname}`;
+    const descVal = document.querySelector('#vlogDescInput').value.trim() || `Khám phá cuộc hành trình thú vị và những địa điểm đặc sắc tuyệt vời cùng với ${nickname}. Tải lên thành công từ thiết bị khách!`;
+    const isSystemVal = document.querySelector('#vlogIsSystemInput').checked;
+
     const ext = selectedFile.name.split('.').pop() || 'mp4';
     const timestamp = Date.now();
-    const encodedUploader = encodeURIComponent(nickname);
+    const cleanNickname = removeVietnameseTones(nickname);
     const mockUid = 'guest_' + Math.random().toString(36).substring(2, 9);
 
     // Exact file name formatting as requested
-    const fileName = `${encodedUploader}__${mockUid}__video_${timestamp}.${ext}`;
+    const fileName = `${cleanNickname}__${mockUid}__video_${timestamp}.${ext}`;
     const uploadUrl = `${SUPABASE_URL}/storage/v1/object/videos/${fileName}`;
 
     const xhr = new XMLHttpRequest();
@@ -863,18 +958,70 @@ function setupUploadHandlers() {
       if (xhr.status >= 200 && xhr.status < 300) {
         const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/videos/${encodeURIComponent(fileName)}`;
 
-        // Add to active local list
-        const newVideo = {
-          id: 'uploaded_' + timestamp,
-          url: publicUrl,
-          uploaderName: nickname,
-          title: `Vlog ngắn tải lên bởi ${nickname}`,
-          description: `Khám phá cuộc hành trình thú vị và những địa điểm đặc sắc tuyệt vời cùng với ${nickname}. Tải lên thành công từ thiết bị khách!`,
-          likes: 999,
-          views: 1200,
-          spots: MOCK_SPOTS_TEMPLATES[0],
-          hotels: MOCK_HOTELS_TEMPLATES[0]
-        };
+        // Attempt to insert into database
+        let newVideo = null;
+        try {
+          // 1. Upsert user first
+          const { error: userError } = await supabase
+            .from('vlog_users')
+            .upsert([{ id: mockUid, nickname: nickname }]);
+
+          if (userError) console.warn("User upsert warning:", userError.message);
+
+          // 2. Insert video
+          const { data: dbVideo, error: videoError } = await supabase
+            .from('vlog_videos')
+            .insert([{
+              user_id: mockUid,
+              uploader_name: nickname,
+              url: publicUrl,
+              title: titleVal,
+              description: descVal,
+              is_system: isSystemVal,
+              likes: 999,
+              views: 1200,
+              spots: MOCK_SPOTS_TEMPLATES[0],
+              hotels: MOCK_HOTELS_TEMPLATES[0]
+            }])
+            .select();
+
+          if (!videoError && dbVideo && dbVideo.length > 0) {
+            console.log("Uploaded video saved to Supabase DB successfully.");
+            newVideo = {
+              id: dbVideo[0].id,
+              url: dbVideo[0].url,
+              uploaderName: dbVideo[0].uploader_name,
+              title: dbVideo[0].title,
+              description: dbVideo[0].description,
+              isSystem: dbVideo[0].is_system,
+              likes: dbVideo[0].likes,
+              views: dbVideo[0].views,
+              spots: dbVideo[0].spots,
+              hotels: dbVideo[0].hotels
+            };
+          } else {
+            if (videoError) console.warn("DB video save fail:", videoError.message);
+          }
+        } catch (dbErr) {
+          console.warn("DB save exception:", dbErr);
+        }
+
+        // Fallback if DB save failed or schema not configured yet
+        if (!newVideo) {
+          console.log("Using in-memory fallback for local render.");
+          newVideo = {
+            id: 'uploaded_' + timestamp,
+            url: publicUrl,
+            uploaderName: nickname,
+            title: titleVal,
+            description: descVal,
+            isSystem: isSystemVal,
+            likes: 999,
+            views: 1200,
+            spots: MOCK_SPOTS_TEMPLATES[0],
+            hotels: MOCK_HOTELS_TEMPLATES[0]
+          };
+        }
 
         videoList.unshift(newVideo); // insert at the beginning
 
