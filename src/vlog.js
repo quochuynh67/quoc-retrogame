@@ -296,6 +296,9 @@ export async function initVlog() {
 
   // Setup 7 seconds auto hide overlay controls
   setupAutoHideControls();
+
+  // Setup Zalo Mini App iframe touch autoplay unlocker
+  setupAutoplayUnlocker();
 }
 
 // Toast notification helper
@@ -342,8 +345,8 @@ function renderVlogSlides() {
 
     slide.innerHTML = `
       <div class="vlog-video-wrapper">
-        <!-- Primary Video tag -->
-        <video class="vlog-video" loop playsinline webkit-playsinline src="${video.url}" ${isMuted ? 'muted' : ''}></video>
+        <!-- Primary Video tag (autoplay muted playsinline for webview compatibility) -->
+        <video class="vlog-video" autoplay loop muted playsinline webkit-playsinline src="${video.url}"></video>
 
         <!-- Tap-to-toggle overlay detector -->
         <div class="vlog-play-pause-center-btn" data-video-index="${index}"></div>
@@ -517,6 +520,18 @@ function renderVlogSlides() {
         if (progressHud) progressHud.style.width = `${pct}%`;
       }
     });
+
+    // WebView buffering: Force play active video when metadata loads
+    const forcePlayActive = () => {
+      if (index === activeVideoIndex) {
+        videoEl.muted = isMuted;
+        videoEl.play().catch(e => {
+          console.log("Early autoplay blocked, waiting for user gesture.", e);
+        });
+      }
+    };
+    videoEl.addEventListener('loadedmetadata', forcePlayActive);
+    videoEl.addEventListener('canplay', forcePlayActive);
   });
 
   // Setup observer to play active videos and pause inactive
@@ -966,4 +981,39 @@ function setupAutoHideControls() {
 
   // Trigger initial show and start countdown
   showControls();
+}
+
+// --- ZALO MINI APP IFRAME / WEBVIEW AUTOPLAY TOUCH UNLOCKER ---
+let autoplayUnlocked = false;
+
+function unlockAutoplay() {
+  if (autoplayUnlocked) return;
+  
+  // Find current active video
+  const activeVideo = document.querySelectorAll('.vlog-video')[activeVideoIndex];
+  if (activeVideo && activeVideo.paused) {
+    activeVideo.muted = isMuted;
+    activeVideo.play().then(() => {
+      autoplayUnlocked = true;
+      console.log("Autoplay unlocked successfully via Zalo/iframe touch gesture!");
+      removeUnlockListeners();
+    }).catch(err => {
+      console.warn("Touch unlock attempt blocked:", err);
+    });
+  }
+}
+
+function removeUnlockListeners() {
+  window.removeEventListener('touchstart', unlockAutoplay);
+  window.removeEventListener('click', unlockAutoplay);
+  window.removeEventListener('touchend', unlockAutoplay);
+  window.removeEventListener('pointerdown', unlockAutoplay);
+}
+
+function setupAutoplayUnlocker() {
+  autoplayUnlocked = false;
+  window.addEventListener('touchstart', unlockAutoplay, { passive: true });
+  window.addEventListener('click', unlockAutoplay);
+  window.addEventListener('touchend', unlockAutoplay, { passive: true });
+  window.addEventListener('pointerdown', unlockAutoplay);
 }
