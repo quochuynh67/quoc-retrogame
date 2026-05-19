@@ -8,6 +8,16 @@ const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 // Initialize Supabase client
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Parse Zalo Mini App integration params (passed via iframe URL or remember via localStorage)
+const urlParams = new URLSearchParams(window.location.search);
+const zaloUid = urlParams.get('zalo_user_id') || urlParams.get('zalo_uid') || urlParams.get('uid');
+const zaloUsername = urlParams.get('zalo_username') || urlParams.get('username') || urlParams.get('name');
+const zaloAvatar = urlParams.get('zalo_avatar') || urlParams.get('avatar') || urlParams.get('avatar_url');
+
+if (zaloUid) localStorage.setItem('vlog_zalo_uid', zaloUid);
+if (zaloUsername) localStorage.setItem('vlog_zalo_username', zaloUsername);
+if (zaloAvatar) localStorage.setItem('vlog_zalo_avatar', zaloAvatar);
+
 // Global state for Vlog Feature
 let videoList = [];
 let activeVideoIndex = 0;
@@ -126,7 +136,7 @@ async function fetchVideosFromSupabase() {
     // Attempt querying the Supabase Database vlog_videos table
     const { data: dbVideos, error } = await supabase
       .from('vlog_videos')
-      .select('*')
+      .select('*, vlog_users (avatar_url)')
       .order('created_at', { ascending: false });
 
     if (!error && dbVideos && dbVideos.length > 0) {
@@ -140,12 +150,13 @@ async function fetchVideosFromSupabase() {
           url: video.url,
           uploaderName: video.uploader_name || 'Người dùng ẩn danh',
           title: video.title || `Vlog ngắn được đăng tải bởi ${video.uploader_name || 'thành viên'}`,
-          description: video.description || `Khám phá hành trình cùng với ${video.uploader_name || 'thành viên'}.`,
+          description: video.description || `Khám phá hành trình cùng with ${video.uploader_name || 'thành viên'}.`,
           isSystem: video.is_system || false,
           likes: video.likes || 0,
           views: video.views || 0,
           spots: spotTemplate,
-          hotels: hotelTemplate
+          hotels: hotelTemplate,
+          avatar: video.vlog_users?.avatar_url || null
         };
       });
     }
@@ -426,8 +437,8 @@ function renderVlogSlides() {
         <!-- BOTTOM LEFT INFORMATION PANEL OVERLAY -->
         <div class="vlog-info-overlay">
           <div class="vlog-uploader-card">
-            <div class="vlog-avatar" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--vlog-accent), var(--vlog-pink)); font-size: 18px; font-weight: 800; color: #000;">
-              ${video.uploaderName.charAt(0).toUpperCase()}
+            <div class="vlog-avatar" style="display: flex; align-items: center; justify-content: center; background: ${video.avatar ? 'none' : 'linear-gradient(135deg, var(--vlog-accent), var(--vlog-pink))'}; font-size: 18px; font-weight: 800; color: #000; overflow: hidden; border: 1px solid rgba(255,255,255,0.15);">
+              ${video.avatar ? `<img src="${video.avatar}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.textContent='${video.uploaderName.charAt(0).toUpperCase()}'" />` : video.uploaderName.charAt(0).toUpperCase()}
             </div>
             <span class="vlog-username">@${video.uploaderName}</span>
             ${video.isSystem ? `
@@ -837,8 +848,24 @@ function closeVlogModal(selector) {
   document.querySelector('#vlogSheetBackdrop').classList.remove('active');
 }
 
+// Helper to get Zalo nickname or local nickname
+function getUploaderNickname() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const zaloUsername = urlParams.get('zalo_username') || urlParams.get('username') || urlParams.get('name') || localStorage.getItem('vlog_zalo_username');
+  if (zaloUsername) {
+    return zaloUsername;
+  }
+  return localStorage.getItem('vlog_device_nickname') || '';
+}
+
 // Helper to get or create a persistent unique User ID for this browser device
 function getOrCreateDeviceUserId() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const zaloUid = urlParams.get('zalo_user_id') || urlParams.get('zalo_uid') || urlParams.get('uid') || localStorage.getItem('vlog_zalo_uid');
+  if (zaloUid) {
+    return 'zalo_' + zaloUid;
+  }
+  
   let deviceUserId = localStorage.getItem('vlog_device_user_id');
   if (!deviceUserId) {
     deviceUserId = 'usr_' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
@@ -884,6 +911,19 @@ function setupUploadHandlers() {
   const progressStatus = document.querySelector('#vlogProgressStatus');
 
   let selectedFile = null;
+
+  const defaultNickname = getUploaderNickname();
+  if (defaultNickname) {
+    uploaderInput.value = defaultNickname;
+    const urlParams = new URLSearchParams(window.location.search);
+    const isZaloUser = !!(urlParams.get('zalo_username') || urlParams.get('username') || urlParams.get('name') || localStorage.getItem('vlog_zalo_username'));
+    if (isZaloUser) {
+      uploaderInput.readOnly = true;
+      uploaderInput.style.opacity = '0.7';
+      uploaderInput.style.cursor = 'not-allowed';
+      uploaderInput.title = 'Tên tài khoản Zalo Mini App được khóa tự động';
+    }
+  }
 
   fileZone.addEventListener('click', () => {
     fileInput.click();
@@ -1013,10 +1053,15 @@ function setupUploadHandlers() {
         // Attempt to insert into database
         let newVideo = null;
         try {
-          // 1. Upsert user first
+          // 1. Upsert user first with Zalo avatar if present
+          const currentAvatar = zaloAvatar || localStorage.getItem('vlog_zalo_avatar');
           const { error: userError } = await supabase
             .from('vlog_users')
-            .upsert([{ id: deviceUserId, nickname: nickname }]);
+            .upsert([{ 
+              id: deviceUserId, 
+              nickname: nickname,
+              avatar_url: currentAvatar || null
+            }]);
 
           if (userError) console.warn("User upsert warning:", userError.message);
 
@@ -1049,7 +1094,8 @@ function setupUploadHandlers() {
               likes: dbVideo[0].likes,
               views: dbVideo[0].views,
               spots: dbVideo[0].spots,
-              hotels: dbVideo[0].hotels
+              hotels: dbVideo[0].hotels,
+              avatar: currentAvatar || null
             };
           } else {
             if (videoError) console.warn("DB video save fail:", videoError.message);
@@ -1071,7 +1117,8 @@ function setupUploadHandlers() {
             likes: 999,
             views: 1200,
             spots: MOCK_SPOTS_TEMPLATES[0],
-            hotels: MOCK_HOTELS_TEMPLATES[0]
+            hotels: MOCK_HOTELS_TEMPLATES[0],
+            avatar: currentAvatar || null
           };
         }
 
