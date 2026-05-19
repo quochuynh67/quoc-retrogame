@@ -32,6 +32,13 @@ function updateVideoSources(activeIndex) {
     const videoEl = slide.querySelector('.vlog-video');
     if (!videoEl) return;
 
+    // Explicitly pause non-active videos to prevent audio overlap
+    if (index !== activeIndex) {
+      try {
+        videoEl.pause();
+      } catch(e) {}
+    }
+
     const videoData = videoList[index];
     if (!videoData) return;
 
@@ -672,6 +679,16 @@ function setupIntersectionObserver() {
       if (entry.isIntersecting) {
         activeVideoIndex = slideIndex;
 
+        // Explicitly pause all other videos to prevent background audio leaks
+        document.querySelectorAll('.vlog-video').forEach((v, idx) => {
+          if (idx !== activeVideoIndex) {
+            try {
+              v.pause();
+              v.currentTime = 0;
+            } catch(e) {}
+          }
+        });
+
         // Apply sliding window updates immediately
         updateVideoSources(activeVideoIndex);
 
@@ -689,17 +706,18 @@ function setupIntersectionObserver() {
             if (hint) hint.remove();
           }
         }).catch(err => {
-          console.warn("Autoplay blocked by browser. Fallback to muted: ", err);
-          video.muted = true;
-          video.play().catch(e => console.error("Video fail to play entirely:", e));
+          // Only fallback to muted play if this is still the active video and not an AbortError from pausing
+          if (err.name !== 'AbortError' && activeVideoIndex === slideIndex) {
+            console.warn("Autoplay blocked by browser. Fallback to muted: ", err);
+            video.muted = true;
+            video.play().catch(e => console.error("Video fail to play entirely:", e));
+          }
         });
       } else {
         // Pause and reset all non-intersecting videos safely
         try {
-          if (video.getAttribute('src')) {
-            video.pause();
-            video.currentTime = 0;
-          }
+          video.pause();
+          video.currentTime = 0;
         } catch (_) {}
       }
     });

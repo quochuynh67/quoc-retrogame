@@ -2001,6 +2001,19 @@ async function launchGame() {
       },
       retroarchConfig: {
         menu_mouse_enable: true,
+
+        // Native keyboard mappings for maximum performance and fluid combinations
+        input_player1_up: 'w',
+        input_player1_left: 'a',
+        input_player1_down: 's',
+        input_player1_right: 'd',
+
+        input_player1_x: 'i',
+        input_player1_y: 'j',
+        input_player1_a: 'k',
+        input_player1_b: 'l',
+
+        input_player1_start: 'enter',
       },
       onLaunch() {
         setStatus('Đang chạy');
@@ -2139,10 +2152,10 @@ window.addEventListener('keydown', (e) => {
 
   if (e.repeat) return;
 
-  if (emulator.pressDown) {
-    emulator.pressDown({ button: action, player: 1 });
-  }
-
+  // Note: Gameplay keys (WASD, J K L I, Enter) are now handled natively inside 
+  // RetroArch's WebAssembly core via retroarchConfig. This ensures 100% fluid, 
+  // smooth movement and simultaneous combinations. We only toggle virtual gamepad 
+  // UI states here for visual feedback.
   const selector = actionSelectors[action];
   if (selector) {
     const btn = document.querySelector(selector);
@@ -2169,10 +2182,10 @@ window.addEventListener('keyup', (e) => {
 
   e.preventDefault();
 
-  if (emulator.pressUp) {
-    emulator.pressUp({ button: action, player: 1 });
-  }
-
+  // Note: Gameplay keys (WASD, J K L I, Enter) are now handled natively inside 
+  // RetroArch's WebAssembly core via retroarchConfig. This ensures 100% fluid, 
+  // smooth movement and simultaneous combinations. We only toggle virtual gamepad 
+  // UI states here for visual feedback.
   const selector = actionSelectors[action];
   if (selector) {
     const btn = document.querySelector(selector);
