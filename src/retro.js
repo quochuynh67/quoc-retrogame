@@ -2077,11 +2077,11 @@ const keyboardMap = {
   'KeyS': 'down',
   'KeyD': 'right',
 
-  // Actions - Arrow keys
-  'ArrowUp': 'x',
-  'ArrowLeft': 'y',
-  'ArrowDown': 'a',
-  'ArrowRight': 'b',
+  // Actions - J K L I
+  'KeyI': 'x',
+  'KeyJ': 'y',
+  'KeyK': 'a',
+  'KeyL': 'b',
 
   // System buttons
   'Space': 'select',
