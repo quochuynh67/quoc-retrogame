@@ -1,0 +1,1887 @@
+{
+  "1942": {
+    "rom": "1942",
+    "title": "1942 (Revision B)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/1942%20(Revision%20B).png"
+  },
+  "1943": {
+    "rom": "1943",
+    "title": "1943_ The Battle of Midway (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/1943_%20The%20Battle%20of%20Midway%20(US).png"
+  },
+  "1943kai": {
+    "rom": "1943kai",
+    "title": "1943 Kai_ Midway Kaisen (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/1943%20Kai_%20Midway%20Kaisen%20(Japan).png"
+  },
+  "64street": {
+    "rom": "64street",
+    "title": "64th. Street - A Detective Story (World)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/64th.%20Street%20-%20A%20Detective%20Story%20(World).png"
+  },
+  "aburner2": {
+    "rom": "aburner2",
+    "title": "After Burner II",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/After%20Burner%20II.png"
+  },
+  "actfancr": {
+    "rom": "actfancr",
+    "title": "Act-Fancer Cybernetick Hyper Weapon (World revision 2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Act-Fancer%20Cybernetick%20Hyper%20Weapon%20(World%20revision%202).png"
+  },
+  "aerofgt": {
+    "rom": "aerofgt",
+    "title": "Aero Fighters",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Aero%20Fighters.png"
+  },
+  "agallet": {
+    "rom": "agallet",
+    "title": "Air Gallet (Europe)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Air%20Gallet%20(Europe).png"
+  },
+  "airwolf": {
+    "rom": "airwolf",
+    "title": "Airwolf",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Airwolf.png"
+  },
+  "ajax": {
+    "rom": "ajax",
+    "title": "Ajax",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Ajax.png"
+  },
+  "aliens": {
+    "rom": "aliens",
+    "title": "Aliens (US set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Aliens%20(US%20set%201).png"
+  },
+  "aliensyn": {
+    "rom": "aliensyn",
+    "title": "Alien Syndrome (set 3, System 16B, FD1089A 317-0033)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Alien%20Syndrome%20(set%203,%20System%2016B,%20FD1089A%20317-0033).png"
+  },
+  "aligator": {
+    "rom": "aligator",
+    "title": "Alligator Hunt (unprotected, set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Alligator%20Hunt%20(unprotected,%20set%201).png"
+  },
+  "altbeast": {
+    "rom": "altbeast",
+    "title": "Altered Beast (set 5) (FD1094 317-0069)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Altered%20Beast%20(set%205)%20(FD1094%20317-0069).png"
+  },
+  "amidar": {
+    "rom": "amidar",
+    "title": "Amidar",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Amidar.png"
+  },
+  "aquajack": {
+    "rom": "aquajack",
+    "title": "Aquajack (World)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Aquajack%20(World).png"
+  },
+  "arkanoid": {
+    "rom": "arkanoid",
+    "title": "Arkanoid (World, older)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Arkanoid%20(World,%20older).png"
+  },
+  "arknoid2": {
+    "rom": "arknoid2",
+    "title": "Arkanoid - Revenge of DOH (World)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Arkanoid%20-%20Revenge%20of%20DOH%20(World).png"
+  },
+  "armorcar": {
+    "rom": "armorcar",
+    "title": "Armored Car (set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Armored%20Car%20(set%201).png"
+  },
+  "armwrest": {
+    "rom": "armwrest",
+    "title": "Arm Wrestling",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Arm%20Wrestling.png"
+  },
+  "astdelux": {
+    "rom": "astdelux",
+    "title": "Asteroids Deluxe (rev 3)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Asteroids%20Deluxe%20(rev%203).png"
+  },
+  "asterix": {
+    "rom": "asterix",
+    "title": "Asterix (ver AAD)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Asterix%20(ver%20AAD).png"
+  },
+  "asteroid": {
+    "rom": "asteroid",
+    "title": "Asteroids (rev 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Asteroids%20(rev%201).png"
+  },
+  "astorm": {
+    "rom": "astorm",
+    "title": "Alien Storm (Japan, 2 Players) (FD1094 317-0146)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Alien%20Storm%20(Japan,%202%20Players)%20(FD1094%20317-0146).png"
+  },
+  "atetris": {
+    "rom": "atetris",
+    "title": "Tetris (set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Tetris%20(set%201).png"
+  },
+  "aurail": {
+    "rom": "aurail",
+    "title": "Ataque Sideral (Spanish bootleg of UniWar S)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Ataque%20Sideral%20(Spanish%20bootleg%20of%20UniWar%20S).png"
+  },
+  "avengers": {
+    "rom": "avengers",
+    "title": "Avengers (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Avengers%20(US).png"
+  },
+  "avspirit": {
+    "rom": "avspirit",
+    "title": "Avenging Spirit",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Avenging%20Spirit.png"
+  },
+  "baddudes": {
+    "rom": "baddudes",
+    "title": "Bad Dudes vs. Dragonninja (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Bad%20Dudes%20vs.%20Dragonninja%20(US).png"
+  },
+  "badlands": {
+    "rom": "badlands",
+    "title": "Bad Lands",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Bad%20Lands.png"
+  },
+  "bankp": {
+    "rom": "bankp",
+    "title": "Bank Panic",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Bank%20Panic.png"
+  },
+  "batman": {
+    "rom": "batman",
+    "title": "Batman",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Batman.png"
+  },
+  "batrider": {
+    "rom": "batrider",
+    "title": "Armed Police Batrider (USA) (Fri Feb 13 1998)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Armed%20Police%20Batrider%20(USA)%20(Fri%20Feb%2013%201998).png"
+  },
+  "bbros": {
+    "rom": "bbros",
+    "title": "Buster Bros. (USA)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Buster%20Bros.%20(USA).png"
+  },
+  "berzerk": {
+    "rom": "berzerk",
+    "title": "Berzerk (revision RC28)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Berzerk%20(revision%20RC28).png"
+  },
+  "bgaregga": {
+    "rom": "bgaregga",
+    "title": "Battle Garegga - Type 2 (Europe _ USA _ Japan _ Asia) (Sat Mar 2 1996)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Battle%20Garegga%20-%20Type%202%20(Europe%20_%20USA%20_%20Japan%20_%20Asia)%20(Sat%20Mar%202%201996).png"
+  },
+  "biomtoy": {
+    "rom": "biomtoy",
+    "title": "Biomechanical Toy (unprotected)",
+    "thumbnail": null
+  },
+  "bionicc": {
+    "rom": "bionicc",
+    "title": "Bionic Commando (Euro)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Bionic%20Commando%20(Euro).png"
+  },
+  "blktiger": {
+    "rom": "blktiger",
+    "title": "Black Tiger",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Black%20Tiger.png"
+  },
+  "bloodbro": {
+    "rom": "bloodbro",
+    "title": "Blood Bros. (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Blood%20Bros.%20(US).png"
+  },
+  "blstroid": {
+    "rom": "blstroid",
+    "title": "Blasteroids (rev 4)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Blasteroids%20(rev%204).png"
+  },
+  "blswhstl": {
+    "rom": "blswhstl",
+    "title": "Bells _ Whistles (Asia, version M)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Bells%20_%20Whistles%20(Asia,%20version%20M).png"
+  },
+  "bnj": {
+    "rom": "bnj",
+    "title": "Bump 'n' Jump",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Bump%20'n'%20Jump.png"
+  },
+  "bogeyman": {
+    "rom": "bogeyman",
+    "title": "Bogey Manor",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Bogey%20Manor.png"
+  },
+  "bombjack": {
+    "rom": "bombjack",
+    "title": "Bomb Jack (set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Bomb%20Jack%20(set%201).png"
+  },
+  "bongo": {
+    "rom": "bongo",
+    "title": "Congo Bongo",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Congo%20Bongo.png"
+  },
+  "boogwing": {
+    "rom": "boogwing",
+    "title": "Boogie Wings (USA v1.7, 92.12.14)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Boogie%20Wings%20(USA%20v1.7,%2092.12.14).png"
+  },
+  "brkthru": {
+    "rom": "brkthru",
+    "title": "Break Thru (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Break%20Thru%20(US).png"
+  },
+  "btime": {
+    "rom": "btime",
+    "title": "Burger Time (Midway)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Burger%20Time%20(Midway).png"
+  },
+  "btoads": {
+    "rom": "btoads",
+    "title": "Battletoads",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Battletoads.png"
+  },
+  "bubbles": {
+    "rom": "bubbles",
+    "title": "Bubbles",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Bubbles.png"
+  },
+  "bublbob2": {
+    "rom": "bublbob2",
+    "title": "Bubble Bobble_ Lost Cave V1.2",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Bubble%20Bobble_%20Lost%20Cave%20V1.2.png"
+  },
+  "bublbobl": {
+    "rom": "bublbobl",
+    "title": "Bubble Bobble (US, Ver 1.0)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Bubble%20Bobble%20(US,%20Ver%201.0).png"
+  },
+  "buckrog": {
+    "rom": "buckrog",
+    "title": "Buck Rogers_ Planet of Zoom",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Buck%20Rogers_%20Planet%20of%20Zoom.png"
+  },
+  "bucky": {
+    "rom": "bucky",
+    "title": "Bucky O'Hare (ver AA)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Bucky%20O'Hare%20(ver%20AA).png"
+  },
+  "bwidow": {
+    "rom": "bwidow",
+    "title": "Black Widow",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Black%20Widow.png"
+  },
+  "bzone": {
+    "rom": "bzone",
+    "title": "Battle Zone (rev 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Battle%20Zone%20(rev%201).png"
+  },
+  "cabal": {
+    "rom": "cabal",
+    "title": "Cabal (US set 1, Trackball)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Cabal%20(US%20set%201,%20Trackball).png"
+  },
+  "captaven": {
+    "rom": "captaven",
+    "title": "Captain Silver (Japan revision 3)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Captain%20Silver%20(Japan%20revision%203).png"
+  },
+  "carnival": {
+    "rom": "carnival",
+    "title": "Carnival (upright)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Carnival%20(upright).png"
+  },
+  "ccastles": {
+    "rom": "ccastles",
+    "title": "Crystal Castles (version 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Crystal%20Castles%20(version%201).png"
+  },
+  "cclimber": {
+    "rom": "cclimber",
+    "title": "Crazy Climber (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Crazy%20Climber%20(Japan).png"
+  },
+  "centiped": {
+    "rom": "centiped",
+    "title": "Centipede (revision 4)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Centipede%20(revision%204).png"
+  },
+  "chaknpop": {
+    "rom": "chaknpop",
+    "title": "Chack'n Pop",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Chack'n%20Pop.png"
+  },
+  "chasehq": {
+    "rom": "chasehq",
+    "title": "Chase H.Q. (World portfolio)",
+    "thumbnail": null
+  },
+  "chinagat": {
+    "rom": "chinagat",
+    "title": "China Gate (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/China%20Gate%20(US).png"
+  },
+  "choplift": {
+    "rom": "choplift",
+    "title": "Choplifter (bootleg)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Choplifter%20(bootleg).png"
+  },
+  "circusc": {
+    "rom": "circusc",
+    "title": "Circus Charlie (Centuri)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Circus%20Charlie%20(Centuri).png"
+  },
+  "citycon": {
+    "rom": "citycon",
+    "title": "City Connection (set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/City%20Connection%20(set%201).png"
+  },
+  "ckong": {
+    "rom": "ckong",
+    "title": "Calorie Kun vs Moguranian (bootleg)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Calorie%20Kun%20vs%20Moguranian%20(bootleg).png"
+  },
+  "ckongpt2": {
+    "rom": "ckongpt2",
+    "title": "Ckongpt2",
+    "thumbnail": null
+  },
+  "cleopatr": {
+    "rom": "cleopatr",
+    "title": "Cleopatra Fortune (Ver 2.1J 1996_09_05)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Cleopatra%20Fortune%20(Ver%202.1J%201996_09_05).png"
+  },
+  "columns": {
+    "rom": "columns",
+    "title": "Columns (US)",
+    "thumbnail": null
+  },
+  "commando": {
+    "rom": "commando",
+    "title": "Commando (World)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Commando%20(World).png"
+  },
+  "congo": {
+    "rom": "congo",
+    "title": "Congo Bongo",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Congo%20Bongo.png"
+  },
+  "contra": {
+    "rom": "contra",
+    "title": "Contra (US)",
+    "thumbnail": null
+  },
+  "cotton": {
+    "rom": "cotton",
+    "title": "Cotton (set 3, US) (FD1094 317-0180)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Cotton%20(set%203,%20US)%20(FD1094%20317-0180).png"
+  },
+  "crimfght": {
+    "rom": "crimfght",
+    "title": "Crime Fighters (US 4 Players)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Crime%20Fighters%20(US%204%20Players).png"
+  },
+  "ctribe": {
+    "rom": "ctribe",
+    "title": "Chou Zetsurinjin Berabowman (Japan, Rev B)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Chou%20Zetsurinjin%20Berabowman%20(Japan,%20Rev%20B).png"
+  },
+  "cyvern": {
+    "rom": "cyvern",
+    "title": "Cyvern (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Cyvern%20(US).png"
+  },
+  "darkseal": {
+    "rom": "darkseal",
+    "title": "Dark Seal (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Dark%20Seal%20(Japan).png"
+  },
+  "dassault": {
+    "rom": "dassault",
+    "title": "Dual Assault",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Dual%20Assault.png"
+  },
+  "dbreed": {
+    "rom": "dbreed",
+    "title": "Dragon Breed (Japan, M72 hardware)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Dragon%20Breed%20(Japan,%20M72%20hardware).png"
+  },
+  "dbz": {
+    "rom": "dbz",
+    "title": "Dragon Blaze",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Dragon%20Blaze.png"
+  },
+  "dbz2": {
+    "rom": "dbz2",
+    "title": "Dragonball Z 2 - Super Battle",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Dragonball%20Z%202%20-%20Super%20Battle.png"
+  },
+  "ddcrew2": {
+    "rom": "ddcrew2",
+    "title": "D. D. Crew (Japan, 2 Players) (FD1094 317-0182)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/D.%20D.%20Crew%20(Japan,%202%20Players)%20(FD1094%20317-0182).png"
+  },
+  "ddragon": {
+    "rom": "ddragon",
+    "title": "Double Dragon (US)",
+    "thumbnail": null
+  },
+  "ddragon2": {
+    "rom": "ddragon2",
+    "title": "Double Dragon II - The Revenge (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Double%20Dragon%20II%20-%20The%20Revenge%20(US).png"
+  },
+  "ddragon3": {
+    "rom": "ddragon3",
+    "title": "Double Dragon III - The Rosetta Stone (US)",
+    "thumbnail": null
+  },
+  "ddux": {
+    "rom": "ddux",
+    "title": "Dynamite Dux (Datsu bootleg)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Dynamite%20Dux%20(Datsu%20bootleg).png"
+  },
+  "deadconx": {
+    "rom": "deadconx",
+    "title": "Deadconx",
+    "thumbnail": null
+  },
+  "defender": {
+    "rom": "defender",
+    "title": "Defender (Red label)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Defender%20(Red%20label).png"
+  },
+  "digdug": {
+    "rom": "digdug",
+    "title": "Dig Dug (rev 2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Dig%20Dug%20(rev%202).png"
+  },
+  "digdug2": {
+    "rom": "digdug2",
+    "title": "Dig Dug (rev 2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Dig%20Dug%20(rev%202).png"
+  },
+  "dkong": {
+    "rom": "dkong",
+    "title": "Donkey Kong (US double drill)",
+    "thumbnail": null
+  },
+  "dkong3": {
+    "rom": "dkong3",
+    "title": "Donkey Kong 3 (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Donkey%20Kong%203%20(US).png"
+  },
+  "dkongjr": {
+    "rom": "dkongjr",
+    "title": "Donkey Kong Junior (US)",
+    "thumbnail": null
+  },
+  "dmnfrnt": {
+    "rom": "dmnfrnt",
+    "title": "Demon Front (V105)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Demon%20Front%20(V105).png"
+  },
+  "docastle": {
+    "rom": "docastle",
+    "title": "Dragon Unit _ Castle of Dragon",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Dragon%20Unit%20_%20Castle%20of%20Dragon.png"
+  },
+  "dondokod": {
+    "rom": "dondokod",
+    "title": "Don Doko Don (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Don%20Doko%20Don%20(US).png"
+  },
+  "drgnbstr": {
+    "rom": "drgnbstr",
+    "title": "Dragon Buster",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Dragon%20Buster.png"
+  },
+  "drtoppel": {
+    "rom": "drtoppel",
+    "title": "Dr. Toppel's Adventure (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Dr.%20Toppel's%20Adventure%20(US).png"
+  },
+  "dsaber": {
+    "rom": "dsaber",
+    "title": "Dragon Saber (World, DO2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Dragon%20Saber%20(World,%20DO2).png"
+  },
+  "dsoccr94": {
+    "rom": "dsoccr94",
+    "title": "Dream Soccer '94 (Japan, M92 hardware)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Dream%20Soccer%20'94%20(Japan,%20M92%20hardware).png"
+  },
+  "dynagear": {
+    "rom": "dynagear",
+    "title": "Dyna Gear",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Dyna%20Gear.png"
+  },
+  "edrandy": {
+    "rom": "edrandy",
+    "title": "Edrandy",
+    "thumbnail": null
+  },
+  "elevator": {
+    "rom": "elevator",
+    "title": "Elevator Action (bootleg)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Elevator%20Action%20(bootleg).png"
+  },
+  "elvactr": {
+    "rom": "elvactr",
+    "title": "Elevator Action (5 pcb version, 1.1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Elevator%20Action%20(5%20pcb%20version,%201.1).png"
+  },
+  "enduror": {
+    "rom": "enduror",
+    "title": "Enduro Racer (bootleg set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Enduro%20Racer%20(bootleg%20set%201).png"
+  },
+  "eprom": {
+    "rom": "eprom",
+    "title": "The Astyanax (EPROM version)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/The%20Astyanax%20(EPROM%20version).png"
+  },
+  "eswat": {
+    "rom": "eswat",
+    "title": "E-Swat - Cyber Police (bootleg)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/E-Swat%20-%20Cyber%20Police%20(bootleg).png"
+  },
+  "exedexes": {
+    "rom": "exedexes",
+    "title": "Exed Exes",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Exed%20Exes.png"
+  },
+  "fantzn2": {
+    "rom": "fantzn2",
+    "title": "Fantasy Zone II - The Tears of Opa-Opa (MC-8123, 317-0057)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Fantasy%20Zone%20II%20-%20The%20Tears%20of%20Opa-Opa%20(MC-8123,%20317-0057).png"
+  },
+  "fantzone": {
+    "rom": "fantzone",
+    "title": "Fantasy Zone (317-5000)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Fantasy%20Zone%20(317-5000).png"
+  },
+  "fastlane": {
+    "rom": "fastlane",
+    "title": "Far East of Eden - Kabuki Klash _ Tengai Makyou - Shin Den",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Far%20East%20of%20Eden%20-%20Kabuki%20Klash%20_%20Tengai%20Makyou%20-%20Shin%20Den.png"
+  },
+  "flicky": {
+    "rom": "flicky",
+    "title": "Flicky (128k Version, 315-5051)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Flicky%20(128k%20Version,%20315-5051).png"
+  },
+  "foodf": {
+    "rom": "foodf",
+    "title": "Food Fight (rev 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Food%20Fight%20(rev%201).png"
+  },
+  "frogger": {
+    "rom": "frogger",
+    "title": "Frogger",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Frogger.png"
+  },
+  "funkyjet": {
+    "rom": "funkyjet",
+    "title": "Funky Jet (World, rev 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Funky%20Jet%20(World,%20rev%201).png"
+  },
+  "ga2": {
+    "rom": "ga2",
+    "title": "Rastan Saga 2 (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Rastan%20Saga%202%20(Japan).png"
+  },
+  "gaia": {
+    "rom": "gaia",
+    "title": "Gaia Crusaders",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Gaia%20Crusaders.png"
+  },
+  "gaiden": {
+    "rom": "gaiden",
+    "title": "Ninja Gaiden (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Ninja%20Gaiden%20(US).png"
+  },
+  "galaga": {
+    "rom": "galaga",
+    "title": "Galaga (Namco)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Galaga%20(Namco).png"
+  },
+  "galaga88": {
+    "rom": "galaga88",
+    "title": "Galaga '88",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Galaga%20'88.png"
+  },
+  "galaxian": {
+    "rom": "galaxian",
+    "title": "Galaxian (Namco)",
+    "thumbnail": null
+  },
+  "galivan": {
+    "rom": "galivan",
+    "title": "Cosmo Police Galivan (12_11_1985)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Cosmo%20Police%20Galivan%20(12_11_1985).png"
+  },
+  "galmedes": {
+    "rom": "galmedes",
+    "title": "Gallop - Armed police Unit (Japan, M72 PCB version)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Gallop%20-%20Armed%20police%20Unit%20(Japan,%20M72%20PCB%20version).png"
+  },
+  "gangwars": {
+    "rom": "gangwars",
+    "title": "Gang Wars",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Gang%20Wars.png"
+  },
+  "gaplus": {
+    "rom": "gaplus",
+    "title": "Gaplus (GP2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Gaplus%20(GP2).png"
+  },
+  "gaunt22p": {
+    "rom": "gaunt22p",
+    "title": "Gaunt22p",
+    "thumbnail": null
+  },
+  "gauntlet2p": {
+    "rom": "gauntlet2p",
+    "title": "Gauntlet (2 Players, rev 3)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Gauntlet%20(2%20Players,%20rev%203).png"
+  },
+  "gblchmp": {
+    "rom": "gblchmp",
+    "title": "Global Champion (Ver 2.1A 1994_07_29)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Global%20Champion%20(Ver%202.1A%201994_07_29).png"
+  },
+  "geebeeg": {
+    "rom": "geebeeg",
+    "title": "Green Beret (bootleg)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Green%20Beret%20(bootleg).png"
+  },
+  "gground": {
+    "rom": "gground",
+    "title": "Gradius II - GOFER no Yabou (Japan Old ver.)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Gradius%20II%20-%20GOFER%20no%20Yabou%20(Japan%20Old%20ver.).png"
+  },
+  "ghostb": {
+    "rom": "ghostb",
+    "title": "The Real Ghostbusters (US 2 Players)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/The%20Real%20Ghostbusters%20(US%202%20Players).png"
+  },
+  "gijoe": {
+    "rom": "gijoe",
+    "title": "G.I. Joe (US, uAB)",
+    "thumbnail": null
+  },
+  "gnbarich": {
+    "rom": "gnbarich",
+    "title": "Gunbarich",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Gunbarich.png"
+  },
+  "gng": {
+    "rom": "gng",
+    "title": "Ghosts'n Goblins (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Ghosts'n%20Goblins%20(US).png"
+  },
+  "godzilla": {
+    "rom": "godzilla",
+    "title": "Godzilla (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Godzilla%20(Japan).png"
+  },
+  "gogomile": {
+    "rom": "gogomile",
+    "title": "Susume! Mile Smile _ Go Go! Mile Smile (newer)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Susume!%20Mile%20Smile%20_%20Go%20Go!%20Mile%20Smile%20(newer).png"
+  },
+  "goldnaxe": {
+    "rom": "goldnaxe",
+    "title": "Golden Axe (Version 1)",
+    "thumbnail": null
+  },
+  "gradius3": {
+    "rom": "gradius3",
+    "title": "Gradius3",
+    "thumbnail": null
+  },
+  "grdians": {
+    "rom": "grdians",
+    "title": "Guardians",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Guardians.png"
+  },
+  "growl": {
+    "rom": "growl",
+    "title": "Growl (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Growl%20(US).png"
+  },
+  "gstream": {
+    "rom": "gstream",
+    "title": "Gstream",
+    "thumbnail": null
+  },
+  "gtmr2": {
+    "rom": "gtmr2",
+    "title": "Galactica-2 (Moon Alien Part 2 bootleg)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Galactica-2%20(Moon%20Alien%20Part%202%20bootleg).png"
+  },
+  "gunbird2": {
+    "rom": "gunbird2",
+    "title": "Gunbird 2 (set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Gunbird%202%20(set%201).png"
+  },
+  "gunforce": {
+    "rom": "gunforce",
+    "title": "Gunforce 2 (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Gunforce%202%20(US).png"
+  },
+  "gunlock": {
+    "rom": "gunlock",
+    "title": "Gunlock (Ver 2.3O 1994_01_20)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Gunlock%20(Ver%202.3O%201994_01_20).png"
+  },
+  "gunnail": {
+    "rom": "gunnail",
+    "title": "GunNail (location test)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/GunNail%20(location%20test).png"
+  },
+  "gunsmoke": {
+    "rom": "gunsmoke",
+    "title": "Gun.Smoke (US)",
+    "thumbnail": null
+  },
+  "gyruss": {
+    "rom": "gyruss",
+    "title": "Gyruss",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Gyruss.png"
+  },
+  "hangon": {
+    "rom": "hangon",
+    "title": "Hang-On",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Hang-On.png"
+  },
+  "hbarrel": {
+    "rom": "hbarrel",
+    "title": "Heavy Barrel (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Heavy%20Barrel%20(US).png"
+  },
+  "hcastle": {
+    "rom": "hcastle",
+    "title": "Haunted Castle (ver. M)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Haunted%20Castle%20(ver.%20M).png"
+  },
+  "heatbrl": {
+    "rom": "heatbrl",
+    "title": "Heated Barrel (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Heated%20Barrel%20(US).png"
+  },
+  "hharry": {
+    "rom": "hharry",
+    "title": "Hokuha Syourin Hiryu no Ken",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Hokuha%20Syourin%20Hiryu%20no%20Ken.png"
+  },
+  "hitice": {
+    "rom": "hitice",
+    "title": "Hit the Ice (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Hit%20the%20Ice%20(US).png"
+  },
+  "hook": {
+    "rom": "hook",
+    "title": "Hook (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Hook%20(US).png"
+  },
+  "hopmappy": {
+    "rom": "hopmappy",
+    "title": "Hopping Mappy",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Hopping%20Mappy.png"
+  },
+  "horekid": {
+    "rom": "horekid",
+    "title": "Booby Kids (Italian manufactured graphic hack _ bootleg of Kid no Hore Hore Daisakusen (bootleg))",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Booby%20Kids%20(Italian%20manufactured%20graphic%20hack%20_%20bootleg%20of%20Kid%20no%20Hore%20Hore%20Daisakusen%20(bootleg)).png"
+  },
+  "horizon": {
+    "rom": "horizon",
+    "title": "Horizon",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Horizon.png"
+  },
+  "hvysmsh": {
+    "rom": "hvysmsh",
+    "title": "Heavy Smash (Asia version -4)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Heavy%20Smash%20(Asia%20version%20-4).png"
+  },
+  "ikari": {
+    "rom": "ikari",
+    "title": "Ikari Warriors (US JAMMA)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Ikari%20Warriors%20(US%20JAMMA).png"
+  },
+  "ikari3": {
+    "rom": "ikari3",
+    "title": "Ikari3",
+    "thumbnail": null
+  },
+  "imgfight": {
+    "rom": "imgfight",
+    "title": "Image Fight (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Image%20Fight%20(Japan).png"
+  },
+  "inthunt": {
+    "rom": "inthunt",
+    "title": "In The Hunt (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/In%20The%20Hunt%20(US).png"
+  },
+  "invaders": {
+    "rom": "invaders",
+    "title": "Space Invaders",
+    "thumbnail": null
+  },
+  "jackal": {
+    "rom": "jackal",
+    "title": "Jackal (US)",
+    "thumbnail": null
+  },
+  "jailbrek": {
+    "rom": "jailbrek",
+    "title": "Jail Break",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Jail%20Break.png"
+  },
+  "jedi": {
+    "rom": "jedi",
+    "title": "Return of the Jedi",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Return%20of%20the%20Jedi.png"
+  },
+  "journey": {
+    "rom": "journey",
+    "title": "Journey",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Journey.png"
+  },
+  "joust": {
+    "rom": "joust",
+    "title": "Joust (White label)",
+    "thumbnail": null
+  },
+  "junglek": {
+    "rom": "junglek",
+    "title": "Jungle King (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Jungle%20King%20(Japan).png"
+  },
+  "junofrst": {
+    "rom": "junofrst",
+    "title": "Juno First",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Juno%20First.png"
+  },
+  "kangaroo": {
+    "rom": "kangaroo",
+    "title": "Kangaroo",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Kangaroo.png"
+  },
+  "karnov": {
+    "rom": "karnov",
+    "title": "Karnov (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Karnov%20(Japan).png"
+  },
+  "kchamp": {
+    "rom": "kchamp",
+    "title": "Karate Champ (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Karate%20Champ%20(US).png"
+  },
+  "kick": {
+    "rom": "kick",
+    "title": "Kicker",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Kicker.png"
+  },
+  "kicker": {
+    "rom": "kicker",
+    "title": "Kicker",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Kicker.png"
+  },
+  "kingball": {
+    "rom": "kingball",
+    "title": "King _ Balloon (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/King%20_%20Balloon%20(US).png"
+  },
+  "klax": {
+    "rom": "klax",
+    "title": "Klax (version 4)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Klax%20(version%204).png"
+  },
+  "kof95h": {
+    "rom": "kof95h",
+    "title": "Kof95h",
+    "thumbnail": null
+  },
+  "krull": {
+    "rom": "krull",
+    "title": "Krull",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Krull.png"
+  },
+  "kungfum": {
+    "rom": "kungfum",
+    "title": "Kung-Fu Master (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Kung-Fu%20Master%20(US).png"
+  },
+  "landmakr": {
+    "rom": "landmakr",
+    "title": "Land Maker (Ver 2.01J 1998_06_01)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Land%20Maker%20(Ver%202.01J%201998_06_01).png"
+  },
+  "ldrun": {
+    "rom": "ldrun",
+    "title": "Lode Runner (set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Lode%20Runner%20(set%201).png"
+  },
+  "ldrun2": {
+    "rom": "ldrun2",
+    "title": "Lode Runner (set 2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Lode%20Runner%20(set%202).png"
+  },
+  "ldrun3": {
+    "rom": "ldrun3",
+    "title": "Line of Fire _ Bakudan Yarou (Japan, FD1094 317-0134)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Line%20of%20Fire%20_%20Bakudan%20Yarou%20(Japan,%20FD1094%20317-0134).png"
+  },
+  "ldrun4": {
+    "rom": "ldrun4",
+    "title": "Line of Fire _ Bakudan Yarou (Japan, FD1094 317-0134)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Line%20of%20Fire%20_%20Bakudan%20Yarou%20(Japan,%20FD1094%20317-0134).png"
+  },
+  "lethalth": {
+    "rom": "lethalth",
+    "title": "Lethal Thunder (World)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Lethal%20Thunder%20(World).png"
+  },
+  "liblrabl": {
+    "rom": "liblrabl",
+    "title": "Libble Rabble",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Libble%20Rabble.png"
+  },
+  "lightbr": {
+    "rom": "lightbr",
+    "title": "Light Bringer (Ver 2.1J 1994_02_18)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Light%20Bringer%20(Ver%202.1J%201994_02_18).png"
+  },
+  "liquidk": {
+    "rom": "liquidk",
+    "title": "Liquid Kids (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Liquid%20Kids%20(US).png"
+  },
+  "lizwiz": {
+    "rom": "lizwiz",
+    "title": "Lizwiz",
+    "thumbnail": null
+  },
+  "lkage": {
+    "rom": "lkage",
+    "title": "Land Breaker (World) _ Miss Tang Ja Ru Gi (Korea) (pcb ver 3.02)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Land%20Breaker%20(World)%20_%20Miss%20Tang%20Ja%20Ru%20Gi%20(Korea)%20(pcb%20ver%203.02).png"
+  },
+  "llander": {
+    "rom": "llander",
+    "title": "Lunar Lander (rev 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Lunar%20Lander%20(rev%201).png"
+  },
+  "locomotn": {
+    "rom": "locomotn",
+    "title": "Loco-Motion",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Loco-Motion.png"
+  },
+  "loderndf": {
+    "rom": "loderndf",
+    "title": "Lode Runner - The Dig Fight (ver. A)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Lode%20Runner%20-%20The%20Dig%20Fight%20(ver.%20A).png"
+  },
+  "loht": {
+    "rom": "loht",
+    "title": "Legend of Hero Tonma",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Legend%20of%20Hero%20Tonma.png"
+  },
+  "lwings": {
+    "rom": "lwings",
+    "title": "Legendary Wings (bootleg)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Legendary%20Wings%20(bootleg).png"
+  },
+  "macross": {
+    "rom": "macross",
+    "title": "Macross Plus",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Macross%20Plus.png"
+  },
+  "macross2": {
+    "rom": "macross2",
+    "title": "Magic Sword_ Heroic Fantasy (USA 900725)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Magic%20Sword_%20Heroic%20Fantasy%20(USA%20900725).png"
+  },
+  "macrossp": {
+    "rom": "macrossp",
+    "title": "Macross Plus",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Macross%20Plus.png"
+  },
+  "mainevt2p": {
+    "rom": "mainevt2p",
+    "title": "Mainevt2p",
+    "thumbnail": null
+  },
+  "mario": {
+    "rom": "mario",
+    "title": "Mario Bros. (US)",
+    "thumbnail": null
+  },
+  "mazinger": {
+    "rom": "mazinger",
+    "title": "Mazinger Z (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Mazinger%20Z%20(Japan).png"
+  },
+  "metamrph": {
+    "rom": "metamrph",
+    "title": "Metamorphic Force (ver AAA)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Metamorphic%20Force%20(ver%20AAA).png"
+  },
+  "metmqstr": {
+    "rom": "metmqstr",
+    "title": "Metamoqester (International)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Metamoqester%20(International).png"
+  },
+  "mgcrystl": {
+    "rom": "mgcrystl",
+    "title": "Magical Crystals (Japan, 92_01_13)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Magical%20Crystals%20(Japan,%2092_01_13).png"
+  },
+  "mhavoc": {
+    "rom": "mhavoc",
+    "title": "Major Havoc (rev 2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Major%20Havoc%20(rev%202).png"
+  },
+  "mikie": {
+    "rom": "mikie",
+    "title": "Mikie",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Mikie.png"
+  },
+  "milliped": {
+    "rom": "milliped",
+    "title": "Millipede",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Millipede.png"
+  },
+  "missile": {
+    "rom": "missile",
+    "title": "Missile Command (rev 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Missile%20Command%20(rev%201).png"
+  },
+  "mk": {
+    "rom": "mk",
+    "title": "Arcadia (NMK)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Arcadia%20(NMK).png"
+  },
+  "mk2": {
+    "rom": "mk2",
+    "title": "Make Trax (set 2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Make%20Trax%20(set%202).png"
+  },
+  "moomesa": {
+    "rom": "moomesa",
+    "title": "Wild West C.O.W.-Boys of Moo Mesa (ver AAB)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Wild%20West%20C.O.W.-Boys%20of%20Moo%20Mesa%20(ver%20AAB).png"
+  },
+  "mpatrol": {
+    "rom": "mpatrol",
+    "title": "Moon Patrol",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Moon%20Patrol.png"
+  },
+  "mrdo": {
+    "rom": "mrdo",
+    "title": "Mr. Do!",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Mr.%20Do!.png"
+  },
+  "mrgoemon": {
+    "rom": "mrgoemon",
+    "title": "Mr. Goemon (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Mr.%20Goemon%20(Japan).png"
+  },
+  "mspacman": {
+    "rom": "mspacman",
+    "title": "Ms. Pac-Man",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Ms.%20Pac-Man.png"
+  },
+  "mwalk": {
+    "rom": "mwalk",
+    "title": "Michael Jackson's Moonwalker (World)",
+    "thumbnail": null
+  },
+  "mystwarr": {
+    "rom": "mystwarr",
+    "title": "Mystic Warriors (ver AAA)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Mystic%20Warriors%20(ver%20AAA).png"
+  },
+  "narc": {
+    "rom": "narc",
+    "title": "NARC (rev 1.80)",
+    "thumbnail": null
+  },
+  "nbajamte": {
+    "rom": "nbajamte",
+    "title": "NBA Jam TE (rev 4.0 11/08/94)",
+    "thumbnail": null
+  },
+  "nbbatman": {
+    "rom": "nbbatman",
+    "title": "Batman (PlayChoice-10)",
+    "thumbnail": null
+  },
+  "nemesis": {
+    "rom": "nemesis",
+    "title": "Nemesis (ROM version)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Nemesis%20(ROM%20version).png"
+  },
+  "nibbler": {
+    "rom": "nibbler",
+    "title": "Nibbler (rev 6)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Nibbler%20(rev%206).png"
+  },
+  "ninjak": {
+    "rom": "ninjak",
+    "title": "Ninjakun Majou no Bouken",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Ninjakun%20Majou%20no%20Bouken.png"
+  },
+  "ninjakd2": {
+    "rom": "ninjakd2",
+    "title": "Ninja Ryukenden (Japan, set 2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Ninja%20Ryukenden%20(Japan,%20set%202).png"
+  },
+  "ninjakun": {
+    "rom": "ninjakun",
+    "title": "Ninjakun Majou no Bouken",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Ninjakun%20Majou%20no%20Bouken.png"
+  },
+  "nitedrvr": {
+    "rom": "nitedrvr",
+    "title": "Nitedrvr",
+    "thumbnail": null
+  },
+  "nitrobal": {
+    "rom": "nitrobal",
+    "title": "Night Warriors_ Darkstalkers' Revenge (Brazil 950403)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Night%20Warriors_%20Darkstalkers'%20Revenge%20(Brazil%20950403).png"
+  },
+  "nob": {
+    "rom": "nob",
+    "title": "Noboranka (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Noboranka%20(Japan).png"
+  },
+  "nrallyx": {
+    "rom": "nrallyx",
+    "title": "New Rally X",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/New%20Rally%20X.png"
+  },
+  "nslashers": {
+    "rom": "nslashers",
+    "title": "Night Slashers (US Rev 1.2, DE-0395-1 PCB)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Night%20Slashers%20(US%20Rev%201.2,%20DE-0395-1%20PCB).png"
+  },
+  "nspirit": {
+    "rom": "nspirit",
+    "title": "Dragon Spirit (DS2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Dragon%20Spirit%20(DS2).png"
+  },
+  "osman": {
+    "rom": "osman",
+    "title": "Osman (World)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Osman%20(World).png"
+  },
+  "outfxies": {
+    "rom": "outfxies",
+    "title": "Outfxies",
+    "thumbnail": null
+  },
+  "outrun": {
+    "rom": "outrun",
+    "title": "Out Run (sitdown/upright)",
+    "thumbnail": null
+  },
+  "pacland": {
+    "rom": "pacland",
+    "title": "Pac-Land (World)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Pac-Land%20(World).png"
+  },
+  "pacman": {
+    "rom": "pacman",
+    "title": "Pac-Man (Midway)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Pac-Man%20(Midway).png"
+  },
+  "parodius": {
+    "rom": "parodius",
+    "title": "Parodius DA! (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Parodius%20DA!%20(Japan).png"
+  },
+  "pbobble3": {
+    "rom": "pbobble3",
+    "title": "Puzzle Bobble 2 (Ver 2.3O 1995_07_31)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Puzzle%20Bobble%202%20(Ver%202.3O%201995_07_31).png"
+  },
+  "penbros": {
+    "rom": "penbros",
+    "title": "Penbros",
+    "thumbnail": null
+  },
+  "pengo": {
+    "rom": "pengo",
+    "title": "Pengo (set 2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Pengo%20(set%202).png"
+  },
+  "phoenix": {
+    "rom": "phoenix",
+    "title": "Phoenix Part 2",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Phoenix%20Part%202.png"
+  },
+  "pipedrm": {
+    "rom": "pipedrm",
+    "title": "Pipe Dream (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Pipe%20Dream%20(US).png"
+  },
+  "pitfight": {
+    "rom": "pitfight",
+    "title": "Pit Fighter (rev 3)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Pit%20Fighter%20(rev%203).png"
+  },
+  "pleiads": {
+    "rom": "pleiads",
+    "title": "Pleiads (Irecsa)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Pleiads%20(Irecsa).png"
+  },
+  "pooyan": {
+    "rom": "pooyan",
+    "title": "Pooyan",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Pooyan.png"
+  },
+  "popeye": {
+    "rom": "popeye",
+    "title": "Popeye (revision D)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Popeye%20(revision%20D).png"
+  },
+  "pow": {
+    "rom": "pow",
+    "title": "Power Drive",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Power%20Drive.png"
+  },
+  "punchout": {
+    "rom": "punchout",
+    "title": "Punch-Out!! (US)",
+    "thumbnail": null
+  },
+  "punkshot2": {
+    "rom": "punkshot2",
+    "title": "Punk Shot (US 2 Players)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Punk%20Shot%20(US%202%20Players).png"
+  },
+  "puyo": {
+    "rom": "puyo",
+    "title": "Puyo Puyo (World)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Puyo%20Puyo%20(World).png"
+  },
+  "puyopuy2": {
+    "rom": "puyopuy2",
+    "title": "Puyo Puyo 2 (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Puyo%20Puyo%202%20(Japan).png"
+  },
+  "puzzloop": {
+    "rom": "puzzloop",
+    "title": "Puzz Loop (USA)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Puzz%20Loop%20(USA).png"
+  },
+  "qbert": {
+    "rom": "qbert",
+    "title": "Q*bert (US)",
+    "thumbnail": null
+  },
+  "qix": {
+    "rom": "qix",
+    "title": "Qix (Rev 2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Qix%20(Rev%202).png"
+  },
+  "quartet2": {
+    "rom": "quartet2",
+    "title": "Quartet 2 (unprotected)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Quartet%202%20(unprotected).png"
+  },
+  "radm": {
+    "rom": "radm",
+    "title": "Rad Mobile (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Rad%20Mobile%20(US).png"
+  },
+  "raiden2": {
+    "rom": "raiden2",
+    "title": "Raiden (set 2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Raiden%20(set%202).png"
+  },
+  "rallyx": {
+    "rom": "rallyx",
+    "title": "Rally X",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Rally%20X.png"
+  },
+  "rambo3": {
+    "rom": "rambo3",
+    "title": "Rambo 3 (bootleg of Ikari, Joystick hack)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Rambo%203%20(bootleg%20of%20Ikari,%20Joystick%20hack).png"
+  },
+  "rampage": {
+    "rom": "rampage",
+    "title": "Rampage (revision 3)",
+    "thumbnail": null
+  },
+  "rampart2p": {
+    "rom": "rampart2p",
+    "title": "Rampart2p",
+    "thumbnail": null
+  },
+  "rastan": {
+    "rom": "rastan",
+    "title": "Rastan (World)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Rastan%20(World).png"
+  },
+  "rbisland": {
+    "rom": "rbisland",
+    "title": "Rainbow Islands (new version)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Rainbow%20Islands%20(new%20version).png"
+  },
+  "renegade": {
+    "rom": "renegade",
+    "title": "Renegade (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Renegade%20(US).png"
+  },
+  "ringking": {
+    "rom": "ringking",
+    "title": "Ring King (US set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Ring%20King%20(US%20set%201).png"
+  },
+  "riotcity": {
+    "rom": "riotcity",
+    "title": "Riot City (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Riot%20City%20(Japan).png"
+  },
+  "robocop": {
+    "rom": "robocop",
+    "title": "RoboCop (World revision 4)",
+    "thumbnail": null
+  },
+  "robocop2": {
+    "rom": "robocop2",
+    "title": "Robocop 2 (US v0.05)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Robocop%202%20(US%20v0.05).png"
+  },
+  "robotron": {
+    "rom": "robotron",
+    "title": "Robotron_ 2084 (Unidesa license)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Robotron_%202084%20(Unidesa%20license).png"
+  },
+  "rocnrope": {
+    "rom": "rocnrope",
+    "title": "Roc'n Rope",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Roc'n%20Rope.png"
+  },
+  "rohga": {
+    "rom": "rohga",
+    "title": "Rohga Armor Force (US v1.0)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Rohga%20Armor%20Force%20(US%20v1.0).png"
+  },
+  "rthun2": {
+    "rom": "rthun2",
+    "title": "Rolling Thunder 2",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Rolling%20Thunder%202.png"
+  },
+  "rthunder": {
+    "rom": "rthunder",
+    "title": "Street Fighter II_ The World Warrior (Thunder Edition, bootleg, set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Street%20Fighter%20II_%20The%20World%20Warrior%20(Thunder%20Edition,%20bootleg,%20set%201).png"
+  },
+  "rtype": {
+    "rom": "rtype",
+    "title": "R-Type (World)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/R-Type%20(World).png"
+  },
+  "rtype2": {
+    "rom": "rtype2",
+    "title": "R-Type (Japan, bootleg M82 conversion)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/R-Type%20(Japan,%20bootleg%20M82%20conversion).png"
+  },
+  "rtypeleo": {
+    "rom": "rtypeleo",
+    "title": "R-Type Leo (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/R-Type%20Leo%20(Japan).png"
+  },
+  "rushatck": {
+    "rom": "rushatck",
+    "title": "Rush'n Attack (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Rush'n%20Attack%20(US).png"
+  },
+  "rygar": {
+    "rom": "rygar",
+    "title": "Rygar (US set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Rygar%20(US%20set%201).png"
+  },
+  "s1945": {
+    "rom": "s1945",
+    "title": "Strikers 1945 II",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Strikers%201945%20II.png"
+  },
+  "s1945ii": {
+    "rom": "s1945ii",
+    "title": "Strikers 1945 II",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Strikers%201945%20II.png"
+  },
+  "s1945iii": {
+    "rom": "s1945iii",
+    "title": "Strikers 1945 III (World) _ Strikers 1999 (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Strikers%201945%20III%20(World)%20_%20Strikers%201999%20(Japan).png"
+  },
+  "sabotenb": {
+    "rom": "sabotenb",
+    "title": "Saboten Bombers (set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Saboten%20Bombers%20(set%201).png"
+  },
+  "sailormn": {
+    "rom": "sailormn",
+    "title": "Saulabi Spirits _ Jin Saulabi Tu Hon (Korean release of Samurai Shodown II, set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Saulabi%20Spirits%20_%20Jin%20Saulabi%20Tu%20Hon%20(Korean%20release%20of%20Samurai%20Shodown%20II,%20set%201).png"
+  },
+  "salamand": {
+    "rom": "salamand",
+    "title": "Salamander (version D)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Salamander%20(version%20D).png"
+  },
+  "scobra": {
+    "rom": "scobra",
+    "title": "Agent Super Bond (scobra hardware)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Agent%20Super%20Bond%20(scobra%20hardware).png"
+  },
+  "scontra": {
+    "rom": "scontra",
+    "title": "Super Contra",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Super%20Contra.png"
+  },
+  "scramble": {
+    "rom": "scramble",
+    "title": "Scramble",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Scramble.png"
+  },
+  "seawolft": {
+    "rom": "seawolft",
+    "title": "Super Monaco GP (World) (bootleg of FD1094 317-0126 set)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Super%20Monaco%20GP%20(World)%20(bootleg%20of%20FD1094%20317-0126%20set).png"
+  },
+  "seganinj": {
+    "rom": "seganinj",
+    "title": "Sega Ninja (315-5102)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Sega%20Ninja%20(315-5102).png"
+  },
+  "seicross": {
+    "rom": "seicross",
+    "title": "Seicross",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Seicross.png"
+  },
+  "sf": {
+    "rom": "sf",
+    "title": "SF-X",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/SF-X.png"
+  },
+  "shadfrce": {
+    "rom": "shadfrce",
+    "title": "Shadow Force (US, Version 2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Shadow%20Force%20(US,%20Version%202).png"
+  },
+  "shangon": {
+    "rom": "shangon",
+    "title": "Shippu Mahou Daisakusen - Kingdom Grandprix",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Shippu%20Mahou%20Daisakusen%20-%20Kingdom%20Grandprix.png"
+  },
+  "sharrier": {
+    "rom": "sharrier",
+    "title": "Space Harrier (8751 315-5163)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Space%20Harrier%20(8751%20315-5163).png"
+  },
+  "shdancer": {
+    "rom": "shdancer",
+    "title": "Shadow Dancer (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Shadow%20Dancer%20(US).png"
+  },
+  "shinobi": {
+    "rom": "shinobi",
+    "title": "Shinobi (System 16A revision B)",
+    "thumbnail": null
+  },
+  "shollow": {
+    "rom": "shollow",
+    "title": "Satan's Hollow (set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Satan's%20Hollow%20(set%201).png"
+  },
+  "sidearms": {
+    "rom": "sidearms",
+    "title": "Side Arms - Hyper Dyne (US, 861128)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Side%20Arms%20-%20Hyper%20Dyne%20(US,%20861128).png"
+  },
+  "simpsons2p": {
+    "rom": "simpsons2p",
+    "title": "The Simpsons (2 Players World)",
+    "thumbnail": null
+  },
+  "sinistar": {
+    "rom": "sinistar",
+    "title": "Sinistar (revision 2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Sinistar%20(revision%202).png"
+  },
+  "skykid": {
+    "rom": "skykid",
+    "title": "Sky Kid (Sipem)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Sky%20Kid%20(Sipem).png"
+  },
+  "slapshot": {
+    "rom": "slapshot",
+    "title": "Slap Shot (Ver 2.2 J)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Slap%20Shot%20(Ver%202.2%20J).png"
+  },
+  "slyspy": {
+    "rom": "slyspy",
+    "title": "Sly Spy (US revision 2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Sly%20Spy%20(US%20revision%202).png"
+  },
+  "smashtv": {
+    "rom": "smashtv",
+    "title": "Smash T.V. (rev 8.00)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Smash%20T.V.%20(rev%208.00).png"
+  },
+  "snowbros": {
+    "rom": "snowbros",
+    "title": "Snow Bros. - Nick & Tom (set 1)",
+    "thumbnail": null
+  },
+  "solomon": {
+    "rom": "solomon",
+    "title": "Solomon's Key (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Solomon's%20Key%20(US).png"
+  },
+  "solrwarr": {
+    "rom": "solrwarr",
+    "title": "Solar-Warrior (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Solar-Warrior%20(US).png"
+  },
+  "sonic": {
+    "rom": "sonic",
+    "title": "Sega Sonic The Hedgehog (World)",
+    "thumbnail": null
+  },
+  "sonicfgt": {
+    "rom": "sonicfgt",
+    "title": "Sonicfgt",
+    "thumbnail": null
+  },
+  "sonson": {
+    "rom": "sonson",
+    "title": "Son Son",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Son%20Son.png"
+  },
+  "spacedx": {
+    "rom": "spacedx",
+    "title": "Space Invaders DX (US, v2.1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Space%20Invaders%20DX%20(US,%20v2.1).png"
+  },
+  "spcinv95": {
+    "rom": "spcinv95",
+    "title": "Space Invaders '95_ The Attack Of Lunar Loonies (Ver 2.5A 1995_06_14)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Space%20Invaders%20'95_%20The%20Attack%20Of%20Lunar%20Loonies%20(Ver%202.5A%201995_06_14).png"
+  },
+  "spidman": {
+    "rom": "spidman",
+    "title": "Spider-Man_ The Videogame (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Spider-Man_%20The%20Videogame%20(Japan).png"
+  },
+  "splatter": {
+    "rom": "splatter",
+    "title": "Splatter House (Japan, SH1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Splatter%20House%20(Japan,%20SH1).png"
+  },
+  "spnchout": {
+    "rom": "spnchout",
+    "title": "Super Punch-Out!! (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Super%20Punch-Out!!%20(Japan).png"
+  },
+  "spyhunt": {
+    "rom": "spyhunt",
+    "title": "Spy Hunter",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Spy%20Hunter.png"
+  },
+  "spyhunt2": {
+    "rom": "spyhunt2",
+    "title": "Spy Hunter II (rev 2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Spy%20Hunter%20II%20(rev%202).png"
+  },
+  "srumbler": {
+    "rom": "srumbler",
+    "title": "Super Street Fighter II_ The Tournament Battle (World 930911)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Super%20Street%20Fighter%20II_%20The%20Tournament%20Battle%20(World%20930911).png"
+  },
+  "ssridersubc": {
+    "rom": "ssridersubc",
+    "title": "Sunset Riders (2 Players ver UBC)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Sunset%20Riders%20(2%20Players%20ver%20UBC).png"
+  },
+  "starwars": {
+    "rom": "starwars",
+    "title": "Star Wars",
+    "thumbnail": null
+  },
+  "stdragon": {
+    "rom": "stdragon",
+    "title": "Silent Dragon (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Silent%20Dragon%20(US).png"
+  },
+  "stmblade": {
+    "rom": "stmblade",
+    "title": "Storm Blade (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Storm%20Blade%20(US).png"
+  },
+  "superman": {
+    "rom": "superman",
+    "title": "Superman (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Superman%20(US).png"
+  },
+  "superpac": {
+    "rom": "superpac",
+    "title": "Super Pac-Man",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Super%20Pac-Man.png"
+  },
+  "sxevious": {
+    "rom": "sxevious",
+    "title": "Super Xevious",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Super%20Xevious.png"
+  },
+  "szaxxon": {
+    "rom": "szaxxon",
+    "title": "Super Zaxxon",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Super%20Zaxxon.png"
+  },
+  "tankfrce": {
+    "rom": "tankfrce",
+    "title": "Tankfrce",
+    "thumbnail": null
+  },
+  "tapper": {
+    "rom": "tapper",
+    "title": "Tapper (Budweiser)",
+    "thumbnail": null
+  },
+  "tempest": {
+    "rom": "tempest",
+    "title": "Tempest Tubes",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Tempest%20Tubes.png"
+  },
+  "tengai": {
+    "rom": "tengai",
+    "title": "Tengai (World)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Tengai%20(World).png"
+  },
+  "tetrisp2": {
+    "rom": "tetrisp2",
+    "title": "Tetris (Sega set 1)",
+    "thumbnail": null
+  },
+  "tgm2p": {
+    "rom": "tgm2p",
+    "title": "The King of Fighters 2003 (NGM-2710, Export)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/The%20King%20of%20Fighters%202003%20(NGM-2710,%20Export).png"
+  },
+  "thndrbld": {
+    "rom": "thndrbld",
+    "title": "Thunder Blade (upright, FD1094 317-0056)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Thunder%20Blade%20(upright,%20FD1094%20317-0056).png"
+  },
+  "thundfox": {
+    "rom": "thundfox",
+    "title": "Thunder Fox (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Thunder%20Fox%20(US).png"
+  },
+  "tigeroad": {
+    "rom": "tigeroad",
+    "title": "Tiger Road (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Tiger%20Road%20(US).png"
+  },
+  "timeplt": {
+    "rom": "timeplt",
+    "title": "Time Pilot",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Time%20Pilot.png"
+  },
+  "tmnt22pu": {
+    "rom": "tmnt22pu",
+    "title": "Teenage Mutant Ninja Turtles (US 2 Players)",
+    "thumbnail": null
+  },
+  "tmnt2pj": {
+    "rom": "tmnt2pj",
+    "title": "Teenage Mutant Ninja Turtles (2 Players Japan)",
+    "thumbnail": null
+  },
+  "tnzs": {
+    "rom": "tnzs",
+    "title": "The NewZealand Story (World, newer)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/The%20NewZealand%20Story%20(World,%20newer).png"
+  },
+  "todruaga": {
+    "rom": "todruaga",
+    "title": "The Tower of Druaga (Sidam)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/The%20Tower%20of%20Druaga%20(Sidam).png"
+  },
+  "toki": {
+    "rom": "toki",
+    "title": "Toki (World)",
+    "thumbnail": null
+  },
+  "toobin": {
+    "rom": "toobin",
+    "title": "Toobin' (rev 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Toobin'%20(rev%201).png"
+  },
+  "totcarn": {
+    "rom": "totcarn",
+    "title": "Total Carnage (rev LA1 03_10_92)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Total%20Carnage%20(rev%20LA1%2003_10_92).png"
+  },
+  "trackfld": {
+    "rom": "trackfld",
+    "title": "Track _ Field",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Track%20_%20Field.png"
+  },
+  "trojan": {
+    "rom": "trojan",
+    "title": "Trojan (Romstar)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Trojan%20(Romstar).png"
+  },
+  "tron": {
+    "rom": "tron",
+    "title": "Tron (ranking)",
+    "thumbnail": null
+  },
+  "tumblep": {
+    "rom": "tumblep",
+    "title": "Tumble Pop (World)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Tumble%20Pop%20(World).png"
+  },
+  "twocrude": {
+    "rom": "twocrude",
+    "title": "Two Crude (US FT version)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Two%20Crude%20(US%20FT%20version).png"
+  },
+  "uccops": {
+    "rom": "uccops",
+    "title": "Undercover Cops (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Undercover%20Cops%20(US).png"
+  },
+  "umk3": {
+    "rom": "umk3",
+    "title": "Ultimate Mortal Kombat 3 (rev 1.2)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Ultimate%20Mortal%20Kombat%203%20(rev%201.2).png"
+  },
+  "upndown": {
+    "rom": "upndown",
+    "title": "Up'n Down (315-5030)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Up'n%20Down%20(315-5030).png"
+  },
+  "valkyrie": {
+    "rom": "valkyrie",
+    "title": "Valkyrie no Densetsu (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Valkyrie%20no%20Densetsu%20(Japan).png"
+  },
+  "vball": {
+    "rom": "vball",
+    "title": "U.S. Championship V'ball (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/U.S.%20Championship%20V'ball%20(US).png"
+  },
+  "vendetta2pu": {
+    "rom": "vendetta2pu",
+    "title": "Vendetta (Asia, 2 Players ver. U)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Vendetta%20(Asia,%202%20Players%20ver.%20U).png"
+  },
+  "viostorm": {
+    "rom": "viostorm",
+    "title": "Violent Storm (ver AAB)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Violent%20Storm%20(ver%20AAB).png"
+  },
+  "volfied": {
+    "rom": "volfied",
+    "title": "Volfied (Japan)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Volfied%20(Japan).png"
+  },
+  "vulcan": {
+    "rom": "vulcan",
+    "title": "Vulcan Venture (New)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Vulcan%20Venture%20(New).png"
+  },
+  "wb3": {
+    "rom": "wb3",
+    "title": "Wonder Boy III - Monster Lair (set 1, System 16B, FD1094 317-0089)",
+    "thumbnail": null
+  },
+  "wbml": {
+    "rom": "wbml",
+    "title": "Wonder Boy in Monster Land (Japan New Ver.)",
+    "thumbnail": null
+  },
+  "wboy": {
+    "rom": "wboy",
+    "title": "Wonder Boy (set 1)",
+    "thumbnail": null
+  },
+  "wildfang": {
+    "rom": "wildfang",
+    "title": "Wild Fang",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Wild%20Fang.png"
+  },
+  "wizdfire": {
+    "rom": "wizdfire",
+    "title": "Wizard Fire (US v1.1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Wizard%20Fire%20(US%20v1.1).png"
+  },
+  "wof": {
+    "rom": "wof",
+    "title": "Warriors of Fate (World)",
+    "thumbnail": null
+  },
+  "wwfsstar": {
+    "rom": "wwfsstar",
+    "title": "WWF Superstars (US)",
+    "thumbnail": null
+  },
+  "wwfwfest": {
+    "rom": "wwfwfest",
+    "title": "WWF WrestleFest (US)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/WWF%20WrestleFest%20(US).png"
+  },
+  "xexex": {
+    "rom": "xexex",
+    "title": "Xexex (ver AAA)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Xexex%20(ver%20AAA).png"
+  },
+  "xmen2pa": {
+    "rom": "xmen2pa",
+    "title": "X-Men (2 Players US)",
+    "thumbnail": null
+  },
+  "xmultipl": {
+    "rom": "xmultipl",
+    "title": "X Multiply (Japan, M72 hardware)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/X%20Multiply%20(Japan,%20M72%20hardware).png"
+  },
+  "xybots": {
+    "rom": "xybots",
+    "title": "Xybots (rev 0)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Xybots%20(rev%200).png"
+  },
+  "yiear": {
+    "rom": "yiear",
+    "title": "Yie Ar Kung-Fu (program code G)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Yie%20Ar%20Kung-Fu%20(program%20code%20G).png"
+  },
+  "zookeep": {
+    "rom": "zookeep",
+    "title": "Zoo Keeper (set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Zoo%20Keeper%20(set%201).png"
+  }
+}

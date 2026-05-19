@@ -1551,14 +1551,15 @@ function initGameLibraryGrid() {
   const arcadeGames = arcadeOptions.map(opt => {
     const value = opt.value;
     const romName = opt.text.trim();
-    const cleanTitle = ARCADE_MAP[romName] || (romName.charAt(0).toUpperCase() + romName.slice(1));
-    const thumbnail = `https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/${encodeURIComponent(cleanTitle)}.png`;
+    const arcadeMeta = ARCADE_MAP[romName] || null;
+    const cleanTitle = arcadeMeta?.title || (romName.charAt(0).toUpperCase() + romName.slice(1));
+    const thumbnail = arcadeMeta?.thumbnail || '';
     return {
       title: cleanTitle,
       rom: romName,
       url: value,
       system: 'arcade',
-      thumbnail: thumbnail,
+      thumbnail,
       core: 'fbneo'
     };
   });
@@ -1707,13 +1708,15 @@ function initGameLibraryGrid() {
         selectGame(game, false);
       } else {
         currentlySelectedUrl = currentUrl;
-        const text = romUrlEl.options[romUrlEl.selectedIndex]?.text || "Tùy chọn";
+        const romName = romUrlEl.options[romUrlEl.selectedIndex]?.text?.trim() || '';
+        const arcadeMeta = ARCADE_MAP[romName] || null;
+        const title = arcadeMeta?.title || romName || "Tùy chọn";
         updateShowcase({
-          title: text,
-          rom: text,
+          title,
+          rom: romName || title,
           url: currentUrl,
           system: 'custom',
-          thumbnail: '',
+          thumbnail: arcadeMeta?.thumbnail || '',
           core: coreNameEl.value
         });
       }
