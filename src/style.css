@@ -541,6 +541,7 @@ button.primary:hover:not(:disabled) {
     font-size: 11px !important;
   }
 
+  /* Core selection (Column 2) */
   body:not(.playing) .sidebar>.stack:nth-of-type(3) {
     /* Core selector */
     flex: 1 !important;
@@ -552,6 +553,7 @@ button.primary:hover:not(:disabled) {
     height: 100% !important;
     min-height: 0 !important;
   }
+}
 
 body:not(.playing) .sidebar>.stack:nth-of-type(3)>.hint {
   display: none !important;
@@ -708,7 +710,6 @@ body.playing .timer-hud {
   font-size: 11px;
   border-top: 1px solid #00ffcc;
   border-left: 3px solid #00ffcc;
-}
 }
 
 /* --- COIN SYSTEM & SHOP DESIGN --- */
