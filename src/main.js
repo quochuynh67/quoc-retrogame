@@ -1,6 +1,11 @@
 import './style.css';
 import { Nostalgist } from 'nostalgist';
 
+// const isDev = new URLSearchParams(window.location.search).get('dev') === '1';
+const isDev = true;
+
+let romSource = 'list';
+
 const app = document.querySelector('#app');
 
 app.innerHTML = `
@@ -76,9 +81,19 @@ app.innerHTML = `
         <span id="status" class="status">Đang chờ...</span>
       </div>
 
-      <div class="stack">
-        <label class="label" for="romUrl">Chọn Game (ROM)</label>
-        <select id="romUrl" class="input">
+      <div class="stack" id="romStack">
+        <label class="label">${isDev ? 'Nguồn Game (ROM)' : 'Chọn Game (ROM)'}</label>
+        ${isDev ? `
+        <div class="dev-tabs">
+          <button type="button" class="dev-tab-btn active" data-source="list">Danh sách</button>
+          <button type="button" class="dev-tab-btn" data-source="url">Đường dẫn (URL)</button>
+          <button type="button" class="dev-tab-btn" data-source="file">Tải File ROM</button>
+        </div>
+        ` : ''}
+
+        <!-- 1. Selection dropdown (Default) -->
+        <div id="romListContainer" class="rom-input-group">
+          <select id="romUrl" class="input">
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/1942.zip">1942</option>
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/1943.zip">1943</option>
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/1943kai.zip">1943kai</option>
@@ -457,7 +472,25 @@ app.innerHTML = `
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/yiear.zip">yiear</option>
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/zookeep.zip">zookeep</option>
         </select>
-        <p class="hint">
+        </div>
+
+        ${isDev ? `
+        <!-- 2. Custom URL Input -->
+        <div id="romUrlContainer" class="rom-input-group hidden">
+          <input type="text" id="romUrlText" class="input" placeholder="Dán link ROM (.zip, .nes, .sfc...)" />
+        </div>
+
+        <!-- 3. Local File Input -->
+        <div id="romFileContainer" class="rom-input-group hidden">
+          <div class="file-upload-wrapper">
+            <input type="file" id="romFile" accept=".zip,.bin,.rom,.iso,.nes,.smc,.sfc,.gb,.gbc,.gba" style="display: none;" />
+            <button type="button" id="customFileBtn" class="secondary select-file-btn">Chọn file từ máy tính</button>
+            <span id="fileNameDisplay" class="file-name-display">Chưa chọn file nào</span>
+          </div>
+        </div>
+        ` : ''}
+
+        <p class="hint" id="romHint">
           Chọn game từ danh sách. Một số game có thể cần kèm file BIOS.
         </p>
       </div>
@@ -622,19 +655,19 @@ const AudioSynth = {
       this.init();
       const ctx = this.ctx;
       const now = ctx.currentTime;
-      
+
       const osc1 = ctx.createOscillator();
       const gain = ctx.createGain();
       osc1.type = 'sine';
       osc1.frequency.setValueAtTime(987.77, now); // B5
       osc1.frequency.setValueAtTime(1318.51, now + 0.08); // E6
-      
+
       gain.gain.setValueAtTime(0.08, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-      
+
       osc1.connect(gain);
       gain.connect(ctx.destination);
-      
+
       osc1.start(now);
       osc1.stop(now + 0.35);
     } catch (e) {
@@ -652,10 +685,10 @@ const AudioSynth = {
         const gain = ctx.createGain();
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(f, now + i * 0.08);
-        
+
         gain.gain.setValueAtTime(0.08, now + i * 0.08);
         gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.2);
-        
+
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start(now + i * 0.08);
@@ -670,18 +703,18 @@ const AudioSynth = {
       this.init();
       const ctx = this.ctx;
       const now = ctx.currentTime;
-      
+
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(220, now); // A3
-      
+
       gain.gain.setValueAtTime(0.04, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-      
+
       osc.connect(gain);
       gain.connect(ctx.destination);
-      
+
       osc.start(now);
       osc.stop(now + 0.15);
     } catch (e) {
@@ -699,10 +732,10 @@ const AudioSynth = {
         const gain = ctx.createGain();
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(f, now + i * 0.15);
-        
+
         gain.gain.setValueAtTime(0.08, now + i * 0.15);
         gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.35);
-        
+
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start(now + i * 0.15);
@@ -720,7 +753,7 @@ const Confetti = {
   ctx: null,
   particles: [],
   animationId: null,
-  
+
   init() {
     this.canvas = document.getElementById('confettiCanvas');
     if (!this.canvas) return;
@@ -728,14 +761,14 @@ const Confetti = {
     this.resizeCanvas();
     window.addEventListener('resize', () => this.resizeCanvas());
   },
-  
+
   resizeCanvas() {
     if (this.canvas) {
       this.canvas.width = window.innerWidth;
       this.canvas.height = window.innerHeight;
     }
   },
-  
+
   spawn() {
     this.init();
     if (!this.canvas) return;
@@ -753,27 +786,27 @@ const Confetti = {
         tiltAngle: 0
       });
     }
-    
+
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
     }
     this.animate();
   },
-  
+
   animate() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     let active = false;
-    
+
     this.particles.forEach((p) => {
       p.tiltAngle += p.tiltAngleIncremental;
       p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
       p.x += Math.sin(p.tiltAngle);
       p.tilt = Math.sin(p.tiltAngle - p.r / 2) * 5;
-      
+
       if (p.y <= this.canvas.height) {
         active = true;
       }
-      
+
       this.ctx.beginPath();
       this.ctx.lineWidth = p.r;
       this.ctx.strokeStyle = p.color;
@@ -781,7 +814,7 @@ const Confetti = {
       this.ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
       this.ctx.stroke();
     });
-    
+
     if (active) {
       this.animationId = requestAnimationFrame(() => this.animate());
     } else {
@@ -795,7 +828,7 @@ const CoinSystem = {
   coins: 5, // Default coins on first load
   infiniteUntil: 0, // Infinite timestamp
   isTestSpeed: false, // 1 coin = 20s if true, 180s if false
-  
+
   load() {
     const savedCoins = localStorage.getItem('arcade_coins');
     if (savedCoins !== null) {
@@ -803,43 +836,43 @@ const CoinSystem = {
     } else {
       localStorage.setItem('arcade_coins', this.coins);
     }
-    
+
     this.infiniteUntil = parseInt(localStorage.getItem('arcade_infinite_until')) || 0;
     this.isTestSpeed = localStorage.getItem('arcade_test_speed') === 'true';
-    
+
     const checkbox = document.getElementById('testSpeedToggle');
     if (checkbox) {
       checkbox.checked = this.isTestSpeed;
     }
-    
+
     this.updateUI();
   },
-  
+
   save() {
     localStorage.setItem('arcade_coins', this.coins);
     localStorage.setItem('arcade_infinite_until', this.infiniteUntil);
     localStorage.setItem('arcade_test_speed', this.isTestSpeed);
     this.updateUI();
   },
-  
+
   isInfinite() {
     return Date.now() < this.infiniteUntil;
   },
-  
+
   getCoinsDisplay() {
     if (this.isInfinite()) {
       return '♾️';
     }
     return this.coins;
   },
-  
+
   updateUI() {
     const coinCountEl = document.getElementById('coinCount');
     if (coinCountEl) {
       coinCountEl.textContent = this.getCoinsDisplay();
     }
   },
-  
+
   addCoins(amount) {
     this.coins += amount;
     this.save();
@@ -847,7 +880,7 @@ const CoinSystem = {
     Confetti.spawn();
     showToast(`Đã nạp thành công ${amount} xu vào tài khoản!`);
   },
-  
+
   setInfinite(hours) {
     const duration = hours * 60 * 60 * 1000;
     const currentInfinite = this.isInfinite() ? this.infiniteUntil : Date.now();
@@ -857,7 +890,7 @@ const CoinSystem = {
     Confetti.spawn();
     showToast(`Đã kích hoạt chế độ Vô Hạn Chơi Game trong ${hours} giờ!`);
   },
-  
+
   consumeCoin() {
     if (this.isInfinite()) return true;
     if (this.coins > 0) {
@@ -874,11 +907,11 @@ function showToast(msg, type = 'success') {
   const toast = document.getElementById('arcadeToast');
   const toastMsg = document.getElementById('toastMsg');
   if (!toast || !toastMsg) return;
-  
+
   toastMsg.textContent = msg;
   toast.className = `arcade-toast ${type}`;
   toast.classList.remove('hidden');
-  
+
   if (window.toastTimeout) clearTimeout(window.toastTimeout);
   window.toastTimeout = setTimeout(() => {
     toast.classList.add('hidden');
@@ -895,17 +928,17 @@ function updateTimerHud() {
   const timerHud = document.getElementById('timerHud');
   const timerVal = document.getElementById('timerVal');
   if (!timerVal) return;
-  
+
   if (CoinSystem.isInfinite()) {
     timerVal.textContent = 'VÔ HẠN';
     if (timerHud) timerHud.classList.remove('warning');
     return;
   }
-  
+
   const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
   const seconds = (timeLeft % 60).toString().padStart(2, '0');
   timerVal.textContent = `${minutes}:${seconds}`;
-  
+
   if (timeLeft <= 30) {
     if (timerHud) timerHud.classList.add('warning');
   } else {
@@ -915,28 +948,28 @@ function updateTimerHud() {
 
 function startPlayTimer() {
   stopPlayTimer();
-  
+
   const timerHud = document.getElementById('timerHud');
   if (timerHud) timerHud.classList.remove('hidden');
-  
+
   timeLeft = CoinSystem.isTestSpeed ? 20 : 180; // 20s test or 180s standard
   updateTimerHud();
-  
+
   gameTimer = setInterval(() => {
     if (CoinSystem.isInfinite()) {
       updateTimerHud();
       return;
     }
-    
+
     timeLeft--;
     updateTimerHud();
-    
+
     if (timeLeft <= 30 && timeLeft > 0) {
       if (timeLeft % 5 === 0) {
         AudioSynth.playWarning();
       }
     }
-    
+
     if (timeLeft <= 0) {
       stopPlayTimer();
       triggerContinueCountdown();
@@ -955,25 +988,25 @@ function stopPlayTimer() {
 
 function triggerContinueCountdown() {
   if (continueTimer) return;
-  
+
   const continueOverlay = document.getElementById('continueOverlay');
   const continueCountdown = document.getElementById('continueCountdown');
-  
+
   if (continueOverlay) continueOverlay.classList.remove('hidden');
-  
+
   if (emulator) {
-    emulator.pause().catch(() => {});
+    emulator.pause().catch(() => { });
     setStatus('Đang chờ đút xu...');
   }
-  
+
   AudioSynth.playWarning();
   continueCountdownVal = 9;
   if (continueCountdown) continueCountdown.textContent = continueCountdownVal;
-  
+
   continueTimer = setInterval(() => {
     continueCountdownVal--;
     if (continueCountdown) continueCountdown.textContent = continueCountdownVal;
-    
+
     if (continueCountdownVal > 0) {
       AudioSynth.playWarning();
     } else {
@@ -1000,18 +1033,18 @@ function handleInsertCoinContinue() {
       stopContinueCountdown();
       AudioSynth.playCoin();
       showToast('Đã tiếp tục lượt chơi thành công!');
-      
+
       const textFloat = document.createElement('div');
       textFloat.className = 'timer-hud-toast';
       textFloat.textContent = CoinSystem.isTestSpeed ? '+20 GIÂY' : '+3 PHÚT';
       document.querySelector('.screen-shell').appendChild(textFloat);
       setTimeout(() => textFloat.remove(), 1200);
-      
+
       if (emulator) {
-        emulator.resume().catch(() => {});
+        emulator.resume().catch(() => { });
         setStatus('Đang chạy');
       }
-      
+
       startPlayTimer();
     }
   } else {
@@ -1029,22 +1062,22 @@ function handleExtendPlayTime() {
     showToast('Tài khoản Vô Hạn đang kích hoạt!', 'success');
     return;
   }
-  
+
   if (CoinSystem.coins > 0) {
     if (CoinSystem.consumeCoin()) {
       timeLeft += CoinSystem.isTestSpeed ? 20 : 180;
       AudioSynth.playCoin();
-      
-      if (timeLeft > 5940) timeLeft = 5940; 
-      
+
+      if (timeLeft > 5940) timeLeft = 5940;
+
       updateTimerHud();
-      
+
       const textFloat = document.createElement('div');
       textFloat.className = 'timer-hud-toast';
       textFloat.textContent = CoinSystem.isTestSpeed ? '+20 GIÂY' : '+3 PHÚT';
       document.querySelector('.screen-shell').appendChild(textFloat);
       setTimeout(() => textFloat.remove(), 1200);
-      
+
       showToast('Đã đút 1 xu, thêm thời gian chơi!');
     }
   } else {
@@ -1061,14 +1094,14 @@ function openShopModal() {
 function closeShopModal() {
   const shopModal = document.getElementById('shopModal');
   if (shopModal) shopModal.classList.add('hidden');
-  
+
   const continueOverlay = document.getElementById('continueOverlay');
   if (continueOverlay && !continueOverlay.classList.contains('hidden') && !continueTimer) {
     const continueCountdown = document.getElementById('continueCountdown');
     continueTimer = setInterval(() => {
       continueCountdownVal--;
       if (continueCountdown) continueCountdown.textContent = continueCountdownVal;
-      
+
       if (continueCountdownVal > 0) {
         AudioSynth.playWarning();
       } else {
@@ -1092,10 +1125,10 @@ function initShopHandlers() {
   const cancelPayBtn = document.getElementById('cancelPayBtn');
   const simSuccessBtn = document.getElementById('simSuccessBtn');
   const applyGiftcodeBtn = document.getElementById('applyGiftcodeBtn');
-  
+
   if (shopBtn) shopBtn.addEventListener('click', openShopModal);
   if (closeShopBtn) closeShopBtn.addEventListener('click', closeShopModal);
-  
+
   if (tabBuy && tabGiftcode) {
     tabBuy.addEventListener('click', () => {
       tabBuy.classList.add('active');
@@ -1104,7 +1137,7 @@ function initShopHandlers() {
       tabContentGiftcode.classList.add('hidden');
       document.getElementById('paymentPanel').classList.add('hidden');
     });
-    
+
     tabGiftcode.addEventListener('click', () => {
       tabGiftcode.classList.add('active');
       tabBuy.classList.remove('active');
@@ -1113,36 +1146,36 @@ function initShopHandlers() {
       document.getElementById('paymentPanel').classList.add('hidden');
     });
   }
-  
+
   const packageCards = document.querySelectorAll('.package-card');
   let selectedPackage = null;
-  
+
   packageCards.forEach(card => {
     card.addEventListener('click', () => {
       const packageId = card.getAttribute('data-package');
       selectedPackage = packageId;
-      
+
       const qtyText = card.querySelector('.pack-qty').childNodes[0].textContent.trim();
       const priceText = card.querySelector('.pack-price').textContent;
       const titleText = card.querySelector('.pack-title').textContent;
-      
+
       document.getElementById('payItemName').textContent = `${titleText} (${qtyText})`;
       document.getElementById('payAmount').textContent = priceText;
-      
+
       const qrData = `MomoPay_RetroGame_${packageId}_${priceText.replace(/\D/g, '')}`;
       document.getElementById('qrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}`;
-      
+
       document.getElementById('paymentPanel').classList.remove('hidden');
       AudioSynth.playCoin();
     });
   });
-  
+
   if (cancelPayBtn) {
     cancelPayBtn.addEventListener('click', () => {
       document.getElementById('paymentPanel').classList.add('hidden');
     });
   }
-  
+
   if (simSuccessBtn) {
     simSuccessBtn.addEventListener('click', () => {
       if (selectedPackage === 'package_1') {
@@ -1156,13 +1189,13 @@ function initShopHandlers() {
       } else if (selectedPackage === 'package_unlimited') {
         CoinSystem.setInfinite(24);
       }
-      
+
       document.getElementById('paymentPanel').classList.add('hidden');
       closeShopModal();
       AudioSynth.playSuccess();
     });
   }
-  
+
   if (testSpeedToggle) {
     testSpeedToggle.addEventListener('change', (e) => {
       CoinSystem.isTestSpeed = e.target.checked;
@@ -1170,19 +1203,19 @@ function initShopHandlers() {
       showToast(CoinSystem.isTestSpeed ? 'Đã bật chế độ test nhanh (1 xu = 20s)' : 'Đã tắt chế độ test nhanh (1 xu = 3 phút)');
     });
   }
-  
+
   if (applyGiftcodeBtn) {
     applyGiftcodeBtn.addEventListener('click', () => {
       const code = document.getElementById('giftcodeInput').value.trim().toUpperCase();
       const msgEl = document.getElementById('giftcodeMessage');
       if (!msgEl) return;
-      
+
       if (!code) {
         msgEl.className = 'giftcode-msg error';
         msgEl.textContent = 'Vui lòng nhập mã code!';
         return;
       }
-      
+
       if (code === 'RETRO2026') {
         CoinSystem.addCoins(10);
         msgEl.className = 'giftcode-msg success';
@@ -1203,14 +1236,14 @@ function initShopHandlers() {
         msgEl.textContent = 'Mã CODE không tồn tại hoặc đã hết hạn!';
         AudioSynth.playWarning();
       }
-      
+
       document.getElementById('giftcodeInput').value = '';
     });
   }
-  
+
   const insertCoinContinueBtn = document.getElementById('insertCoinContinueBtn');
   const exitGameContinueBtn = document.getElementById('exitGameContinueBtn');
-  
+
   if (insertCoinContinueBtn) {
     insertCoinContinueBtn.addEventListener('click', handleInsertCoinContinue);
   }
@@ -1223,11 +1256,96 @@ function initShopHandlers() {
   }
 }
 
+function initDevRomHandlers() {
+  const devTabs = document.querySelectorAll('.dev-tab-btn');
+  const romListContainer = document.getElementById('romListContainer');
+  const romUrlContainer = document.getElementById('romUrlContainer');
+  const romFileContainer = document.getElementById('romFileContainer');
+  const romHint = document.getElementById('romHint');
+
+  const romUrlText = document.getElementById('romUrlText');
+  const romFile = document.getElementById('romFile');
+  const customFileBtn = document.getElementById('customFileBtn');
+  const fileNameDisplay = document.getElementById('fileNameDisplay');
+  const coreNameEl = document.getElementById('coreName');
+
+  if (!devTabs.length) return;
+
+  // Handle source tab switches
+  devTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      devTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      const source = tab.getAttribute('data-source');
+      romSource = source;
+
+      // Hide all input groups
+      romListContainer.classList.add('hidden');
+      romUrlContainer.classList.add('hidden');
+      romFileContainer.classList.add('hidden');
+
+      // Show the selected input group
+      if (source === 'list') {
+        romListContainer.classList.remove('hidden');
+        romHint.textContent = 'Chọn game từ danh sách. Một số game có thể cần kèm file BIOS.';
+      } else if (source === 'url') {
+        romUrlContainer.classList.remove('hidden');
+        romHint.textContent = 'Dán đường dẫn trực tiếp tới file ROM (phải truy cập được công khai và hỗ trợ CORS).';
+      } else if (source === 'file') {
+        romFileContainer.classList.remove('hidden');
+        romHint.textContent = 'Tải tệp tin game từ máy tính của bạn (tính năng dev).';
+      }
+    });
+  });
+
+  // Handle file picker button click
+  if (customFileBtn && romFile) {
+    customFileBtn.addEventListener('click', () => {
+      romFile.click();
+    });
+  }
+
+  // Handle file selection
+  if (romFile) {
+    romFile.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        fileNameDisplay.textContent = file.name;
+        // Auto detect core from extension
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (ext === 'nes') {
+          coreNameEl.value = 'fceumm';
+        } else if (ext === 'sfc' || ext === 'smc') {
+          coreNameEl.value = 'snes9x';
+        }
+      } else {
+        fileNameDisplay.textContent = 'Chưa chọn file nào';
+      }
+    });
+  }
+
+  // Handle URL change to auto-detect core
+  if (romUrlText) {
+    romUrlText.addEventListener('input', () => {
+      const urlValue = romUrlText.value.trim().toLowerCase();
+      if (urlValue.endsWith('.nes')) {
+        coreNameEl.value = 'fceumm';
+      } else if (urlValue.endsWith('.sfc') || urlValue.endsWith('.smc')) {
+        coreNameEl.value = 'snes9x';
+      }
+    });
+  }
+}
+
 // Call state initializer on boot
 setTimeout(() => {
   CoinSystem.load();
   initShopHandlers();
   Confetti.init();
+  if (isDev) {
+    initDevRomHandlers();
+  }
 }, 100);
 
 const screenShellEl = document.querySelector('.screen-shell');
@@ -1325,7 +1443,7 @@ async function destroyRunningGame() {
       </div>
       <canvas id="game" style="width: 100%; height: 100%;"></canvas>
   `;
-  
+
   const insertCoinContinueBtn = document.getElementById('insertCoinContinueBtn');
   const exitGameContinueBtn = document.getElementById('exitGameContinueBtn');
   if (insertCoinContinueBtn) insertCoinContinueBtn.addEventListener('click', handleInsertCoinContinue);
@@ -1347,24 +1465,48 @@ async function launchGame() {
     return;
   }
 
-  const romUrlRaw = romUrlEl.value.trim();
+  let rom;
+  let romLogName = '';
   const core = coreNameEl.value;
 
-  if (!romUrlRaw) {
-    setStatus('Thiếu ROM');
-    setLog('Bạn cần nhập đường dẫn ROM trước khi tải game.');
-    return;
+  if (isDev && romSource === 'file') {
+    const romFileEl = document.getElementById('romFile');
+    const file = romFileEl ? romFileEl.files[0] : null;
+    if (!file) {
+      setStatus('Thiếu ROM');
+      setLog('Bạn cần chọn file ROM từ máy tính trước khi tải game.');
+      return;
+    }
+    rom = file;
+    romLogName = file.name;
+  } else if (isDev && romSource === 'url') {
+    const romUrlTextEl = document.getElementById('romUrlText');
+    const customUrl = romUrlTextEl ? romUrlTextEl.value.trim() : '';
+    if (!customUrl) {
+      setStatus('Thiếu ROM');
+      setLog('Bạn cần nhập đường dẫn ROM trước khi tải game.');
+      return;
+    }
+    rom = customUrl;
+    romLogName = customUrl;
+  } else {
+    const romUrlRaw = romUrlEl.value.trim();
+    if (!romUrlRaw) {
+      setStatus('Thiếu ROM');
+      setLog('Bạn cần chọn ROM từ danh sách trước khi tải game.');
+      return;
+    }
+    const romUrls = romUrlRaw.split('\n').map(u => u.trim()).filter(u => u);
+    rom = romUrls.length === 1 ? romUrls[0] : romUrls;
+    romLogName = romUrlRaw;
   }
-
-  const romUrls = romUrlRaw.split('\n').map(u => u.trim()).filter(u => u);
-  const rom = romUrls.length === 1 ? romUrls[0] : romUrls;
 
   launchBtn.disabled = true;
   setStatus('Đang tải...');
   setLog([
     'Đang khởi động game...',
     `Core: ${core}`,
-    `ROM: ${romUrlRaw}`,
+    `ROM: ${romLogName}`,
     '',
     'Lưu ý nếu gặp lỗi:',
     '- File ROM phải truy cập được (Public).',
@@ -1400,11 +1542,11 @@ async function launchGame() {
         setLog([
           'Tải thành công!',
           `Core: ${core}`,
-          `ROM: ${romUrlRaw}`,
+          `ROM: ${romLogName}`,
           '',
           'Bạn có thể dùng nút Tạm Dừng/Tiếp Tục để quản lý tiến trình.'
         ].join('\n'));
-        
+
         CoinSystem.consumeCoin();
         startPlayTimer();
       },
@@ -1458,13 +1600,13 @@ const keyboardMap = {
   'KeyA': 'left',
   'KeyS': 'down',
   'KeyD': 'right',
-  
+
   // Actions - Arrow keys
   'ArrowUp': 'x',
   'ArrowLeft': 'y',
   'ArrowDown': 'a',
   'ArrowRight': 'b',
-  
+
   // System buttons
   'Space': 'select',
   'Enter': 'start'
@@ -1482,8 +1624,8 @@ const actionSelectors = {
 window.addEventListener('keydown', (e) => {
   // Ignore keyboard controls if user is typing in forms/dropdowns
   if (document.activeElement && (
-    document.activeElement.tagName === 'INPUT' || 
-    document.activeElement.tagName === 'SELECT' || 
+    document.activeElement.tagName === 'INPUT' ||
+    document.activeElement.tagName === 'SELECT' ||
     document.activeElement.tagName === 'TEXTAREA'
   )) {
     return;
@@ -1497,12 +1639,12 @@ window.addEventListener('keydown', (e) => {
       handleInsertCoinContinue();
       return;
     }
-    
+
     if (emulator && continueOverlay && continueOverlay.classList.contains('hidden')) {
       e.preventDefault();
       if (e.repeat) return;
       handleExtendPlayTime();
-      
+
       if (emulator.pressDown) {
         emulator.pressDown({ button: 'select', player: 1 });
       }
@@ -1588,7 +1730,7 @@ vButtons.forEach(btn => {
     e.preventDefault();
     if (!btn.classList.contains('active')) {
       btn.classList.add('active');
-      
+
       if (btnName === 'Shift') {
         const continueOverlay = document.getElementById('continueOverlay');
         if (continueOverlay && !continueOverlay.classList.contains('hidden')) {
@@ -1598,7 +1740,7 @@ vButtons.forEach(btn => {
           handleExtendPlayTime();
         }
       }
-      
+
       if (emulator && emulator.pressDown && padBtn) {
         emulator.pressDown({ button: padBtn, player: 1 });
       }
