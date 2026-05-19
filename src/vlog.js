@@ -24,6 +24,34 @@ let activeVideoIndex = 0;
 let isMuted = true; // Autoplay safety first
 let autoPlayNext = true;
 
+// High-performance dynamic sliding window for video elements
+function updateVideoSources(activeIndex) {
+  const slides = document.querySelectorAll('.vlog-slide');
+  slides.forEach((slide) => {
+    const index = parseInt(slide.dataset.index, 10);
+    const videoEl = slide.querySelector('.vlog-video');
+    if (!videoEl) return;
+
+    const videoData = videoList[index];
+    if (!videoData) return;
+
+    // Sliding window bounds: Active video, previous one, and next two (index range [activeIndex - 1, activeIndex + 2])
+    const isWithinWindow = index >= activeIndex - 1 && index <= activeIndex + 2;
+
+    if (isWithinWindow) {
+      if (videoEl.getAttribute('src') !== videoData.url) {
+        videoEl.setAttribute('src', videoData.url);
+        videoEl.load();
+      }
+    } else {
+      if (videoEl.getAttribute('src')) {
+        videoEl.removeAttribute('src');
+        videoEl.load(); // Immediately releases browser decoder buffers and memory
+      }
+    }
+  });
+}
+
 // Mock database for scenic travel spots in Vietnam (with real seekable timestamps)
 const MOCK_SPOTS_TEMPLATES = [
   [
@@ -330,7 +358,7 @@ export async function initVlog() {
             <div class="vlog-file-zone" id="vlogFileZone">
               <div class="vlog-file-icon">📁</div>
               <div style="font-weight: 600; font-size: 13px;">Chọn video từ thiết bị của bạn</div>
-              <div style="font-size: 11px; color: var(--vlog-text-secondary); margin-top: 4px;">Dung lượng tối đa đề xuất: 25MB</div>
+              <div style="font-size: 11px; color: var(--vlog-text-secondary); margin-top: 4px;">Dung lượng tối đa giới hạn: 10MB</div>
               <div class="vlog-file-name" id="vlogFileNameDisplay">Chưa chọn file</div>
             </div>
             <input type="file" id="vlogFileInput" accept="video/mp4,video/quicktime,video/webm" style="display: none;" />
@@ -361,6 +389,7 @@ export async function initVlog() {
   // Load and populate vlog slides
   videoList = await fetchVideosFromSupabase();
   renderVlogSlides();
+  updateVideoSources(0);
 
   // Setup sheet actions
   setupSheetHandlers();
@@ -417,8 +446,8 @@ function renderVlogSlides() {
 
     slide.innerHTML = `
       <div class="vlog-video-wrapper">
-        <!-- Primary Video tag (autoplay muted playsinline for webview compatibility) -->
-        <video class="vlog-video" autoplay loop muted playsinline webkit-playsinline src="${video.url}"></video>
+        <!-- Primary Video tag (loop muted playsinline for webview compatibility) -->
+        <video class="vlog-video" loop muted playsinline webkit-playsinline></video>
 
         <!-- Tap-to-toggle overlay detector -->
         <div class="vlog-play-pause-center-btn" data-video-index="${index}"></div>
@@ -643,6 +672,9 @@ function setupIntersectionObserver() {
       if (entry.isIntersecting) {
         activeVideoIndex = slideIndex;
 
+        // Apply sliding window updates immediately
+        updateVideoSources(activeVideoIndex);
+
         // Mute or unmute correctly according to global status
         video.muted = isMuted;
 
@@ -662,9 +694,13 @@ function setupIntersectionObserver() {
           video.play().catch(e => console.error("Video fail to play entirely:", e));
         });
       } else {
-        // Pause and reset all non-intersecting videos
-        video.pause();
-        video.currentTime = 0;
+        // Pause and reset all non-intersecting videos safely
+        try {
+          if (video.getAttribute('src')) {
+            video.pause();
+            video.currentTime = 0;
+          }
+        } catch (_) {}
       }
     });
   }, options);
@@ -931,7 +967,19 @@ function setupUploadHandlers() {
 
   fileInput.addEventListener('change', (e) => {
     if (e.target.files.length > 0) {
-      selectedFile = e.target.files[0];
+      const file = e.target.files[0];
+      const maxSizeBytes = 10 * 1024 * 1024; // 10MB limit
+
+      if (file.size > maxSizeBytes) {
+        showVlogToast("❌ Video quá lớn! Vui lòng chọn file dưới 10MB.");
+        fileInput.value = '';
+        selectedFile = null;
+        fileNameDisplay.textContent = 'Chưa chọn file (File vượt quá 10MB)';
+        confirmBtn.disabled = true;
+        return;
+      }
+
+      selectedFile = file;
       fileNameDisplay.textContent = `${selectedFile.name} (${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)`;
       confirmBtn.disabled = false;
     }
