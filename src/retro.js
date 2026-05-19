@@ -479,6 +479,8 @@ app.innerHTML = `
         <!-- CATEGORY TABS switcher -->
         <div class="console-categories">
           <button type="button" class="category-btn active" data-system="all">🌐 Tất cả</button>
+          <button type="button" class="category-btn" data-system="favorite">❤️ Yêu thích</button>
+          <button type="button" class="category-btn" data-system="recent">⏱️ Vừa chơi</button>
           <button type="button" class="category-btn" data-system="arcade">🕹️ Arcade</button>
           <button type="button" class="category-btn" data-system="nes">🔴 NES</button>
           <button type="button" class="category-btn" data-system="snes">🟣 SNES</button>
@@ -542,6 +544,7 @@ app.innerHTML = `
           <option value="fceumm">fceumm (NES)</option>
           <option value="snes9x">snes9x (SNES)</option>
         </select>
+        <button id="sidebarLaunchBtn" class="primary sidebar-launch-btn">Bắt Đầu Chơi</button>
         <p class="hint">
           Lựa chọn core phù hợp với hệ máy của ROM. Đối với game Arcade, ROM set phải khớp với phiên bản core.
         </p>
@@ -1375,6 +1378,51 @@ function initDevRomHandlers() {
   }
 }
 
+const FavoritesSystem = {
+  get() {
+    try {
+      return JSON.parse(localStorage.getItem('arcade_favorites')) || [];
+    } catch {
+      return [];
+    }
+  },
+  toggle(url) {
+    const favs = this.get();
+    const index = favs.indexOf(url);
+    if (index === -1) {
+      favs.push(url);
+      showToast('❤️ Đã thêm vào danh sách yêu thích!', 'success');
+    } else {
+      favs.splice(index, 1);
+      showToast('💔 Đã xóa khỏi danh sách yêu thích!', 'success');
+    }
+    localStorage.setItem('arcade_favorites', JSON.stringify(favs));
+  },
+  isFavorite(url) {
+    return this.get().includes(url);
+  }
+};
+
+const RecentSystem = {
+  get() {
+    try {
+      return JSON.parse(localStorage.getItem('arcade_recent')) || [];
+    } catch {
+      return [];
+    }
+  },
+  add(url) {
+    if (!url) return;
+    let recents = this.get();
+    recents = recents.filter(u => u !== url);
+    recents.unshift(url);
+    if (recents.length > 20) {
+      recents = recents.slice(0, 20);
+    }
+    localStorage.setItem('arcade_recent', JSON.stringify(recents));
+  }
+};
+
 // Sound Synthesizer Utility for Retro UI Interaction
 const RetroSynth = {
   ctx: null,
@@ -1632,13 +1680,28 @@ function initGameLibraryGrid() {
     gridContainer.innerHTML = '';
 
     const query = activeSearchQuery.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const filtered = allGames.filter(game => {
-      const matchSystem = activeSystemFilter === 'all' || game.system === activeSystemFilter;
-      const matchSearch = !query ||
-        game.title.toLowerCase().replace(/[^a-z0-9]/g, '').includes(query) ||
-        game.rom.toLowerCase().replace(/[^a-z0-9]/g, '').includes(query);
-      return matchSystem && matchSearch;
-    });
+    let filtered = [];
+
+    if (activeSystemFilter === 'favorite') {
+      const favs = FavoritesSystem.get();
+      filtered = allGames.filter(g => favs.includes(g.url));
+    } else if (activeSystemFilter === 'recent') {
+      const recents = RecentSystem.get();
+      filtered = recents
+        .map(url => allGames.find(g => g.url === url))
+        .filter(Boolean);
+    } else {
+      filtered = allGames.filter(game => {
+        return activeSystemFilter === 'all' || game.system === activeSystemFilter;
+      });
+    }
+
+    if (query) {
+      filtered = filtered.filter(game => {
+        return game.title.toLowerCase().replace(/[^a-z0-9]/g, '').includes(query) ||
+          game.rom.toLowerCase().replace(/[^a-z0-9]/g, '').includes(query);
+      });
+    }
 
     if (filtered.length === 0) {
       gridContainer.innerHTML = `
@@ -1651,12 +1714,16 @@ function initGameLibraryGrid() {
 
     filtered.forEach(game => {
       const card = document.createElement('div');
+      const isFav = FavoritesSystem.isFavorite(game.url);
       card.className = `game-card ${game.url === currentlySelectedUrl ? 'active' : ''}`;
       card.setAttribute('data-url', game.url);
 
       card.innerHTML = `
         <div class="card-thumb-wrapper">
           <img class="card-thumb" src="${game.thumbnail}" loading="lazy" onerror="handleImageError(this, '${game.title}')" />
+          <button type="button" class="card-fav-btn ${isFav ? 'active' : ''}" data-url="${game.url}">
+            ${isFav ? '❤️' : '🤍'}
+          </button>
         </div>
         <div class="card-info">
           <h4 class="card-title">${game.title}</h4>
@@ -1668,9 +1735,28 @@ function initGameLibraryGrid() {
         RetroSynth.playHover();
       });
 
+      let lastClick = 0;
       card.addEventListener('click', () => {
+        const currentTime = new Date().getTime();
+        const clickLength = currentTime - lastClick;
+
         selectGame(game);
+
+        if (clickLength < 300 && clickLength > 0) {
+          launchGame();
+        }
+        lastClick = currentTime;
       });
+
+      const favBtn = card.querySelector('.card-fav-btn');
+      if (favBtn) {
+        favBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          FavoritesSystem.toggle(game.url);
+          RetroSynth.playClick();
+          renderGames();
+        });
+      }
 
       gridContainer.appendChild(card);
     });
@@ -1741,6 +1827,7 @@ const logEl = document.querySelector('#log');
 const romUrlEl = document.querySelector('#romUrl');
 const coreNameEl = document.querySelector('#coreName');
 const launchBtn = document.querySelector('#launchBtn');
+const sidebarLaunchBtn = document.querySelector('#sidebarLaunchBtn');
 const pauseBtn = document.querySelector('#pauseBtn');
 const resumeBtn = document.querySelector('#resumeBtn');
 const exitBtn = document.querySelector('#exitBtn');
@@ -1879,6 +1966,7 @@ async function launchGame() {
   }
 
   launchBtn.disabled = true;
+  if (sidebarLaunchBtn) sidebarLaunchBtn.disabled = true;
   setStatus('Đang tải...');
   setLog([
     'Đang khởi động game...',
@@ -1926,6 +2014,13 @@ async function launchGame() {
 
         CoinSystem.consumeCoin();
         startPlayTimer();
+
+        // Record played game in recents
+        if (typeof rom === 'string') {
+          RecentSystem.add(rom);
+        } else if (Array.isArray(rom) && rom.length > 0) {
+          RecentSystem.add(rom[0]);
+        }
       },
     });
 
@@ -1946,10 +2041,14 @@ async function launchGame() {
     ].join('\n'));
   } finally {
     launchBtn.disabled = false;
+    if (sidebarLaunchBtn) sidebarLaunchBtn.disabled = false;
   }
 }
 
 launchBtn.addEventListener('click', launchGame);
+if (sidebarLaunchBtn) {
+  sidebarLaunchBtn.addEventListener('click', launchGame);
+}
 
 pauseBtn.addEventListener('click', async () => {
   if (!emulator) return;

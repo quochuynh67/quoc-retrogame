@@ -149,6 +149,10 @@ button.primary:hover:not(:disabled) {
   color: var(--accent);
 }
 
+.sidebar-launch-btn {
+  display: none !important;
+}
+
 .sidebar {
   width: 100%;
   padding: 15px;
@@ -434,143 +438,277 @@ button.primary:hover:not(:disabled) {
 /* --- MOBILE LANDSCAPE RESPONSIVE UI --- */
 @media (max-height: 600px) and (orientation: landscape) {
 
-  body.playing .sidebar {
+  /* Hiding elements when not playing */
+  body:not(.playing) .header {
     display: none !important;
   }
 
-  body.playing .header {
-    background: transparent !important;
-    border-bottom: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    height: 0 !important;
-    position: absolute !important;
-    width: 0 !important;
-    overflow: visible !important;
-  }
-
-  body.playing .brand,
-  body.playing .coin-dashboard {
-    display: none !important;
-  }
-
-  body.playing #app {
+  body:not(.playing) #app {
     max-width: 100vw;
     height: 100vh;
+    height: 100dvh;
   }
 
-  body.playing .main-content {
-    flex-direction: column;
+  body:not(.playing) .main-content {
+    flex-direction: row;
     height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
   }
 
-  body.playing .game-area {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 100;
-    margin: 0;
-    padding: 0;
-    background: #000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  body:not(.playing) .game-area {
+    display: none !important;
+    /* Hide game area when not playing */
   }
 
-  body.playing .screen-shell {
-    width: 100vw;
-    height: 100vh;
-    max-height: 100vh;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    background: #000;
+  body:not(.playing) .sidebar {
+    width: 100% !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    box-sizing: border-box !important;
+    border-left: none !important;
+    border-top: none !important;
+    padding: 10px 15px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 15px;
+    overflow: hidden !important;
+    background: var(--panel-bg);
   }
 
-  body.playing .controls-bar {
-    position: fixed;
-    top: 8px;
-    right: 8px;
-    bottom: auto;
-    left: auto;
-    transform: none;
-    z-index: 501;
-    background: transparent;
-    border: none;
-    padding: 0;
-    width: auto;
+  /* Hide non-essential stacks in landscape not playing */
+  body:not(.playing) .sidebar>.stack:nth-of-type(1) {
+    /* Status stack */
+    display: none !important;
   }
 
-  body.playing .controls-bar button:not(#exitBtn) {
-    display: none;
+  body:not(.playing) .sidebar>.stack:last-of-type {
+    /* Log stack */
+    display: none !important;
   }
 
-  body.playing #exitBtn {
-    font-size: 14px;
-    padding: 10px 20px;
-    opacity: 0.8;
-    background: rgba(0, 0, 0, 0.6);
-    font-weight: bold;
-    border: 1px solid var(--accent);
+  /* ROM Stack (Column 1) */
+  body:not(.playing) #romStack {
+    flex: 1.3 !important;
+    width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: calc(100dvh - 20px) !important;
+    max-height: calc(100dvh - 20px) !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    gap: 6px;
   }
 
-  body.playing .virtual-gamepad {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 500;
-    background: transparent;
-    border: none;
-    pointer-events: none;
-    padding: 0;
+  body:not(.playing) #romStack>.label,
+  body:not(.playing) #romStack>.dev-tabs,
+  body:not(.playing) #romStack>#romHint {
+    display: none !important;
+    /* Hide non-essential elements inside ROM stack */
   }
 
-  body.playing .joystick-base,
-  body.playing .action-buttons,
-  body.playing .system-buttons {
-    pointer-events: auto;
-    opacity: 0.85;
+  body:not(.playing) #selectedGameShowcase {
+    display: none !important;
+    /* Hide showcase panel in landscape to save space */
   }
 
-  body.playing .joystick-base {
-    position: absolute;
-    bottom: 20px;
-    left: 40px;
+  body:not(.playing) .game-cards-grid {
+    height: calc(100dvh - 110px) !important;
+    max-height: calc(100dvh - 110px) !important;
+    overflow-y: auto !important;
+    /* Let cards grid occupy remaining vertical space */
+    grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
   }
 
-  body.playing .action-buttons {
-    position: absolute;
-    bottom: 20px;
-    right: 40px;
-    transform: scale(1.1);
+  body:not(.playing) .console-categories {
+    margin-bottom: 6px !important;
+    padding-bottom: 3px !important;
   }
 
-  body.playing .system-buttons {
-    position: absolute;
-    top: 60px;
-    right: 8px;
-    bottom: auto;
-    left: auto;
-    flex-direction: column;
-    gap: 10px;
+  body:not(.playing) .category-btn {
+    padding: 4px 8px !important;
+    font-size: 9px !important;
   }
 
-  body.playing .timer-hud {
-    position: fixed;
-    top: 8px;
-    left: 8px;
-    width: auto;
-    margin-bottom: 0;
-    z-index: 502;
-    padding: 6px 12px;
-    font-size: 11px;
-    border-top: 1px solid #00ffcc;
-    border-left: 3px solid #00ffcc;
+  body:not(.playing) .search-box-wrapper {
+    margin-bottom: 6px !important;
   }
+
+  body:not(.playing) .game-search-input {
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+  }
+
+  body:not(.playing) .sidebar>.stack:nth-of-type(3) {
+    /* Core selector */
+    flex: 1 !important;
+    width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+body:not(.playing) .sidebar>.stack:nth-of-type(3)>.hint {
+  display: none !important;
+  /* Hide hint under core select */
+}
+
+body:not(.playing) .sidebar-launch-btn {
+  display: block !important;
+  width: 100%;
+  margin-top: 15px;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 10px 0;
+  text-align: center;
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  animation: neonPulse 1.5s infinite alternate;
+}
+
+body.playing .sidebar {
+  display: none !important;
+}
+
+body.playing .header {
+  background: transparent !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  width: 0 !important;
+  overflow: visible !important;
+}
+
+body.playing .brand,
+body.playing .coin-dashboard {
+  display: none !important;
+}
+
+body.playing #app {
+  max-width: 100vw;
+  height: 100vh;
+}
+
+body.playing .main-content {
+  flex-direction: column;
+  height: 100vh;
+}
+
+body.playing .game-area {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 100;
+  margin: 0;
+  padding: 0;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+body.playing .screen-shell {
+  width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: #000;
+}
+
+body.playing .controls-bar {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  bottom: auto;
+  left: auto;
+  transform: none;
+  z-index: 501;
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: auto;
+}
+
+body.playing .controls-bar button:not(#exitBtn) {
+  display: none;
+}
+
+body.playing #exitBtn {
+  font-size: 14px;
+  padding: 10px 20px;
+  opacity: 0.8;
+  background: rgba(0, 0, 0, 0.6);
+  font-weight: bold;
+  border: 1px solid var(--accent);
+}
+
+body.playing .virtual-gamepad {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 500;
+  background: transparent;
+  border: none;
+  pointer-events: none;
+  padding: 0;
+}
+
+body.playing .joystick-base,
+body.playing .action-buttons,
+body.playing .system-buttons {
+  pointer-events: auto;
+  opacity: 0.85;
+}
+
+body.playing .joystick-base {
+  position: absolute;
+  bottom: 20px;
+  left: 40px;
+}
+
+body.playing .action-buttons {
+  position: absolute;
+  bottom: 20px;
+  right: 40px;
+  transform: scale(1.1);
+}
+
+body.playing .system-buttons {
+  position: absolute;
+  top: 60px;
+  right: 8px;
+  bottom: auto;
+  left: auto;
+  flex-direction: column;
+  gap: 10px;
+}
+
+body.playing .timer-hud {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  width: auto;
+  margin-bottom: 0;
+  z-index: 502;
+  padding: 6px 12px;
+  font-size: 11px;
+  border-top: 1px solid #00ffcc;
+  border-left: 3px solid #00ffcc;
+}
 }
 
 /* --- COIN SYSTEM & SHOP DESIGN --- */
@@ -675,7 +813,7 @@ button.primary:hover:not(:disabled) {
   max-height: 90vh;
   background: #141414;
   border: 3px solid var(--accent);
-  box-shadow: 0 0 30px rgba(255, 0, 85, 0.4), inset 0 0 15px rgba(0,0,0,0.9);
+  box-shadow: 0 0 30px rgba(255, 0, 85, 0.4), inset 0 0 15px rgba(0, 0, 0, 0.9);
   padding: 25px;
   z-index: 1002;
   overflow-y: auto;
@@ -922,11 +1060,11 @@ button.primary:hover:not(:disabled) {
   transition: all 0.3s;
 }
 
-.toggle-switch input:checked + .slider {
+.toggle-switch input:checked+.slider {
   background: #00ffcc;
 }
 
-.toggle-switch input:checked + .slider:before {
+.toggle-switch input:checked+.slider:before {
   left: 22px;
 }
 
@@ -969,12 +1107,12 @@ button.primary:hover:not(:disabled) {
 
 .giftcode-msg.success {
   color: #00ffcc;
-  text-shadow: 0 0 8px rgba(0,255,204,0.4);
+  text-shadow: 0 0 8px rgba(0, 255, 204, 0.4);
 }
 
 .giftcode-msg.error {
   color: var(--accent);
-  text-shadow: 0 0 8px rgba(255,0,85,0.4);
+  text-shadow: 0 0 8px rgba(255, 0, 85, 0.4);
 }
 
 /* PAYMENT SIMULATION GRID Overlay */
@@ -1149,6 +1287,7 @@ button.primary:hover:not(:disabled) {
     width: 100%;
     gap: 8px;
   }
+
   .timer-hud {
     width: 100%;
     margin-top: 6px;
@@ -1301,53 +1440,107 @@ button.primary:hover:not(:disabled) {
 
 /* ANIMATIONS KEYFRAMES */
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes laserScan {
-  0% { top: 0; }
-  50% { top: calc(100% - 2px); }
-  100% { top: 0; }
+  0% {
+    top: 0;
+  }
+
+  50% {
+    top: calc(100% - 2px);
+  }
+
+  100% {
+    top: 0;
+  }
 }
 
 @keyframes coinPulse {
-  0%, 100% { transform: scale(1) rotate(0deg); }
-  50% { transform: scale(1.15) rotate(15deg); }
+
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+
+  50% {
+    transform: scale(1.15) rotate(15deg);
+  }
 }
 
 @keyframes neonPulse {
   0% {
     box-shadow: 0 0 5px rgba(255, 0, 85, 0.2);
   }
+
   100% {
     box-shadow: 0 0 15px rgba(255, 0, 85, 0.8);
   }
 }
 
 @keyframes warningFlash {
-  0%, 100% { background: rgba(0, 0, 0, 0.75); }
-  50% { background: rgba(120, 0, 30, 0.85); }
+
+  0%,
+  100% {
+    background: rgba(0, 0, 0, 0.75);
+  }
+
+  50% {
+    background: rgba(120, 0, 30, 0.85);
+  }
 }
 
 @keyframes scalePulse {
-  0% { transform: scale(0.9); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(0.9); }
+  0% {
+    transform: scale(0.9);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(0.9);
+  }
 }
 
 @keyframes fadeUp {
-  0% { transform: translate(-50%, 0); opacity: 1; }
-  100% { transform: translate(-50%, -25px); opacity: 0; }
+  0% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-50%, -25px);
+    opacity: 0;
+  }
 }
 
 @keyframes fadeUpLeft {
-  0% { transform: translateY(0); opacity: 1; }
-  100% { transform: translateY(-25px); opacity: 0; }
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-25px);
+    opacity: 0;
+  }
 }
 
 @keyframes slideInLeft {
-  0% { transform: translateX(-100%); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 /* CONSOLE CATEGORIES SELECTOR TABS */
@@ -1358,6 +1551,8 @@ button.primary:hover:not(:disabled) {
   overflow-x: auto;
   padding-bottom: 6px;
   scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x !important;
 }
 
 .console-categories::-webkit-scrollbar {
@@ -1506,6 +1701,8 @@ button.primary:hover:not(:disabled) {
   border-radius: 4px;
   background: rgba(5, 5, 5, 0.6);
   scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y !important;
 }
 
 .game-cards-grid::-webkit-scrollbar {
@@ -1527,6 +1724,8 @@ button.primary:hover:not(:disabled) {
   display: flex;
   flex-direction: column;
   position: relative;
+  min-height: 114px !important;
+  flex-shrink: 0 !important;
 }
 
 .game-card:hover {
@@ -1541,12 +1740,47 @@ button.primary:hover:not(:disabled) {
   box-shadow: 0 0 10px rgba(0, 255, 204, 0.3), inset 0 0 5px rgba(0, 255, 204, 0.1);
 }
 
+.card-fav-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #fff;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  padding: 0 !important;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  font-size: 11px;
+  z-index: 10;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 0 !important;
+  line-height: 1;
+}
+
+.card-fav-btn:hover {
+  transform: scale(1.15);
+  border-color: #ff0055 !important;
+  box-shadow: 0 0 8px rgba(255, 0, 85, 0.6) !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+}
+
+.card-fav-btn.active {
+  border-color: #ff0055 !important;
+  background: rgba(255, 0, 85, 0.2) !important;
+}
+
 .card-thumb-wrapper {
   position: relative;
   width: 100%;
   height: 70px;
   background: #111;
   overflow: hidden;
+  flex-shrink: 0 !important;
 }
 
 .card-thumb {
@@ -1587,6 +1821,7 @@ button.primary:hover:not(:disabled) {
 .card-info {
   padding: 6px 8px;
   flex-grow: 1;
+  flex-shrink: 0 !important;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
