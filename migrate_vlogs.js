@@ -59,7 +59,7 @@ async function migrate() {
       },
       body: JSON.stringify({
         prefix: '',
-        limit: 100,
+        limit: 500,
         offset: 0,
         sortBy: {
           column: 'name',
