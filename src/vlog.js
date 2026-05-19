@@ -293,7 +293,7 @@ export async function initVlog() {
           </div>
           <div class="vlog-form-group">
             <label class="vlog-form-label">Tên của bạn (Nickname)</label>
-            <input type="text" id="vlogUploaderInput" class="vlog-form-input" placeholder="Ví dụ: Quốc Đẹp Trai" value="Quốc Khách" />
+            <input type="text" id="vlogUploaderInput" class="vlog-form-input" placeholder="Ví dụ: Quốc Đẹp Trai" value="${localStorage.getItem('vlog_device_nickname') || 'Quốc Khách'}" />
           </div>
           <div class="vlog-form-group">
             <label class="vlog-form-label">Tiêu Đề Vlog</label>
@@ -837,6 +837,16 @@ function closeVlogModal(selector) {
   document.querySelector('#vlogSheetBackdrop').classList.remove('active');
 }
 
+// Helper to get or create a persistent unique User ID for this browser device
+function getOrCreateDeviceUserId() {
+  let deviceUserId = localStorage.getItem('vlog_device_user_id');
+  if (!deviceUserId) {
+    deviceUserId = 'usr_' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+    localStorage.setItem('vlog_device_user_id', deviceUserId);
+  }
+  return deviceUserId;
+}
+
 // Helper to remove Vietnamese tones and non-ASCII characters for storage key safety
 function removeVietnameseTones(str) {
   str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
@@ -910,25 +920,63 @@ function setupUploadHandlers() {
   closeBtn.addEventListener('click', closeModal);
 
   // XML HTTP REQUEST upload with REAL live progress bar!
-  confirmBtn.addEventListener('click', () => {
+  confirmBtn.addEventListener('click', async () => {
     if (!selectedFile) return;
-
-    confirmBtn.disabled = true;
-    cancelBtn.disabled = true;
-    progressContainer.style.display = 'block';
 
     const nickname = uploaderInput.value.trim() || 'Người dùng ẩn danh';
     const titleVal = document.querySelector('#vlogTitleInput').value.trim() || `Vlog ngắn tải lên bởi ${nickname}`;
     const descVal = document.querySelector('#vlogDescInput').value.trim() || `Khám phá cuộc hành trình thú vị và những địa điểm đặc sắc tuyệt vời cùng với ${nickname}. Tải lên thành công từ thiết bị khách!`;
     const isSystemVal = document.querySelector('#vlogIsSystemInput').checked;
 
+    // A. SPAM PREVENTION: Client-side cool-down of 2 minutes
+    const COOLDOWN_MS = 2 * 60 * 1000;
+    const lastUploadTime = localStorage.getItem('last_vlog_upload_time');
+    if (lastUploadTime) {
+      const elapsed = Date.now() - parseInt(lastUploadTime);
+      if (elapsed < COOLDOWN_MS) {
+        const secondsLeft = Math.ceil((COOLDOWN_MS - elapsed) / 1000);
+        showVlogToast(`❌ Vui lòng đợi ${secondsLeft} giây trước khi tải lên video tiếp theo.`);
+        return;
+      }
+    }
+
+    // B. AUTHENTICATION & NICKNAME OWNERSHIP PROTECTION
+    const deviceUserId = getOrCreateDeviceUserId();
+
+    confirmBtn.disabled = true;
+    cancelBtn.disabled = true;
+    progressContainer.style.display = 'block';
+    progressStatus.textContent = 'Đang xác thực bảo mật...';
+
+    try {
+      // Query if this nickname is already claimed by another User ID in DB
+      const { data: existingUser, error: authErr } = await supabase
+        .from('vlog_users')
+        .select('id')
+        .eq('nickname', nickname)
+        .maybeSingle();
+
+      if (authErr) console.warn("Auth check error:", authErr.message);
+
+      if (existingUser && existingUser.id !== deviceUserId) {
+        progressContainer.style.display = 'none';
+        confirmBtn.disabled = false;
+        cancelBtn.disabled = false;
+        showVlogToast("❌ Tên này đã được sở hữu bởi thiết bị khác! Vui lòng chọn tên khác.");
+        return;
+      }
+    } catch (e) {
+      console.warn("Spam verification unexpected error:", e);
+    }
+
+    progressStatus.textContent = 'Đang chuẩn bị gói tin...';
+
     const ext = selectedFile.name.split('.').pop() || 'mp4';
     const timestamp = Date.now();
     const cleanNickname = removeVietnameseTones(nickname);
-    const mockUid = 'guest_' + Math.random().toString(36).substring(2, 9);
 
     // Exact file name formatting as requested
-    const fileName = `${cleanNickname}__${mockUid}__video_${timestamp}.${ext}`;
+    const fileName = `${cleanNickname}__${deviceUserId}__video_${timestamp}.${ext}`;
     const uploadUrl = `${SUPABASE_URL}/storage/v1/object/videos/${fileName}`;
 
     const xhr = new XMLHttpRequest();
@@ -958,13 +1006,17 @@ function setupUploadHandlers() {
       if (xhr.status >= 200 && xhr.status < 300) {
         const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/videos/${encodeURIComponent(fileName)}`;
 
+        // Save metadata on local device to remember nickname and timestamp
+        localStorage.setItem('vlog_device_nickname', nickname);
+        localStorage.setItem('last_vlog_upload_time', Date.now().toString());
+
         // Attempt to insert into database
         let newVideo = null;
         try {
           // 1. Upsert user first
           const { error: userError } = await supabase
             .from('vlog_users')
-            .upsert([{ id: mockUid, nickname: nickname }]);
+            .upsert([{ id: deviceUserId, nickname: nickname }]);
 
           if (userError) console.warn("User upsert warning:", userError.message);
 
@@ -972,7 +1024,7 @@ function setupUploadHandlers() {
           const { data: dbVideo, error: videoError } = await supabase
             .from('vlog_videos')
             .insert([{
-              user_id: mockUid,
+              user_id: deviceUserId,
               uploader_name: nickname,
               url: publicUrl,
               title: titleVal,
