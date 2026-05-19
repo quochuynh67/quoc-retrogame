@@ -887,3 +887,102 @@
     border-right: 1px solid var(--vlog-glass-border);
   }
 }
+
+/* Autoplay Unlock Overlay */
+.vlog-autoplay-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s;
+  pointer-events: auto;
+}
+
+.vlog-autoplay-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.vlog-autoplay-card {
+  background: rgba(20, 22, 30, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 30px 24px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80%;
+  max-width: 320px;
+  transform: scale(1);
+  animation: vlog-card-float 3s ease-in-out infinite;
+}
+
+.vlog-autoplay-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--vlog-accent), var(--vlog-pink));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #000;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
+  margin-bottom: 20px;
+  z-index: 2;
+}
+
+/* Beautiful pulsing ripple effect around the icon */
+.vlog-autoplay-pulse-ring {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2px solid var(--vlog-accent);
+  animation: vlog-ripple 1.8s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+  pointer-events: none;
+  z-index: 1;
+  margin-bottom: 20px;
+}
+
+.vlog-autoplay-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.vlog-autoplay-subtitle {
+  font-size: 13px;
+  color: var(--vlog-text-secondary);
+}
+
+@keyframes vlog-card-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes vlog-ripple {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}

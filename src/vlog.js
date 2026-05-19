@@ -986,20 +986,87 @@ function setupAutoHideControls() {
 // --- ZALO MINI APP IFRAME / WEBVIEW AUTOPLAY TOUCH UNLOCKER ---
 let autoplayUnlocked = false;
 
+function showAutoplayOverlay() {
+  const container = document.querySelector('.vlog-container');
+  if (!container) return;
+
+  let overlay = document.querySelector('#vlogAutoplayOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'vlogAutoplayOverlay';
+    overlay.className = 'vlog-autoplay-overlay';
+    overlay.innerHTML = `
+      <div class="vlog-autoplay-card">
+        <div class="vlog-autoplay-pulse-ring"></div>
+        <div class="vlog-autoplay-icon">
+          <span class="vlog-autoplay-emoji">👆</span>
+        </div>
+        <div class="vlog-autoplay-title">Nhấn Để Mở Khoá Vlog 🔊</div>
+        <div class="vlog-autoplay-subtitle">Chạm bất kỳ đâu để xem video với âm thanh</div>
+      </div>
+    `;
+    container.appendChild(overlay);
+  } else {
+    overlay.classList.remove('hidden');
+  }
+}
+
+function hideAutoplayOverlay() {
+  const overlay = document.querySelector('#vlogAutoplayOverlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    setTimeout(() => {
+      if (overlay.classList.contains('hidden')) {
+        overlay.remove();
+      }
+    }, 500);
+  }
+}
+
 function unlockAutoplay() {
   if (autoplayUnlocked) return;
   
   // Find current active video
   const activeVideo = document.querySelectorAll('.vlog-video')[activeVideoIndex];
-  if (activeVideo && activeVideo.paused) {
-    activeVideo.muted = isMuted;
+  if (activeVideo) {
+    // Unmute to let user hear sound
+    isMuted = false;
+    document.querySelectorAll('.vlog-video').forEach((v, index) => {
+      v.muted = isMuted;
+      const btn = document.querySelector(`#actionSoundBtn_${index}`);
+      if (btn) {
+        btn.innerHTML = `
+          <div class="vlog-soundwave">
+            <div class="vlog-soundwave-bar"></div>
+            <div class="vlog-soundwave-bar"></div>
+            <div class="vlog-soundwave-bar"></div>
+            <div class="vlog-soundwave-bar"></div>
+          </div>
+        `;
+      }
+    });
+
     activeVideo.play().then(() => {
       autoplayUnlocked = true;
       console.log("Autoplay unlocked successfully via Zalo/iframe touch gesture!");
       removeUnlockListeners();
+      hideAutoplayOverlay();
+      showVlogToast("🔊 Đã mở khóa âm thanh & video!");
     }).catch(err => {
-      console.warn("Touch unlock attempt blocked:", err);
+      console.warn("Touch unlock attempt blocked, playing muted:", err);
+      activeVideo.muted = true;
+      activeVideo.play().then(() => {
+        autoplayUnlocked = true;
+        removeUnlockListeners();
+        hideAutoplayOverlay();
+      }).catch(e => {
+        console.error("Autoplay completely blocked:", e);
+      });
     });
+  } else {
+    autoplayUnlocked = true;
+    removeUnlockListeners();
+    hideAutoplayOverlay();
   }
 }
 
@@ -1012,6 +1079,7 @@ function removeUnlockListeners() {
 
 function setupAutoplayUnlocker() {
   autoplayUnlocked = false;
+  showAutoplayOverlay();
   window.addEventListener('touchstart', unlockAutoplay, { passive: true });
   window.addEventListener('click', unlockAutoplay);
   window.addEventListener('touchend', unlockAutoplay, { passive: true });
