@@ -270,7 +270,14 @@ export async function initVlog() {
   app.innerHTML = `
     <div class="vlog-root">
       <div class="vlog-container">
-        <!-- TOP NAVIGATION BAR REMOVED -->
+        <!-- GLASS AUTO PLAY NEXT SWITCH -->
+        <div class="vlog-autoplay-switch-container">
+          <span class="vlog-autoplay-label">Tự Chuyển</span>
+          <label class="vlog-glass-switch">
+            <input type="checkbox" id="vlogAutoPlayNextToggle" checked>
+            <span class="vlog-glass-slider"></span>
+          </label>
+        </div>
 
         <!-- MAIN VERTICAL SNAP STREAM -->
         <div class="vlog-feed" id="vlogFeed">
@@ -395,8 +402,25 @@ export async function initVlog() {
 
   // Load and populate vlog slides
   videoList = await fetchVideosFromSupabase();
+  
+  // Shuffle video list for randomness
+  for (let i = videoList.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [videoList[i], videoList[j]] = [videoList[j], videoList[i]];
+  }
+
   renderVlogSlides();
   updateVideoSources(0);
+
+  // Setup auto play next toggle
+  const autoPlayToggle = document.querySelector('#vlogAutoPlayNextToggle');
+  if (autoPlayToggle) {
+    autoPlayToggle.checked = autoPlayNext;
+    autoPlayToggle.addEventListener('change', (e) => {
+      autoPlayNext = e.target.checked;
+      showVlogToast(autoPlayNext ? "⚡ Đã BẬT tự động chuyển video" : "⏸️ Đã TẮT tự động chuyển video");
+    });
+  }
 
   // Setup sheet actions
   setupSheetHandlers();
@@ -453,8 +477,8 @@ function renderVlogSlides() {
 
     slide.innerHTML = `
       <div class="vlog-video-wrapper">
-        <!-- Primary Video tag (loop muted playsinline for webview compatibility) -->
-        <video class="vlog-video" loop muted playsinline webkit-playsinline></video>
+        <!-- Primary Video tag (muted playsinline for webview compatibility) -->
+        <video class="vlog-video" muted playsinline webkit-playsinline></video>
 
         <!-- Tap-to-toggle overlay detector -->
         <div class="vlog-play-pause-center-btn" data-video-index="${index}"></div>
@@ -621,7 +645,13 @@ function renderVlogSlides() {
         if (nextSlide && nextSlide.classList.contains('vlog-slide')) {
           nextSlide.scrollIntoView({ behavior: 'smooth' });
           showVlogToast("⚡ Tự động chuyển sang video tiếp theo...");
+        } else {
+          // If no next slide, loop manually
+          videoEl.play().catch(e => {});
         }
+      } else {
+        // Loop manually if auto play next is off
+        videoEl.play().catch(e => {});
       }
     });
 
@@ -1238,7 +1268,7 @@ function setupUploadHandlers() {
 let controlHideTimeout = null;
 
 function showControls() {
-  const overlays = document.querySelectorAll('.vlog-sidebar-overlay, .vlog-info-overlay');
+  const overlays = document.querySelectorAll('.vlog-sidebar-overlay, .vlog-info-overlay, .vlog-autoplay-switch-container');
   overlays.forEach(el => {
     el.style.opacity = '1';
     el.style.pointerEvents = 'auto';
@@ -1267,7 +1297,7 @@ function hideControls() {
     return;
   }
 
-  const overlays = document.querySelectorAll('.vlog-sidebar-overlay, .vlog-info-overlay');
+  const overlays = document.querySelectorAll('.vlog-sidebar-overlay, .vlog-info-overlay, .vlog-autoplay-switch-container');
   overlays.forEach(el => {
     el.style.opacity = '0';
     el.style.pointerEvents = 'none';
