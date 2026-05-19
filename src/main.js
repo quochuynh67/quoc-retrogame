@@ -1,5 +1,6 @@
 import './style.css';
 import { Nostalgist } from 'nostalgist';
+import ARCADE_MAP from '../fbneo_rom_boxarts.json';
 
 // const isDev = new URLSearchParams(window.location.search).get('dev') === '1';
 const isDev = true;
@@ -15,12 +16,19 @@ app.innerHTML = `
         <h1>Hệ Thống Arcade Cổ Điển</h1>
         <p>Chơi game giả lập ngay trên trình duyệt với giao diện Retro</p>
       </div>
-      <div class="coin-dashboard">
-        <div class="coin-balance-display">
-          <span class="coin-pulse">🪙</span>
-          <span class="coin-val" id="coinCount">--</span> <span class="coin-unit">xu</span>
+      <div class="header-controls">
+        <!-- Timer HUD Overlay -->
+        <div id="timerHud" class="timer-hud hidden">
+          <span class="hud-icon">⏱️</span> THỜI GIAN CÒN LẠI: <span id="timerVal">03:00</span>
         </div>
-        <button id="shopBtn" class="primary shop-trigger">Nạp Xu</button>
+
+        <div class="coin-dashboard">
+          <div class="coin-balance-display">
+            <span class="coin-pulse">🪙</span>
+            <span class="coin-val" id="coinCount">--</span> <span class="coin-unit">xu</span>
+          </div>
+          <button id="shopBtn" class="primary shop-trigger">Nạp Xu</button>
+        </div>
       </div>
     </div>
   </header>
@@ -28,11 +36,6 @@ app.innerHTML = `
   <main class="main-content">
     <section class="game-area">
       <div class="screen-shell" style="position: relative;">
-        <!-- Timer HUD Overlay -->
-        <div id="timerHud" class="timer-hud hidden">
-          <span class="hud-icon">⏱️</span> THỜI GIAN CÒN LẠI: <span id="timerVal">03:00</span>
-        </div>
-        
         <!-- Continue Overlay -->
         <div id="continueOverlay" class="continue-overlay hidden">
           <div class="continue-box">
@@ -93,7 +96,7 @@ app.innerHTML = `
 
         <!-- 1. Selection dropdown (Default) -->
         <div id="romListContainer" class="rom-input-group">
-          <select id="romUrl" class="input">
+          <select id="romUrl" class="input" style="display: none;">
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/1942.zip">1942</option>
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/1943.zip">1943</option>
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/1943kai.zip">1943kai</option>
@@ -472,6 +475,40 @@ app.innerHTML = `
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/yiear.zip">yiear</option>
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/zookeep.zip">zookeep</option>
         </select>
+
+        <!-- CATEGORY TABS switcher -->
+        <div class="console-categories">
+          <button type="button" class="category-btn active" data-system="all">🌐 Tất cả</button>
+          <button type="button" class="category-btn" data-system="arcade">🕹️ Arcade</button>
+          <button type="button" class="category-btn" data-system="nes">🔴 NES</button>
+          <button type="button" class="category-btn" data-system="snes">🟣 SNES</button>
+          <button type="button" class="category-btn" data-system="gameboy">🟢 Game Boy</button>
+        </div>
+
+        <!-- SEARCH INPUT -->
+        <div class="search-box-wrapper">
+          <input type="text" id="gameSearchInput" class="input game-search-input" placeholder="🔍 Tìm kiếm game..." />
+        </div>
+
+        <!-- SELECTED GAME SHOWCASE PANEL -->
+        <div id="selectedGameShowcase" class="selected-game-showcase">
+          <div class="showcase-thumb-wrapper">
+            <div class="crt-overlay"></div>
+            <img id="showcaseThumb" class="showcase-thumb" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='65' viewBox='0 0 90 65'><rect width='100%' height='100%' fill='%23111'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%2300ffcc' font-family='Courier' font-size='10' font-weight='bold'>🕹️ RETRO</text></svg>" />
+          </div>
+          <div class="showcase-details">
+            <h3 id="showcaseTitle" class="showcase-title">Chọn Một Game</h3>
+            <div class="showcase-meta">
+              <span id="showcaseSystem" class="showcase-system-badge">ARCADE</span>
+              <span id="showcaseRom" class="showcase-rom-name">chưa chọn</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- DYNAMIC GRID OF GAME CARDS -->
+        <div id="gameCardsGrid" class="game-cards-grid">
+          <!-- Dynamically populated via JS -->
+        </div>
         </div>
 
         ${isDev ? `
@@ -1338,11 +1375,358 @@ function initDevRomHandlers() {
   }
 }
 
+// Sound Synthesizer Utility for Retro UI Interaction
+const RetroSynth = {
+  ctx: null,
+  init() {
+    if (!this.ctx) {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  },
+  playHover() {
+    try {
+      this.init();
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(900, this.ctx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.015, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.05);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.05);
+    } catch (e) { }
+  },
+  playClick() {
+    try {
+      this.init();
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(350, this.ctx.currentTime);
+      osc.frequency.setValueAtTime(700, this.ctx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.03, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.15);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.15);
+    } catch (e) { }
+  }
+};
+
+// Global image error handler
+window.handleImageError = function (img, title) {
+  img.onerror = null;
+  const parent = img.parentNode;
+  if (parent) {
+    parent.innerHTML = `
+      <div class="card-fallback">
+        🎮
+        <div class="card-fallback-text">${title.slice(0, 12)}</div>
+      </div>
+    `;
+  }
+};
+
+function initGameLibraryGrid() {
+  const romUrlEl = document.querySelector('#romUrl');
+  const coreNameEl = document.querySelector('#coreName');
+  const gridContainer = document.querySelector('#gameCardsGrid');
+  const searchInput = document.querySelector('#gameSearchInput');
+  const categoryBtns = document.querySelectorAll('.category-btn');
+
+  const showcaseThumb = document.querySelector('#showcaseThumb');
+  const showcaseTitle = document.querySelector('#showcaseTitle');
+  const showcaseSystem = document.querySelector('#showcaseSystem');
+  const showcaseRom = document.querySelector('#showcaseRom');
+
+  if (!romUrlEl || !gridContainer) return;
+
+  // 1. Arcade Title & Thumbnail Mapping Table loaded dynamically via ES import
+
+  // 2. Predefined high-quality console ROM databases
+  const consoleGames = [
+    // NES Classic Games List
+    {
+      title: "Super Mario Bros.",
+      rom: "super_mario_bros",
+      url: "https://quoc67k1-profile.web.app/tuoitho/nes_rom/super_mario_bros.nes",
+      system: "nes",
+      thumbnail: "https://thumbnails.libretro.com/Nintendo%20-%20Nintendo%20Entertainment%20System/Named_Boxarts/Super%20Mario%20Bros.%20(Japan%2C%20USA).png",
+      core: "fceumm"
+    },
+    {
+      title: "Contra",
+      rom: "contra",
+      url: "https://quoc67k1-profile.web.app/tuoitho/nes_rom/contra.nes",
+      system: "nes",
+      thumbnail: "https://thumbnails.libretro.com/Nintendo%20-%20Nintendo%20Entertainment%20System/Named_Boxarts/Contra%20(USA).png",
+      core: "fceumm"
+    },
+    {
+      title: "Battle City (Tank 1990)",
+      rom: "battle_city",
+      url: "https://quoc67k1-profile.web.app/tuoitho/nes_rom/battle_city.nes",
+      system: "nes",
+      thumbnail: "https://thumbnails.libretro.com/Nintendo%20-%20Nintendo%20Entertainment%20System/Named_Boxarts/Battle%20City%20(Japan).png",
+      core: "fceumm"
+    },
+    {
+      title: "Legend of Zelda, The",
+      rom: "zelda",
+      url: "https://quoc67k1-profile.web.app/tuoitho/nes_rom/zelda.nes",
+      system: "nes",
+      thumbnail: "https://thumbnails.libretro.com/Nintendo%20-%20Nintendo%20Entertainment%20System/Named_Boxarts/Legend%20of%20Zelda%2C%20The%20(USA).png",
+      core: "fceumm"
+    },
+    {
+      title: "Dr. Mario",
+      rom: "dr_mario",
+      url: "https://quoc67k1-profile.web.app/tuoitho/nes_rom/dr_mario.nes",
+      system: "nes",
+      thumbnail: "https://thumbnails.libretro.com/Nintendo%20-%20Nintendo%20Entertainment%20System/Named_Boxarts/Dr.%20Mario%20(Japan%2C%20USA).png",
+      core: "fceumm"
+    },
+
+    // SNES Classic Games List
+    {
+      title: "Super Mario World",
+      rom: "super_mario_world",
+      url: "https://quoc67k1-profile.web.app/tuoitho/snes_rom/super_mario_world.sfc",
+      system: "snes",
+      thumbnail: "https://thumbnails.libretro.com/Nintendo%20-%20Super%20Nintendo%20Entertainment%20System/Named_Boxarts/Super%20Mario%20World%20(USA).png",
+      core: "snes9x"
+    },
+    {
+      title: "Street Fighter II Turbo",
+      rom: "sf2_turbo",
+      url: "https://quoc67k1-profile.web.app/tuoitho/snes_rom/street_fighter_2_turbo.sfc",
+      system: "snes",
+      thumbnail: "https://thumbnails.libretro.com/Nintendo%20-%20Super%20Nintendo%20Entertainment%20System/Named_Boxarts/Street%20Fighter%20II%20Turbo%20-%20Hyper%20Fighting%20(USA).png",
+      core: "snes9x"
+    },
+    {
+      title: "Donkey Kong Country",
+      rom: "donkey_kong_country",
+      url: "https://quoc67k1-profile.web.app/tuoitho/snes_rom/donkey_kong_country.sfc",
+      system: "snes",
+      thumbnail: "https://thumbnails.libretro.com/Nintendo%20-%20Super%20Nintendo%20Entertainment%20System/Named_Boxarts/Donkey%20Kong%20Country%20(USA)%20(Rev%201).png",
+      core: "snes9x"
+    },
+
+    // Game Boy / GBA Classic Games List
+    {
+      title: "Pokemon FireRed Version",
+      rom: "pokemon_firered",
+      url: "https://quoc67k1-profile.web.app/tuoitho/gba_rom/pokemon_firered.gba",
+      system: "gameboy",
+      thumbnail: "https://thumbnails.libretro.com/Nintendo%20-%20Game%20Boy%20Advance/Named_Boxarts/Pokemon%20-%20FireRed%20Version%20(USA).png",
+      core: "mgba"
+    },
+    {
+      title: "Tetris",
+      rom: "tetris",
+      url: "https://quoc67k1-profile.web.app/tuoitho/gb_rom/tetris.gb",
+      system: "gameboy",
+      thumbnail: "https://thumbnails.libretro.com/Nintendo%20-%20Game%20Boy/Named_Boxarts/Tetris%20(World)%20(Rev%20A).png",
+      core: "gambatte"
+    },
+    {
+      title: "Super Mario Advance",
+      rom: "super_mario_advance",
+      url: "https://quoc67k1-profile.web.app/tuoitho/gba_rom/super_mario_advance.gba",
+      system: "gameboy",
+      thumbnail: "https://thumbnails.libretro.com/Nintendo%20-%20Game%20Boy%20Advance/Named_Boxarts/Super%20Mario%20Advance%20(USA%2C%20Europe).png",
+      core: "mgba"
+    }
+  ];
+
+  // 3. Dynamically parse Arcade options from DOM select
+  const arcadeOptions = Array.from(romUrlEl.querySelectorAll('option'));
+  const arcadeGames = arcadeOptions.map(opt => {
+    const value = opt.value;
+    const romName = opt.text.trim();
+    const cleanTitle = ARCADE_MAP[romName] || (romName.charAt(0).toUpperCase() + romName.slice(1));
+    const thumbnail = `https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/${encodeURIComponent(cleanTitle)}.png`;
+    return {
+      title: cleanTitle,
+      rom: romName,
+      url: value,
+      system: 'arcade',
+      thumbnail: thumbnail,
+      core: 'fbneo'
+    };
+  });
+
+  const allGames = [...arcadeGames, ...consoleGames];
+  let activeSystemFilter = 'all';
+  let activeSearchQuery = '';
+  let currentlySelectedUrl = romUrlEl.value;
+
+  // 4. Update Chosen Game Showcase Card details
+  function updateShowcase(game) {
+    if (!game) {
+      showcaseTitle.textContent = "Chưa chọn game nào";
+      showcaseSystem.textContent = "NONE";
+      showcaseRom.textContent = "...";
+      showcaseThumb.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='65' viewBox='0 0 90 65'><rect width='100%' height='100%' fill='%23111'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%2300ffcc' font-family='Courier' font-size='10' font-weight='bold'>🕹️ RETRO</text></svg>";
+      return;
+    }
+    showcaseTitle.textContent = game.title;
+    showcaseSystem.textContent = game.system.toUpperCase();
+    showcaseRom.textContent = game.rom + (game.system === 'arcade' ? '.zip' : '');
+    showcaseThumb.src = game.thumbnail;
+
+    showcaseThumb.onerror = function () {
+      showcaseThumb.onerror = null;
+      showcaseThumb.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='65' viewBox='0 0 90 65'><rect width='100%' height='100%' fill='%23222'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%2300ffcc' font-family='Courier' font-size='10' font-weight='bold'>🎮 PLAY</text></svg>";
+    };
+  }
+
+  // 5. Select a game (handles tab syncing and option mapping)
+  function selectGame(game, playFeedback = true) {
+    if (playFeedback) {
+      RetroSynth.playClick();
+    }
+    currentlySelectedUrl = game.url;
+
+    let optionEl = Array.from(romUrlEl.options).find(opt => opt.value === game.url);
+    if (!optionEl) {
+      const newOpt = document.createElement('option');
+      newOpt.value = game.url;
+      newOpt.textContent = game.rom;
+      romUrlEl.appendChild(newOpt);
+    }
+
+    romUrlEl.value = game.url;
+    if (coreNameEl) {
+      coreNameEl.value = game.core;
+    }
+
+    romUrlEl.dispatchEvent(new Event('change'));
+    updateShowcase(game);
+
+    const cards = gridContainer.querySelectorAll('.game-card');
+    cards.forEach(card => {
+      if (card.getAttribute('data-url') === game.url) {
+        card.classList.add('active');
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        card.classList.remove('active');
+      }
+    });
+
+    if (playFeedback) {
+      showToast(`🎯 Đã chọn: ${game.title} (${game.system.toUpperCase()})!`, 'success');
+    }
+  }
+
+  // 6. Draw scrollable grid cards list
+  function renderGames() {
+    gridContainer.innerHTML = '';
+
+    const query = activeSearchQuery.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const filtered = allGames.filter(game => {
+      const matchSystem = activeSystemFilter === 'all' || game.system === activeSystemFilter;
+      const matchSearch = !query ||
+        game.title.toLowerCase().replace(/[^a-z0-9]/g, '').includes(query) ||
+        game.rom.toLowerCase().replace(/[^a-z0-9]/g, '').includes(query);
+      return matchSystem && matchSearch;
+    });
+
+    if (filtered.length === 0) {
+      gridContainer.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; color: #666; padding: 20px; font-size: 12px; font-family: sans-serif;">
+          Không tìm thấy game nào phù hợp 👾
+        </div>
+      `;
+      return;
+    }
+
+    filtered.forEach(game => {
+      const card = document.createElement('div');
+      card.className = `game-card ${game.url === currentlySelectedUrl ? 'active' : ''}`;
+      card.setAttribute('data-url', game.url);
+
+      card.innerHTML = `
+        <div class="card-thumb-wrapper">
+          <img class="card-thumb" src="${game.thumbnail}" loading="lazy" onerror="handleImageError(this, '${game.title}')" />
+        </div>
+        <div class="card-info">
+          <h4 class="card-title">${game.title}</h4>
+          <span class="card-system-badge">${game.system}</span>
+        </div>
+      `;
+
+      card.addEventListener('mouseenter', () => {
+        RetroSynth.playHover();
+      });
+
+      card.addEventListener('click', () => {
+        selectGame(game);
+      });
+
+      gridContainer.appendChild(card);
+    });
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      activeSearchQuery = e.target.value.trim();
+      renderGames();
+    });
+  }
+
+  categoryBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      categoryBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeSystemFilter = btn.getAttribute('data-system');
+      RetroSynth.playClick();
+      renderGames();
+    });
+  });
+
+  renderGames();
+
+  if (allGames.length > 0) {
+    const defaultGame = allGames.find(g => g.url === romUrlEl.value) || allGames[0];
+    selectGame(defaultGame, false);
+  }
+
+  romUrlEl.addEventListener('change', () => {
+    const currentUrl = romUrlEl.value;
+    if (currentUrl !== currentlySelectedUrl) {
+      const game = allGames.find(g => g.url === currentUrl);
+      if (game) {
+        selectGame(game, false);
+      } else {
+        currentlySelectedUrl = currentUrl;
+        const text = romUrlEl.options[romUrlEl.selectedIndex]?.text || "Tùy chọn";
+        updateShowcase({
+          title: text,
+          rom: text,
+          url: currentUrl,
+          system: 'custom',
+          thumbnail: '',
+          core: coreNameEl.value
+        });
+      }
+    }
+  });
+}
+
 // Call state initializer on boot
 setTimeout(() => {
   CoinSystem.load();
   initShopHandlers();
   Confetti.init();
+  initGameLibraryGrid();
   if (isDev) {
     initDevRomHandlers();
   }
@@ -1386,11 +1770,6 @@ async function destroyRunningGame() {
 
   if (!emulator) {
     screenShellEl.innerHTML = `
-        <!-- Timer HUD Overlay -->
-        <div id="timerHud" class="timer-hud hidden">
-          <span class="hud-icon">⏱️</span> THỜI GIAN CÒN LẠI: <span id="timerVal">03:00</span>
-        </div>
-        
         <!-- Continue Overlay -->
         <div id="continueOverlay" class="continue-overlay hidden">
           <div class="continue-box">
@@ -1424,11 +1803,6 @@ async function destroyRunningGame() {
 
   emulator = null;
   screenShellEl.innerHTML = `
-      <!-- Timer HUD Overlay -->
-      <div id="timerHud" class="timer-hud hidden">
-        <span class="hud-icon">⏱️</span> THỜI GIAN CÒN LẠI: <span id="timerVal">03:00</span>
-      </div>
-      
       <!-- Continue Overlay -->
       <div id="continueOverlay" class="continue-overlay hidden">
         <div class="continue-box">
