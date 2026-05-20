@@ -112,6 +112,8 @@ app.innerHTML = `
           <div class="action-btn btn-y" data-key="a">Y</div>
           <div class="action-btn btn-a" data-key="x">A</div>
           <div class="action-btn btn-b" data-key="z">B</div>
+          <div class="action-btn btn-combo-ab" data-key="combo-xz">A+B</div>
+          <div class="action-btn btn-combo-yab" data-key="combo-axz">Y+A+B</div>
         </div>
       </div>
     </section>
@@ -2347,6 +2349,10 @@ const keyboardMap = {
   'KeyK': 'a',
   'KeyL': 'b',
 
+  // Combos
+  'KeyM': 'combo-ab',
+  'KeyO': 'combo-yab',
+
   // System buttons
   'Space': 'select',
   'Enter': 'start'
@@ -2358,7 +2364,9 @@ const actionSelectors = {
   'b': '.btn-b',
   'a': '.btn-a',
   'y': '.btn-y',
-  'x': '.btn-x'
+  'x': '.btn-x',
+  'combo-ab': '.btn-combo-ab',
+  'combo-yab': '.btn-combo-yab'
 };
 
 window.addEventListener('keydown', (e) => {
@@ -2412,6 +2420,18 @@ window.addEventListener('keydown', (e) => {
     const btn = document.querySelector(selector);
     if (btn) btn.classList.add('active');
   }
+
+  // Handle custom combo logic programmatically since core doesn't natively map them
+  if (action.startsWith('combo-') && emulator && emulator.pressDown) {
+    if (action === 'combo-ab') {
+      emulator.pressDown({ button: 'a', player: 1 });
+      emulator.pressDown({ button: 'b', player: 1 });
+    } else if (action === 'combo-yab') {
+      emulator.pressDown({ button: 'y', player: 1 });
+      emulator.pressDown({ button: 'a', player: 1 });
+      emulator.pressDown({ button: 'b', player: 1 });
+    }
+  }
 });
 
 window.addEventListener('keyup', (e) => {
@@ -2441,6 +2461,18 @@ window.addEventListener('keyup', (e) => {
   if (selector) {
     const btn = document.querySelector(selector);
     if (btn) btn.classList.remove('active');
+  }
+
+  // Handle custom combo logic programmatically
+  if (action.startsWith('combo-') && emulator && emulator.pressUp) {
+    if (action === 'combo-ab') {
+      emulator.pressUp({ button: 'a', player: 1 });
+      emulator.pressUp({ button: 'b', player: 1 });
+    } else if (action === 'combo-yab') {
+      emulator.pressUp({ button: 'y', player: 1 });
+      emulator.pressUp({ button: 'a', player: 1 });
+      emulator.pressUp({ button: 'b', player: 1 });
+    }
   }
 });
 
@@ -2481,8 +2513,16 @@ vButtons.forEach(btn => {
         }
       }
 
-      if (emulator && emulator.pressDown && padBtn) {
-        emulator.pressDown({ button: padBtn, player: 1 });
+      if (emulator && emulator.pressDown) {
+        if (btnName.startsWith('combo-')) {
+          const keys = btnName.replace('combo-', '').split('');
+          keys.forEach(k => {
+            const pb = nostalgistMap[k];
+            if (pb) emulator.pressDown({ button: pb, player: 1 });
+          });
+        } else if (padBtn) {
+          emulator.pressDown({ button: padBtn, player: 1 });
+        }
       }
     }
   };
@@ -2491,8 +2531,16 @@ vButtons.forEach(btn => {
     e.preventDefault();
     if (btn.classList.contains('active')) {
       btn.classList.remove('active');
-      if (emulator && emulator.pressUp && padBtn) {
-        emulator.pressUp({ button: padBtn, player: 1 });
+      if (emulator && emulator.pressUp) {
+        if (btnName.startsWith('combo-')) {
+          const keys = btnName.replace('combo-', '').split('');
+          keys.forEach(k => {
+            const pb = nostalgistMap[k];
+            if (pb) emulator.pressUp({ button: pb, player: 1 });
+          });
+        } else if (padBtn) {
+          emulator.pressUp({ button: padBtn, player: 1 });
+        }
       }
     }
   };
