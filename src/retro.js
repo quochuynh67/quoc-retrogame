@@ -108,6 +108,12 @@ app.innerHTML = `
           <div class="action-btn macro-btn macro-rl" data-key="macro-rl">→←</div>
         </div>
         
+        <div class="skill-buttons">
+          <div class="action-btn macro-btn macro-skill-l" data-key="macro-skill-l">S.Trái</div>
+          <div class="action-btn macro-btn macro-skill-r" data-key="macro-skill-r">S.Phải</div>
+          <div class="action-btn macro-btn macro-unti" data-key="macro-unti">Unti</div>
+        </div>
+
         <div class="system-buttons">
           <div class="sys-btn" data-key="Shift">Nạp xu</div>
           <div class="sys-btn" data-key="Enter">Bắt đầu</div>
@@ -2429,14 +2435,12 @@ window.addEventListener('keydown', (e) => {
 
   // Handle custom combo logic programmatically since core doesn't natively map them
   if (action.startsWith('combo-') && emulator && emulator.pressDown) {
-    if (action === 'combo-ab') {
-      emulator.pressDown({ button: 'a', player: 1 });
-      emulator.pressDown({ button: 'b', player: 1 });
-    } else if (action === 'combo-yab') {
-      emulator.pressDown({ button: 'y', player: 1 });
-      emulator.pressDown({ button: 'a', player: 1 });
-      emulator.pressDown({ button: 'b', player: 1 });
-    }
+    const comboButtons = action === 'combo-ab' ? ['a', 'b'] : ['y', 'a', 'b'];
+    comboButtons.forEach(b => {
+      emulator.pressDown({ button: b, player: 1 });
+      const el = document.querySelector(`.btn-${b}`);
+      if (el) el.classList.add('active');
+    });
   }
 });
 
@@ -2471,14 +2475,12 @@ window.addEventListener('keyup', (e) => {
 
   // Handle custom combo logic programmatically
   if (action.startsWith('combo-') && emulator && emulator.pressUp) {
-    if (action === 'combo-ab') {
-      emulator.pressUp({ button: 'a', player: 1 });
-      emulator.pressUp({ button: 'b', player: 1 });
-    } else if (action === 'combo-yab') {
-      emulator.pressUp({ button: 'y', player: 1 });
-      emulator.pressUp({ button: 'a', player: 1 });
-      emulator.pressUp({ button: 'b', player: 1 });
-    }
+    const comboButtons = action === 'combo-ab' ? ['a', 'b'] : ['y', 'a', 'b'];
+    comboButtons.forEach(b => {
+      emulator.pressUp({ button: b, player: 1 });
+      const el = document.querySelector(`.btn-${b}`);
+      if (el) el.classList.remove('active');
+    });
   }
 });
 
@@ -2524,25 +2526,55 @@ vButtons.forEach(btn => {
           const keys = btnName.replace('combo-', '').split('');
           keys.forEach(k => {
             const pb = nostalgistMap[k];
-            if (pb) emulator.pressDown({ button: pb, player: 1 });
+            if (pb) {
+              emulator.pressDown({ button: pb, player: 1 });
+              const el = document.querySelector(`.btn-${pb}`);
+              if (el) el.classList.add('active');
+            }
           });
         } else if (btnName.startsWith('macro-')) {
-          // Rapid sequential direction presses: first→release→second→release
+          // Rapid sequential direction presses
           const macroMap = {
             'macro-ud': ['up', 'down'],
             'macro-du': ['down', 'up'],
             'macro-lr': ['left', 'right'],
             'macro-rl': ['right', 'left'],
+            'macro-skill-r': ['left', 'right', 'b'],
+            'macro-skill-l': ['right', 'left', 'b'],
+            'macro-unti': ['down', 'up', 'b']
           };
           const dirs = macroMap[btnName];
           if (dirs) {
-            emulator.pressDown({ button: dirs[0], player: 1 });
-            setTimeout(() => emulator.pressUp({ button: dirs[0], player: 1 }), 33);
-            setTimeout(() => emulator.pressDown({ button: dirs[1], player: 1 }), 50);
-            setTimeout(() => {
-              emulator.pressUp({ button: dirs[1], player: 1 });
-              btn.classList.remove('active');
-            }, 83);
+            dirs.forEach((btnKey, idx) => {
+              setTimeout(() => {
+                emulator.pressDown({ button: btnKey, player: 1 });
+                // Visual highlight
+                if (['up', 'down', 'left', 'right'].includes(btnKey)) {
+                  const knob = document.getElementById('joystickKnob');
+                  const offsets = { 'up': [0, -35], 'down': [0, 35], 'left': [-35, 0], 'right': [35, 0] };
+                  if (knob) knob.style.transform = `translate(${offsets[btnKey][0]}px, ${offsets[btnKey][1]}px)`;
+                } else {
+                  const btnElem = document.querySelector(`.btn-${btnKey}`);
+                  if (btnElem) btnElem.classList.add('active');
+                }
+              }, idx * 60);
+
+              setTimeout(() => {
+                emulator.pressUp({ button: btnKey, player: 1 });
+                // Remove visual highlight
+                if (['up', 'down', 'left', 'right'].includes(btnKey)) {
+                  const knob = document.getElementById('joystickKnob');
+                  if (knob) knob.style.transform = `translate(0px, 0px)`;
+                } else {
+                  const btnElem = document.querySelector(`.btn-${btnKey}`);
+                  if (btnElem) btnElem.classList.remove('active');
+                }
+
+                if (idx === dirs.length - 1) {
+                  btn.classList.remove('active');
+                }
+              }, idx * 60 + 40);
+            });
           }
         } else if (padBtn) {
           emulator.pressDown({ button: padBtn, player: 1 });
@@ -2560,7 +2592,11 @@ vButtons.forEach(btn => {
           const keys = btnName.replace('combo-', '').split('');
           keys.forEach(k => {
             const pb = nostalgistMap[k];
-            if (pb) emulator.pressUp({ button: pb, player: 1 });
+            if (pb) {
+              emulator.pressUp({ button: pb, player: 1 });
+              const el = document.querySelector(`.btn-${pb}`);
+              if (el) el.classList.remove('active');
+            }
           });
         } else if (padBtn) {
           emulator.pressUp({ button: padBtn, player: 1 });

@@ -370,6 +370,23 @@ button.primary:hover:not(:disabled) {
   right: 2px;
 }
 
+.skill-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 10;
+}
+
+.skill-buttons .action-btn {
+  position: relative;
+  top: auto;
+  bottom: auto;
+  left: auto;
+  right: auto;
+  width: 44px;
+  height: 44px;
+}
+
 .joystick-knob {
   width: 60px;
   height: 60px;
@@ -736,7 +753,8 @@ body.playing .virtual-gamepad {
 
 body.playing .joystick-wrapper,
 body.playing .action-buttons,
-body.playing .system-buttons {
+body.playing .system-buttons,
+body.playing .skill-buttons {
   pointer-events: auto;
   opacity: 0.85;
 }
@@ -745,6 +763,15 @@ body.playing .joystick-wrapper {
   position: absolute;
   bottom: 15px;
   left: 10px;
+}
+
+body.playing .skill-buttons {
+  position: absolute;
+  bottom: 20px;
+  right: 240px;
+  top: auto;
+  transform: scale(1.1);
+  transform-origin: bottom right;
 }
 
 body.playing .action-buttons {
