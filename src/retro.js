@@ -136,6 +136,7 @@ app.innerHTML = `
         <div id="romListContainer" class="rom-input-group">
           <select id="romUrl" class="input" style="display: none;">
           <option value="/roms/kov.zip">kov (Knights of Valour)</option>
+          <option value="/roms/kovplus.zip">kovplus (Knights of Valour Plus)</option>
           <option value="/roms/sengoku3.zip">sengoku3 (Sengoku 3)</option>
           <option value="/roms/dmnfrnt.zip">dmnfrnt (Demon Front)</option>
           <option value="/roms/dino.zip">dino (Cadillacs and Dinosaurs)</option>
@@ -2189,7 +2190,7 @@ async function launchGame() {
         }
 
         const currentRom = typeof rom === 'string' ? rom.toLowerCase() : '';
-        if (currentRom.includes('kov100hk')) {
+        if (currentRom.includes('kov100hk') || currentRom.includes('kovplus')) {
           await downloadAndWriteFile('/roms/kov.zip', '/home/web_user/retroarch/userdata/content/kov.zip');
           await downloadAndWriteFile('/roms/kov.zip', '/home/web_user/retroarch/userdata/content/kov');
         }
