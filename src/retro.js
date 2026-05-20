@@ -2537,12 +2537,12 @@ vButtons.forEach(btn => {
           const dirs = macroMap[btnName];
           if (dirs) {
             emulator.pressDown({ button: dirs[0], player: 1 });
-            setTimeout(() => emulator.pressUp({ button: dirs[0], player: 1 }), 60);
-            setTimeout(() => emulator.pressDown({ button: dirs[1], player: 1 }), 80);
+            setTimeout(() => emulator.pressUp({ button: dirs[0], player: 1 }), 33);
+            setTimeout(() => emulator.pressDown({ button: dirs[1], player: 1 }), 50);
             setTimeout(() => {
               emulator.pressUp({ button: dirs[1], player: 1 });
               btn.classList.remove('active');
-            }, 140);
+            }, 83);
           }
         } else if (padBtn) {
           emulator.pressDown({ button: padBtn, player: 1 });
