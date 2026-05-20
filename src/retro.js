@@ -99,13 +99,11 @@ app.innerHTML = `
       <!-- VIRTUAL GAMEPAD -->
       <div class="virtual-gamepad">
         <div class="joystick-wrapper">
+          <div class="action-btn macro-btn macro-slide-l" data-key="macro-slide-l">Slide.L</div>
+          <div class="action-btn macro-btn macro-slide-r" data-key="macro-slide-r">Slide.R</div>
           <div class="joystick-base" id="joystickBase">
             <div class="joystick-knob" id="joystickKnob"></div>
           </div>
-          <div class="action-btn macro-btn macro-ud" data-key="macro-ud">↑↓</div>
-          <div class="action-btn macro-btn macro-du" data-key="macro-du">↓↑</div>
-          <div class="action-btn macro-btn macro-lr" data-key="macro-lr">←→</div>
-          <div class="action-btn macro-btn macro-rl" data-key="macro-rl">→←</div>
         </div>
         
         <div class="skill-buttons">
@@ -2095,14 +2093,14 @@ async function launchGame() {
   const originalBtnHtml = launchBtn.innerHTML;
   launchBtn.disabled = true;
   launchBtn.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;gap:8px;"><span class="spinner"></span> Đang tải...</div>';
-  
+
   let originalSidebarBtnHtml = '';
   if (sidebarLaunchBtn) {
     originalSidebarBtnHtml = sidebarLaunchBtn.innerHTML;
     sidebarLaunchBtn.disabled = true;
     sidebarLaunchBtn.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;gap:8px;"><span class="spinner"></span> Đang tải...</div>';
   }
-  
+
   setStatus('Đang tải...');
 
   const logText = [
@@ -2541,7 +2539,9 @@ vButtons.forEach(btn => {
             'macro-rl': ['right', 'left'],
             'macro-skill-r': ['left', 'right', 'b'],
             'macro-skill-l': ['right', 'left', 'b'],
-            'macro-unti': ['down', 'up', 'b']
+            'macro-unti': ['down', 'up', 'b'],
+            'macro-slide-l': ['left', 'left', 'b'],
+            'macro-slide-r': ['right', 'right', 'b']
           };
           const dirs = macroMap[btnName];
           if (dirs) {

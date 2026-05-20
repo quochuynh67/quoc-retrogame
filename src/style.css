@@ -318,8 +318,8 @@ button.primary:hover:not(:disabled) {
 
 .joystick-base {
   position: absolute;
-  top: 70px;
-  left: 70px;
+  top: 130px;
+  left: 40px;
   width: 150px;
   height: 150px;
   background: #222;
@@ -368,6 +368,18 @@ button.primary:hover:not(:disabled) {
 .macro-rl {
   top: 126px;
   right: 2px;
+}
+
+.macro-slide-l {
+  position: absolute;
+  top: 55px;
+  left: 30px;
+}
+
+.macro-slide-r {
+  position: absolute;
+  top: 55px;
+  left: 130px;
 }
 
 .skill-buttons {
@@ -761,8 +773,8 @@ body.playing .skill-buttons {
 
 body.playing .joystick-wrapper {
   position: absolute;
-  bottom: 15px;
-  left: 10px;
+  bottom: 5px;
+  left: 0px;
 }
 
 body.playing .skill-buttons {
