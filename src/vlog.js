@@ -24,6 +24,32 @@ let activeVideoIndex = 0;
 let isMuted = true; // Autoplay safety first
 let autoPlayNext = true;
 
+let vlogConfig = {
+  can_upload_vlog: true,
+  can_like: true,
+  show_spots: true,
+  show_hotels: true,
+  show_viewer: true,
+  show_member_badge: true
+};
+
+async function fetchVlogConfig() {
+  try {
+    const { data, error } = await supabase.from('zalo_mini_app_section_setting').select('key, value');
+    if (!error && data) {
+      data.forEach(row => {
+        const val = row.value === 'true' || row.value === true;
+        if (row.key in vlogConfig) {
+          vlogConfig[row.key] = val;
+        }
+      });
+      console.log('Loaded vlog config:', vlogConfig);
+    }
+  } catch (err) {
+    console.warn('Could not fetch vlog configs:', err);
+  }
+}
+
 // High-performance dynamic sliding window for video elements
 function updateVideoSources(activeIndex) {
   const slides = document.querySelectorAll('.vlog-slide');
@@ -420,6 +446,8 @@ export async function initVlog() {
 
   // Top navigation bindings removed
 
+  await fetchVlogConfig();
+
   // Load and populate vlog slides
   videoList = await fetchVideosFromSupabase();
 
@@ -473,17 +501,21 @@ function renderVlogSlides() {
     feed.innerHTML = `
       <div style="padding: 150px 20px; text-align: center; color: #fff;">
         <h3 style="font-weight: 700; color: var(--vlog-pink);">Không tìm thấy Vlog nào!</h3>
+        ${vlogConfig.can_upload_vlog ? `
         <p style="color: var(--vlog-text-secondary); margin-top: 8px; font-size: 13px;">Hãy nhấp vào nút "Thêm Video" bên dưới để tải lên vlog đầu tiên của bạn lên Supabase!</p>
         <button class="vlog-back-btn" id="vlogEmptyUploadBtn" style="margin: 20px auto 0 auto; display: inline-flex;">
           📤 Tải Lên Ngay
         </button>
+        ` : ''}
       </div>
     `;
-    const emptyBtn = document.querySelector('#vlogEmptyUploadBtn');
-    if (emptyBtn) {
-      emptyBtn.addEventListener('click', () => {
-        openVlogModal('#vlogUploadModal');
-      });
+    if (vlogConfig.can_upload_vlog) {
+      const emptyBtn = document.querySelector('#vlogEmptyUploadBtn');
+      if (emptyBtn) {
+        emptyBtn.addEventListener('click', () => {
+          openVlogModal('#vlogUploadModal');
+        });
+      }
     }
     return;
   }
@@ -521,11 +553,11 @@ function renderVlogSlides() {
               ${video.avatar ? `<img src="${video.avatar}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.textContent='${video.uploaderName.charAt(0).toUpperCase()}'" />` : video.uploaderName.charAt(0).toUpperCase()}
             </div>
             <span class="vlog-username">@${video.uploaderName}</span>
-            ${video.isSystem ? `
+            ${vlogConfig.show_member_badge ? (video.isSystem ? `
               <span class="vlog-badge vlog-badge-system">📢 Quảng Cáo</span>
             ` : `
               <span class="vlog-badge vlog-badge-user">👤 Thành Viên</span>
-            `}
+            `) : ''}
           </div>
           <h4 class="vlog-video-title">${video.title}</h4>
           <p class="vlog-video-desc">${video.description}</p>
@@ -534,20 +566,24 @@ function renderVlogSlides() {
         <!-- BOTTOM RIGHT ACTION BUTTONS PANEL OVERLAY -->
         <div class="vlog-sidebar-overlay">
           <!-- Add video upload button -->
+          ${vlogConfig.can_upload_vlog ? `
           <div class="vlog-sidebar-group">
             <button class="vlog-sidebar-btn" id="actionUploadBtn_${index}" style="background: linear-gradient(135deg, var(--vlog-accent), var(--vlog-pink)); border: none; color: #000;">
               📤
             </button>
             <span class="vlog-sidebar-btn-label">Thêm</span>
           </div>
+          ` : ''}
 
           <!-- Likes -->
+          ${vlogConfig.can_like ? `
           <div class="vlog-sidebar-group">
             <button class="vlog-sidebar-btn" id="actionLikeBtn_${index}">
               ❤️
             </button>
             <span class="vlog-heart-count">${formatNumber(video.likes)}</span>
           </div>
+          ` : ''}
 
           <!-- Mute/Unmute Dynamic Button -->
           <div class="vlog-sidebar-group">
@@ -565,20 +601,24 @@ function renderVlogSlides() {
           </div>
 
           <!-- Spots sheet toggle -->
+          ${vlogConfig.show_spots ? `
           <div class="vlog-sidebar-group">
             <button class="vlog-sidebar-btn" id="actionSpotsBtn_${index}">
               📍
             </button>
             <span class="vlog-sidebar-btn-label">Vị Trí</span>
           </div>
+          ` : ''}
 
           <!-- Hotels sheet toggle -->
+          ${vlogConfig.show_hotels ? `
           <div class="vlog-sidebar-group">
             <button class="vlog-sidebar-btn" id="actionHotelsBtn_${index}">
               🏨
             </button>
             <span class="vlog-sidebar-btn-label">Chỗ Ở</span>
           </div>
+          ` : ''}
 
           <!-- Detailed description toggle -->
           <div class="vlog-sidebar-group">
@@ -602,46 +642,54 @@ function renderVlogSlides() {
     feed.appendChild(slide);
 
     // Setup action listeners for this slide
-    document.querySelector(`#actionUploadBtn_${index}`).addEventListener('click', () => {
-      openVlogModal('#vlogUploadModal');
-    });
+    if (vlogConfig.can_upload_vlog) {
+      document.querySelector(`#actionUploadBtn_${index}`).addEventListener('click', () => {
+        openVlogModal('#vlogUploadModal');
+      });
+    }
 
-    const likeBtn = document.querySelector(`#actionLikeBtn_${index}`);
-    likeBtn.addEventListener('click', () => {
-      likeBtn.classList.toggle('liked');
-      if (likeBtn.classList.contains('liked')) {
-        likeBtn.style.transform = 'scale(1.3) rotate(-15deg)';
-        likeBtn.innerHTML = '💖';
-        video.likes++;
-        slide.querySelector('.vlog-heart-count').textContent = formatNumber(video.likes);
-        showVlogToast("Đã thích Vlog này! Cảm ơn bạn!");
-        setTimeout(() => likeBtn.style.transform = '', 300);
-      } else {
-        likeBtn.innerHTML = '❤️';
-        video.likes--;
-        slide.querySelector('.vlog-heart-count').textContent = formatNumber(video.likes);
-      }
-    });
+    if (vlogConfig.can_like) {
+      const likeBtn = document.querySelector(`#actionLikeBtn_${index}`);
+      likeBtn.addEventListener('click', () => {
+        likeBtn.classList.toggle('liked');
+        if (likeBtn.classList.contains('liked')) {
+          likeBtn.style.transform = 'scale(1.3) rotate(-15deg)';
+          likeBtn.innerHTML = '💖';
+          video.likes++;
+          slide.querySelector('.vlog-heart-count').textContent = formatNumber(video.likes);
+          showVlogToast("Đã thích Vlog này! Cảm ơn bạn!");
+          setTimeout(() => likeBtn.style.transform = '', 300);
+        } else {
+          likeBtn.innerHTML = '❤️';
+          video.likes--;
+          slide.querySelector('.vlog-heart-count').textContent = formatNumber(video.likes);
+        }
+      });
+    }
 
     document.querySelector(`#actionSoundBtn_${index}`).addEventListener('click', toggleGlobalMute);
 
-    document.querySelector(`#actionSpotsBtn_${index}`).addEventListener('click', () => {
-      populateSpotsSheet(video);
-      openVlogSheet('#vlogSpotsSheet');
-    });
+    if (vlogConfig.show_spots) {
+      document.querySelector(`#actionSpotsBtn_${index}`).addEventListener('click', () => {
+        populateSpotsSheet(video);
+        openVlogSheet('#vlogSpotsSheet');
+      });
+    }
 
-    document.querySelector(`#actionHotelsBtn_${index}`).addEventListener('click', () => {
-      populateHotelsSheet(video);
-      openVlogSheet('#vlogHotelsSheet');
-    });
+    if (vlogConfig.show_hotels) {
+      document.querySelector(`#actionHotelsBtn_${index}`).addEventListener('click', () => {
+        populateHotelsSheet(video);
+        openVlogSheet('#vlogHotelsSheet');
+      });
+    }
 
     document.querySelector(`#actionDescBtn_${index}`).addEventListener('click', () => {
       document.querySelector('#vlogDescContent').innerHTML = `
         <h4 style="color: #fff; margin-bottom: 12px; font-weight: 700;">${video.title}</h4>
         <p style="margin-bottom: 20px;">${video.description}</p>
         <div style="display: flex; justify-content: space-between; font-size: 12px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
-          <span>👥 Lượt Xem: <strong>${formatNumber(video.views)}</strong></span>
-          <span>❤️ Yêu Thích: <strong>${formatNumber(video.likes)}</strong></span>
+          ${vlogConfig.show_viewer ? `<span>👥 Lượt Xem: <strong>${formatNumber(video.views)}</strong></span>` : ''}
+          ${vlogConfig.can_like ? `<span>❤️ Yêu Thích: <strong>${formatNumber(video.likes)}</strong></span>` : ''}
         </div>
       `;
       openVlogSheet('#vlogDescSheet');

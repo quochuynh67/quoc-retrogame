@@ -10,7 +10,7 @@
   --vlog-glass-border: rgba(255, 255, 255, 0.12);
   --vlog-text-primary: #ffffff;
   --vlog-text-secondary: rgba(255, 255, 255, 0.7);
-  
+
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: var(--vlog-bg);
   color: var(--vlog-text-primary);
@@ -37,19 +37,22 @@
 /* Vertical Feed Container */
 .vlog-feed {
   width: 100%;
-  max-width: 500px; /* Standard vertical video width like TikTok */
+  max-width: 500px;
+  /* Standard vertical video width like TikTok */
   height: 100%;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
-  scrollbar-width: none; /* Hide scrollbars Chrome/Safari/Firefox */
+  scrollbar-width: none;
+  /* Hide scrollbars Chrome/Safari/Firefox */
   background-color: #000;
   position: relative;
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
 }
 
 .vlog-feed::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
+  display: none;
+  /* Chrome/Safari */
 }
 
 /* Individual Slide representing a Video */
@@ -154,7 +157,8 @@
   position: absolute;
   bottom: 30px;
   left: 15px;
-  right: 80px; /* Leave space for right sidebar */
+  right: 80px;
+  /* Leave space for right sidebar */
   z-index: 5;
   color: var(--vlog-text-primary);
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
@@ -251,7 +255,7 @@
   color: rgba(255, 255, 255, 0.8);
   font-weight: 600;
   margin-top: 4px;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
   text-align: center;
 }
 
@@ -266,7 +270,7 @@
   font-weight: 700;
   color: #fff;
   margin-top: 4px;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 /* Sound Wave Micro-Animation inside Sound button */
@@ -289,18 +293,25 @@
   animation-delay: 0.2s;
   height: 60%;
 }
+
 .vlog-soundwave-bar:nth-child(3) {
   animation-delay: 0.4s;
   height: 80%;
 }
+
 .vlog-soundwave-bar:nth-child(4) {
   animation-delay: 0.1s;
   height: 40%;
 }
 
 @keyframes vlog-wave {
-  0% { height: 20%; }
-  100% { height: 100%; }
+  0% {
+    height: 20%;
+  }
+
+  100% {
+    height: 100%;
+  }
 }
 
 /* Play/Pause Overlay indicator in center of screen */
@@ -331,9 +342,20 @@
 }
 
 @keyframes vlog-pulse-play {
-  0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
-  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-  100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; }
+  0% {
+    transform: translate(-50%, -50%) scale(0.6);
+    opacity: 0;
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1.3);
+    opacity: 0;
+  }
 }
 
 /* Slide-up Bottom Sheets */
@@ -422,7 +444,7 @@
 }
 
 .vlog-sheet-close {
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
   border: none;
   width: 32px;
   height: 32px;
@@ -609,7 +631,7 @@
 .vlog-hotel-btn-secondary {
   background-color: rgba(255, 255, 255, 0.08);
   color: #fff;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .vlog-hotel-btn-secondary:hover {
@@ -695,7 +717,7 @@
   padding: 24px;
   text-align: center;
   cursor: pointer;
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
   transition: all 0.2s;
 }
 
@@ -723,13 +745,13 @@
   background: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
   padding: 12px;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .vlog-progress-bar-bg {
   width: 100%;
   height: 6px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
   overflow: hidden;
   margin-bottom: 8px;
@@ -784,7 +806,7 @@
   flex: 1;
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 12px;
   border-radius: 12px;
   font-weight: 600;
@@ -849,9 +871,22 @@
 }
 
 @keyframes vlog-bounce {
-  0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
-  40% { transform: translate(-50%, -10px); }
-  60% { transform: translate(-50%, -5px); }
+
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+
+  40% {
+    transform: translate(-50%, -10px);
+  }
+
+  60% {
+    transform: translate(-50%, -5px);
+  }
 }
 
 /* Toast Message */
@@ -972,8 +1007,15 @@
 }
 
 @keyframes vlog-card-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 @keyframes vlog-ripple {
@@ -981,6 +1023,7 @@
     transform: scale(1);
     opacity: 1;
   }
+
   100% {
     transform: scale(1.8);
     opacity: 0;
@@ -1026,11 +1069,11 @@
   border-radius: 50%;
 }
 
-.vlog-switch input:checked + .vlog-slider {
+.vlog-switch input:checked+.vlog-slider {
   background-color: var(--vlog-accent);
 }
 
-.vlog-switch input:checked + .vlog-slider:before {
+.vlog-switch input:checked+.vlog-slider:before {
   transform: translateX(22px);
   background-color: #000;
 }
@@ -1044,7 +1087,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-left: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   display: inline-flex;
   align-items: center;
 }
@@ -1064,7 +1107,7 @@
 /* Glass Style Auto Play Switch */
 .vlog-autoplay-switch-container {
   position: absolute;
-  top: 20px;
+  top: 85px;
   right: max(20px, calc(50% - 250px + 20px));
   display: flex;
   align-items: center;
@@ -1074,7 +1117,7 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 8px 14px;
+  padding: 10px 14px;
   border-radius: 30px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
   transition: all 0.3s ease;
@@ -1125,15 +1168,15 @@
   background-color: #fff;
   transition: .4s;
   border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
-.vlog-glass-switch input:checked + .vlog-glass-slider {
+.vlog-glass-switch input:checked+.vlog-glass-slider {
   background-color: rgba(0, 255, 204, 0.2);
   border-color: var(--vlog-accent);
 }
 
-.vlog-glass-switch input:checked + .vlog-glass-slider:before {
+.vlog-glass-switch input:checked+.vlog-glass-slider:before {
   transform: translateX(16px);
   background-color: var(--vlog-accent);
   box-shadow: 0 0 8px var(--vlog-accent);
