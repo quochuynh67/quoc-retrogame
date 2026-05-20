@@ -98,8 +98,14 @@ app.innerHTML = `
 
       <!-- VIRTUAL GAMEPAD -->
       <div class="virtual-gamepad">
-        <div class="joystick-base" id="joystickBase">
-          <div class="joystick-knob" id="joystickKnob"></div>
+        <div class="joystick-wrapper">
+          <div class="joystick-base" id="joystickBase">
+            <div class="joystick-knob" id="joystickKnob"></div>
+          </div>
+          <div class="action-btn macro-btn macro-ud" data-key="macro-ud">↑↓</div>
+          <div class="action-btn macro-btn macro-du" data-key="macro-du">↓↑</div>
+          <div class="action-btn macro-btn macro-lr" data-key="macro-lr">←→</div>
+          <div class="action-btn macro-btn macro-rl" data-key="macro-rl">→←</div>
         </div>
         
         <div class="system-buttons">
@@ -2520,6 +2526,24 @@ vButtons.forEach(btn => {
             const pb = nostalgistMap[k];
             if (pb) emulator.pressDown({ button: pb, player: 1 });
           });
+        } else if (btnName.startsWith('macro-')) {
+          // Rapid sequential direction presses: first→release→second→release
+          const macroMap = {
+            'macro-ud': ['up', 'down'],
+            'macro-du': ['down', 'up'],
+            'macro-lr': ['left', 'right'],
+            'macro-rl': ['right', 'left'],
+          };
+          const dirs = macroMap[btnName];
+          if (dirs) {
+            emulator.pressDown({ button: dirs[0], player: 1 });
+            setTimeout(() => emulator.pressUp({ button: dirs[0], player: 1 }), 60);
+            setTimeout(() => emulator.pressDown({ button: dirs[1], player: 1 }), 80);
+            setTimeout(() => {
+              emulator.pressUp({ button: dirs[1], player: 1 });
+              btn.classList.remove('active');
+            }, 140);
+          }
         } else if (padBtn) {
           emulator.pressDown({ button: padBtn, player: 1 });
         }
