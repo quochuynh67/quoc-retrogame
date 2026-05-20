@@ -97,6 +97,8 @@ app.innerHTML = `
         <!-- 1. Selection dropdown (Default) -->
         <div id="romListContainer" class="rom-input-group">
           <select id="romUrl" class="input" style="display: none;">
+          <option value="/roms/dmnfrnt.zip">dmnfrnt (Demon Front)</option>
+          <option value="/roms/dino.zip">dino (Cadillacs and Dinosaurs)</option>
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/1942.zip">1942</option>
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/1943.zip">1943</option>
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/1943kai.zip">1943kai</option>
@@ -522,7 +524,7 @@ app.innerHTML = `
         <!-- 3. Local File Input -->
         <div id="romFileContainer" class="rom-input-group hidden">
           <div class="file-upload-wrapper">
-            <input type="file" id="romFile" accept=".zip,.bin,.rom,.iso,.nes,.smc,.sfc,.gb,.gbc,.gba" style="display: none;" />
+            <input type="file" id="romFile" accept=".zip,.bin,.rom,.iso,.nes,.smc,.sfc,.gb,.gbc,.gba" multiple style="display: none;" />
             <button type="button" id="customFileBtn" class="secondary select-file-btn">Chọn file từ máy tính</button>
             <span id="fileNameDisplay" class="file-name-display">Chưa chọn file nào</span>
           </div>
@@ -1349,11 +1351,11 @@ function initDevRomHandlers() {
   // Handle file selection
   if (romFile) {
     romFile.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        fileNameDisplay.textContent = file.name;
+      const files = e.target.files;
+      if (files && files.length > 0) {
+        fileNameDisplay.textContent = Array.from(files).map(f => f.name).join(', ');
         // Auto detect core from extension
-        const ext = file.name.split('.').pop().toLowerCase();
+        const ext = files[0].name.split('.').pop().toLowerCase();
         if (ext === 'nes') {
           coreNameEl.value = 'fceumm';
         } else if (ext === 'sfc' || ext === 'smc') {
@@ -1921,6 +1923,44 @@ async function destroyRunningGame() {
   setStatus('Đang chờ...');
 }
 
+function detectBiosForRom(romUrl) {
+  const urlLower = String(romUrl).toLowerCase();
+  const biosList = [];
+  
+  if (
+    urlLower.includes('sengoku') || 
+    urlLower.includes('kof') || 
+    urlLower.includes('mslug') || 
+    urlLower.includes('neogeo') ||
+    urlLower.includes('samsho') ||
+    urlLower.includes('fatfury') ||
+    urlLower.includes('bstars') ||
+    urlLower.includes('lastblad') ||
+    urlLower.includes('pulstar') ||
+    urlLower.includes('viewpoin') ||
+    urlLower.includes('wakuwak7') ||
+    urlLower.includes('rotd') ||
+    urlLower.includes('matrimec')
+  ) {
+    biosList.push('neogeo.zip');
+  }
+  
+  if (
+    urlLower.includes('kov') || 
+    urlLower.includes('pgm') || 
+    urlLower.includes('ddp2') ||
+    urlLower.includes('dmnfrnt') ||
+    urlLower.includes('demon') ||
+    urlLower.includes('martymcl') ||
+    urlLower.includes('olds') ||
+    urlLower.includes('svg')
+  ) {
+    biosList.push('pgm.zip');
+  }
+  
+  return biosList;
+}
+
 async function launchGame() {
   if (!CoinSystem.isInfinite() && CoinSystem.coins <= 0) {
     AudioSynth.playWarning();
@@ -1931,18 +1971,38 @@ async function launchGame() {
 
   let rom;
   let romLogName = '';
+  let bios = [];
   const core = coreNameEl.value;
 
   if (isDev && romSource === 'file') {
     const romFileEl = document.getElementById('romFile');
-    const file = romFileEl ? romFileEl.files[0] : null;
-    if (!file) {
+    const files = romFileEl ? Array.from(romFileEl.files) : [];
+    if (files.length === 0) {
       setStatus('Thiếu ROM');
       setLog('Bạn cần chọn file ROM từ máy tính trước khi tải game.');
       return;
     }
-    rom = file;
-    romLogName = file.name;
+    
+    const biosNames = ['qsound.zip', 'pgm.zip', 'neogeo.zip'];
+    const romFiles = [];
+    const biosFiles = [];
+    for (const f of files) {
+      if (biosNames.includes(f.name.toLowerCase())) {
+        biosFiles.push(f);
+      } else {
+        romFiles.push(f);
+      }
+    }
+    
+    if (romFiles.length === 0) {
+      setStatus('Thiếu ROM');
+      setLog('Bạn cần chọn file ROM game (không phải chỉ file BIOS).');
+      return;
+    }
+    
+    rom = romFiles.length === 1 ? romFiles[0] : romFiles;
+    bios = biosFiles;
+    romLogName = files.map(f => f.name).join(', ');
   } else if (isDev && romSource === 'url') {
     const romUrlTextEl = document.getElementById('romUrlText');
     const customUrl = romUrlTextEl ? romUrlTextEl.value.trim() : '';
@@ -1953,6 +2013,7 @@ async function launchGame() {
     }
     rom = customUrl;
     romLogName = customUrl;
+    bios = detectBiosForRom(customUrl);
   } else {
     const romUrlRaw = romUrlEl.value.trim();
     if (!romUrlRaw) {
@@ -1963,26 +2024,50 @@ async function launchGame() {
     const romUrls = romUrlRaw.split('\n').map(u => u.trim()).filter(u => u);
     rom = romUrls.length === 1 ? romUrls[0] : romUrls;
     romLogName = romUrlRaw;
+    
+    const allBios = [];
+    for (const rUrl of romUrls) {
+      const bList = detectBiosForRom(rUrl);
+      for (const b of bList) {
+        if (!allBios.includes(b)) {
+          allBios.push(b);
+        }
+      }
+    }
+    bios = allBios;
   }
 
   launchBtn.disabled = true;
   if (sidebarLaunchBtn) sidebarLaunchBtn.disabled = true;
   setStatus('Đang tải...');
-  setLog([
+
+  const logText = [
     'Đang khởi động game...',
     `Core: ${core}`,
     `ROM: ${romLogName}`,
+  ];
+  if (bios && bios.length > 0) {
+    const biosNamesStr = isDev && romSource === 'file' 
+      ? bios.map(f => f.name).join(', ')
+      : bios.join(', ');
+    logText.push(`BIOS: ${biosNamesStr}`);
+  }
+  logText.push(
     '',
     'Lưu ý nếu gặp lỗi:',
     '- File ROM phải truy cập được (Public).',
     '- Máy chủ chứa ROM phải hỗ trợ CORS.',
     '- ROM set phải tương thích chuẩn với Core.'
-  ].join('\n'));
+  );
+  if (bios && bios.length > 0 && romSource !== 'file') {
+    logText.push(`- Đảm bảo các file BIOS (${bios.join(', ')}) đã được đặt trong thư mục public/ hoặc public/roms/`);
+  }
+  setLog(logText.join('\n'));
 
   await destroyRunningGame();
 
   try {
-    emulator = await Nostalgist.launch({
+    const launchOptions = {
       element: '#game',
       core,
       rom: rom,
@@ -2035,7 +2120,24 @@ async function launchGame() {
           RecentSystem.add(rom[0]);
         }
       },
-    });
+    };
+
+    if (bios && bios.length > 0) {
+      launchOptions.bios = bios;
+      launchOptions.resolveBios = async function(biosName) {
+        try {
+          const response = await fetch(`/roms/${biosName}`, { method: 'HEAD' });
+          if (response.ok) {
+            return `/roms/${biosName}`;
+          }
+        } catch (e) {
+          // Fallback if fetch fails
+        }
+        return `/${biosName}`;
+      };
+    }
+
+    emulator = await Nostalgist.launch(launchOptions);
 
     setControlState(true);
   } catch (error) {
