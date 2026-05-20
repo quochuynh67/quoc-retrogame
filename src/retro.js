@@ -2077,8 +2077,17 @@ async function launchGame() {
     bios = allBios;
   }
 
+  const originalBtnHtml = launchBtn.innerHTML;
   launchBtn.disabled = true;
-  if (sidebarLaunchBtn) sidebarLaunchBtn.disabled = true;
+  launchBtn.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;gap:8px;"><span class="spinner"></span> Đang tải...</div>';
+  
+  let originalSidebarBtnHtml = '';
+  if (sidebarLaunchBtn) {
+    originalSidebarBtnHtml = sidebarLaunchBtn.innerHTML;
+    sidebarLaunchBtn.disabled = true;
+    sidebarLaunchBtn.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;gap:8px;"><span class="spinner"></span> Đang tải...</div>';
+  }
+  
   setStatus('Đang tải...');
 
   const logText = [
@@ -2291,7 +2300,11 @@ async function launchGame() {
     ].join('\n'));
   } finally {
     launchBtn.disabled = false;
-    if (sidebarLaunchBtn) sidebarLaunchBtn.disabled = false;
+    launchBtn.innerHTML = originalBtnHtml || 'Tải Game';
+    if (sidebarLaunchBtn) {
+      sidebarLaunchBtn.disabled = false;
+      sidebarLaunchBtn.innerHTML = originalSidebarBtnHtml || 'Bắt Đầu Chơi';
+    }
   }
 }
 
