@@ -36,7 +36,7 @@ function updateVideoSources(activeIndex) {
     if (index !== activeIndex) {
       try {
         videoEl.pause();
-      } catch(e) {}
+      } catch (e) { }
     }
 
     const videoData = videoList[index];
@@ -46,13 +46,32 @@ function updateVideoSources(activeIndex) {
     const isWithinWindow = index >= activeIndex - 1 && index <= activeIndex + 2;
 
     if (isWithinWindow) {
-      if (videoEl.getAttribute('src') !== videoData.url) {
-        videoEl.setAttribute('src', videoData.url);
+      if (videoEl.dataset.videoId !== String(videoData.id)) {
+        videoEl.dataset.videoId = videoData.id;
+        videoEl.removeAttribute('src');
+        videoEl.innerHTML = '';
+
+        if (videoData.hls_url) {
+          const sourceHls = document.createElement('source');
+          sourceHls.src = videoData.hls_url;
+          sourceHls.type = 'application/x-mpegURL';
+          videoEl.appendChild(sourceHls);
+        }
+
+        if (videoData.url) {
+          const sourceMp4 = document.createElement('source');
+          sourceMp4.src = videoData.url;
+          sourceMp4.type = 'video/mp4';
+          videoEl.appendChild(sourceMp4);
+        }
+
         videoEl.load();
       }
     } else {
-      if (videoEl.getAttribute('src')) {
+      if (videoEl.dataset.videoId) {
+        delete videoEl.dataset.videoId;
         videoEl.removeAttribute('src');
+        videoEl.innerHTML = '';
         videoEl.load(); // Immediately releases browser decoder buffers and memory
       }
     }
@@ -183,6 +202,7 @@ async function fetchVideosFromSupabase() {
         return {
           id: video.id,
           url: video.url,
+          hls_url: video.hls_url,
           uploaderName: video.uploader_name || 'Người dùng ẩn danh',
           title: video.title || `Vlog ngắn được đăng tải bởi ${video.uploader_name || 'thành viên'}`,
           description: video.description || `Khám phá hành trình cùng with ${video.uploader_name || 'thành viên'}.`,
@@ -402,7 +422,7 @@ export async function initVlog() {
 
   // Load and populate vlog slides
   videoList = await fetchVideosFromSupabase();
-  
+
   // Shuffle video list for randomness
   for (let i = videoList.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -647,11 +667,11 @@ function renderVlogSlides() {
           showVlogToast("⚡ Tự động chuyển sang video tiếp theo...");
         } else {
           // If no next slide, loop manually
-          videoEl.play().catch(e => {});
+          videoEl.play().catch(e => { });
         }
       } else {
         // Loop manually if auto play next is off
-        videoEl.play().catch(e => {});
+        videoEl.play().catch(e => { });
       }
     });
 
@@ -715,7 +735,7 @@ function setupIntersectionObserver() {
             try {
               v.pause();
               v.currentTime = 0;
-            } catch(e) {}
+            } catch (e) { }
           }
         });
 
@@ -748,7 +768,7 @@ function setupIntersectionObserver() {
         try {
           video.pause();
           video.currentTime = 0;
-        } catch (_) {}
+        } catch (_) { }
       }
     });
   }, options);
@@ -949,7 +969,7 @@ function getOrCreateDeviceUserId() {
   if (zaloUid) {
     return 'zalo_' + zaloUid;
   }
-  
+
   let deviceUserId = localStorage.getItem('vlog_device_user_id');
   if (!deviceUserId) {
     deviceUserId = 'usr_' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
@@ -1153,8 +1173,8 @@ function setupUploadHandlers() {
           const currentAvatar = zaloAvatar || localStorage.getItem('vlog_zalo_avatar');
           const { error: userError } = await supabase
             .from('vlog_users')
-            .upsert([{ 
-              id: deviceUserId, 
+            .upsert([{
+              id: deviceUserId,
               nickname: nickname,
               avatar_url: currentAvatar || null
             }]);
@@ -1183,6 +1203,7 @@ function setupUploadHandlers() {
             newVideo = {
               id: dbVideo[0].id,
               url: dbVideo[0].url,
+              hls_url: dbVideo[0].hls_url,
               uploaderName: dbVideo[0].uploader_name,
               title: dbVideo[0].title,
               description: dbVideo[0].description,
@@ -1206,6 +1227,7 @@ function setupUploadHandlers() {
           newVideo = {
             id: 'uploaded_' + timestamp,
             url: publicUrl,
+            hls_url: null,
             uploaderName: nickname,
             title: titleVal,
             description: descVal,
@@ -1367,7 +1389,7 @@ function hideAutoplayOverlay() {
 
 function unlockAutoplay() {
   if (autoplayUnlocked) return;
-  
+
   // Find current active video
   const activeVideo = document.querySelectorAll('.vlog-video')[activeVideoIndex];
   if (activeVideo) {
