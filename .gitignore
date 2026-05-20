@@ -27,3 +27,6 @@ dist-ssr
 .env
 .env.local
 .env.*
+
+# Large ROM files (GitHub size limit bypass)
+public/roms/kov3.zip

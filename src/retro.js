@@ -7,6 +7,44 @@ const isDev = true;
 
 let romSource = 'list';
 
+// Capture console logs and append to the status log panel for easier troubleshooting
+const originalLog = console.log;
+const originalWarn = console.warn;
+const originalError = console.error;
+
+function appendToConsoleLog(type, ...args) {
+  const text = args.map(arg => {
+    if (typeof arg === 'object') {
+      try { return JSON.stringify(arg); } catch (e) { return String(arg); }
+    }
+    return String(arg);
+  }).join(' ');
+
+  const logEl = document.querySelector('#log');
+  if (logEl) {
+    const current = logEl.textContent;
+    const lines = current.split('\n');
+    if (lines.length > 500) {
+      lines.splice(0, lines.length - 500);
+    }
+    logEl.textContent = lines.join('\n') + `\n[${type}] ${text}`;
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+}
+
+console.log = function (...args) {
+  originalLog.apply(console, args);
+  appendToConsoleLog('LOG', ...args);
+};
+console.warn = function (...args) {
+  originalWarn.apply(console, args);
+  appendToConsoleLog('WARN', ...args);
+};
+console.error = function (...args) {
+  originalError.apply(console, args);
+  appendToConsoleLog('ERROR', ...args);
+};
+
 const app = document.querySelector('#app');
 
 app.innerHTML = `
@@ -97,6 +135,8 @@ app.innerHTML = `
         <!-- 1. Selection dropdown (Default) -->
         <div id="romListContainer" class="rom-input-group">
           <select id="romUrl" class="input" style="display: none;">
+          <option value="/roms/kov.zip">kov (Knights of Valour)</option>
+          <option value="/roms/sengoku3.zip">sengoku3 (Sengoku 3)</option>
           <option value="/roms/dmnfrnt.zip">dmnfrnt (Demon Front)</option>
           <option value="/roms/dino.zip">dino (Cadillacs and Dinosaurs)</option>
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/1942.zip">1942</option>
@@ -1926,11 +1966,11 @@ async function destroyRunningGame() {
 function detectBiosForRom(romUrl) {
   const urlLower = String(romUrl).toLowerCase();
   const biosList = [];
-  
+
   if (
-    urlLower.includes('sengoku') || 
-    urlLower.includes('kof') || 
-    urlLower.includes('mslug') || 
+    urlLower.includes('sengoku') ||
+    urlLower.includes('kof') ||
+    urlLower.includes('mslug') ||
     urlLower.includes('neogeo') ||
     urlLower.includes('samsho') ||
     urlLower.includes('fatfury') ||
@@ -1944,10 +1984,10 @@ function detectBiosForRom(romUrl) {
   ) {
     biosList.push('neogeo.zip');
   }
-  
+
   if (
-    urlLower.includes('kov') || 
-    urlLower.includes('pgm') || 
+    urlLower.includes('kov') ||
+    urlLower.includes('pgm') ||
     urlLower.includes('ddp2') ||
     urlLower.includes('dmnfrnt') ||
     urlLower.includes('demon') ||
@@ -1957,7 +1997,7 @@ function detectBiosForRom(romUrl) {
   ) {
     biosList.push('pgm.zip');
   }
-  
+
   return biosList;
 }
 
@@ -1982,7 +2022,7 @@ async function launchGame() {
       setLog('Bạn cần chọn file ROM từ máy tính trước khi tải game.');
       return;
     }
-    
+
     const biosNames = ['qsound.zip', 'pgm.zip', 'neogeo.zip'];
     const romFiles = [];
     const biosFiles = [];
@@ -1993,13 +2033,13 @@ async function launchGame() {
         romFiles.push(f);
       }
     }
-    
+
     if (romFiles.length === 0) {
       setStatus('Thiếu ROM');
       setLog('Bạn cần chọn file ROM game (không phải chỉ file BIOS).');
       return;
     }
-    
+
     rom = romFiles.length === 1 ? romFiles[0] : romFiles;
     bios = biosFiles;
     romLogName = files.map(f => f.name).join(', ');
@@ -2024,7 +2064,7 @@ async function launchGame() {
     const romUrls = romUrlRaw.split('\n').map(u => u.trim()).filter(u => u);
     rom = romUrls.length === 1 ? romUrls[0] : romUrls;
     romLogName = romUrlRaw;
-    
+
     const allBios = [];
     for (const rUrl of romUrls) {
       const bList = detectBiosForRom(rUrl);
@@ -2047,7 +2087,7 @@ async function launchGame() {
     `ROM: ${romLogName}`,
   ];
   if (bios && bios.length > 0) {
-    const biosNamesStr = isDev && romSource === 'file' 
+    const biosNamesStr = isDev && romSource === 'file'
       ? bios.map(f => f.name).join(', ')
       : bios.join(', ');
     logText.push(`BIOS: ${biosNamesStr}`);
@@ -2064,13 +2104,106 @@ async function launchGame() {
   }
   setLog(logText.join('\n'));
 
+  // Ensure BIOS files are copied to the ROM directory as well, since arcade cores (like FBNeo)
+  // frequently look for parent ROMs and BIOS files in the same directory as the game ROM.
+  let finalRom = rom;
+  let finalBios = [];
+  if (romSource === 'file') {
+    const romFiles = Array.isArray(rom) ? rom : [rom];
+    if (bios && bios.length > 0) {
+      finalRom = [...romFiles, ...bios];
+      finalBios = bios;
+    }
+  } else if (bios && bios.length > 0) {
+    const romUrls = Array.isArray(rom) ? [...rom] : [rom];
+    const biosUrls = [];
+    for (const b of bios) {
+      // Resolve the BIOS path/URL
+      let resolvedPath = `/${b}`;
+      try {
+        const response = await fetch(`/roms/${b}`, { method: 'HEAD' });
+        if (response.ok) {
+          resolvedPath = `/roms/${b}`;
+        }
+      } catch (e) { }
+      if (!romUrls.includes(resolvedPath)) {
+        romUrls.push(resolvedPath);
+      }
+      biosUrls.push(resolvedPath);
+    }
+    finalRom = romUrls;
+    finalBios = biosUrls;
+  }
+
   await destroyRunningGame();
 
   try {
     const launchOptions = {
       element: '#game',
       core,
-      rom: rom,
+      rom: finalRom,
+      bios: finalBios,
+
+      async beforeLaunch(nostalgist) {
+        const fs = nostalgist.getEmscriptenFS();
+
+        function forceDirectories(path) {
+          const parts = path.split('/').filter(p => p);
+          let current = '';
+          for (const part of parts) {
+            current += '/' + part;
+            try {
+              fs.mkdir(current);
+            } catch (e) { }
+          }
+        }
+
+        async function downloadAndWriteFile(url, destPath) {
+          try {
+            console.log(`[App] Downloading parent/BIOS: ${url} to ${destPath}...`);
+            const response = await fetch(url);
+            if (!response.ok) {
+              console.error(`[App] Failed to download ${url}: ${response.status}`);
+              return;
+            }
+            const buffer = await response.arrayBuffer();
+            const uint8Array = new Uint8Array(buffer);
+
+            const dir = destPath.substring(0, destPath.lastIndexOf('/'));
+            forceDirectories(dir);
+
+            fs.writeFile(destPath, uint8Array);
+            console.log(`[App] Wrote ${uint8Array.length} bytes to ${destPath}`);
+          } catch (err) {
+            console.error(`[App] Error downloading/writing ${url}:`, err);
+          }
+        }
+
+        const currentRom = typeof rom === 'string' ? rom.toLowerCase() : '';
+        if (currentRom.includes('kov100hk')) {
+          await downloadAndWriteFile('/roms/kov.zip', '/home/web_user/retroarch/userdata/content/kov.zip');
+          await downloadAndWriteFile('/roms/kov.zip', '/home/web_user/retroarch/userdata/content/kov');
+        }
+
+        if (
+          currentRom.includes('kov') ||
+          currentRom.includes('ddp2') ||
+          currentRom.includes('dmnfrnt') ||
+          currentRom.includes('demon')
+        ) {
+          await downloadAndWriteFile('/roms/pgm.zip', '/home/web_user/retroarch/userdata/system/pgm.zip');
+          await downloadAndWriteFile('/roms/pgm.zip', '/home/web_user/retroarch/userdata/system/pgm');
+        }
+      },
+
+      emscriptenModule: {
+        print(str) {
+          console.log(`[RetroArch] ${str}`);
+        },
+        printErr(str) {
+          console.error(`[RetroArch] ${str}`);
+        }
+      },
 
       respondToGlobalEvents: true,
       style: {
@@ -2086,6 +2219,8 @@ async function launchGame() {
       },
       retroarchConfig: {
         menu_mouse_enable: true,
+        log_verbosity: true,
+        libretro_log_level: 0,
 
         // Native keyboard mappings for maximum performance and fluid combinations
         input_player1_up: 'w',
@@ -2124,7 +2259,7 @@ async function launchGame() {
 
     if (bios && bios.length > 0) {
       launchOptions.bios = bios;
-      launchOptions.resolveBios = async function(biosName) {
+      launchOptions.resolveBios = async function (biosName) {
         try {
           const response = await fetch(`/roms/${biosName}`, { method: 'HEAD' });
           if (response.ok) {
@@ -2437,3 +2572,34 @@ joystickBase.addEventListener('touchstart', (e) => {
 joystickBase.addEventListener('touchmove', handleJoystickEvent, { passive: false });
 joystickBase.addEventListener('touchend', resetJoystick);
 joystickBase.addEventListener('touchcancel', resetJoystick);
+
+// Auto-launch game from URL parameter if present
+(function autoLaunchFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const gameParam = params.get('game');
+  if (gameParam) {
+    const selectEl = document.getElementById('romUrl');
+    if (selectEl) {
+      const option = Array.from(selectEl.options).find(opt => {
+        const valLower = opt.value.toLowerCase();
+        const paramLower = gameParam.toLowerCase();
+        const filename = valLower.split('/').pop().replace('.zip', '');
+        return filename === paramLower;
+      }) || Array.from(selectEl.options).find(opt =>
+        opt.value.toLowerCase().includes(gameParam.toLowerCase())
+      );
+      if (option) {
+        selectEl.value = option.value;
+        selectEl.dispatchEvent(new Event('change'));
+
+        // Wait for the UI grid/selection to register and automatically click start
+        setTimeout(() => {
+          const launchBtn = document.getElementById('launchBtn');
+          if (launchBtn && !launchBtn.disabled) {
+            launchBtn.click();
+          }
+        }, 1500);
+      }
+    }
+  }
+})();
