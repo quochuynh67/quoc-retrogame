@@ -1524,6 +1524,7 @@ const RetroSynth = {
 
 // Global image error handler
 window.handleImageError = function (img, title) {
+  title = title || img.dataset.title || '';
   img.onerror = null;
   const parent = img.parentNode;
   if (parent) {
@@ -1775,7 +1776,7 @@ function initGameLibraryGrid() {
 
       card.innerHTML = `
         <div class="card-thumb-wrapper">
-          <img class="card-thumb" src="${game.thumbnail}" loading="lazy" onerror="handleImageError(this, '${game.title}')" />
+          <img class="card-thumb" src="${game.thumbnail}" loading="lazy" data-title="${game.title.replace(/"/g, '&quot;')}" onerror="handleImageError(this)" />
           <button type="button" class="card-fav-btn ${isFav ? 'active' : ''}" data-url="${game.url}">
             ${isFav ? '❤️' : '🤍'}
           </button>
