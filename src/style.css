@@ -737,11 +737,13 @@ body.playing .controls-bar {
   width: auto;
 }
 
-body.playing .controls-bar button:not(#exitBtn) {
+body.playing .controls-bar button:not(#exitBtn):not(#saveBtn):not(#loadBtn) {
   display: none;
 }
 
-body.playing #exitBtn {
+body.playing #exitBtn,
+body.playing #saveBtn,
+body.playing #loadBtn {
   font-size: 14px;
   padding: 10px 20px;
   opacity: 0.8;
@@ -795,10 +797,10 @@ body.playing .action-buttons {
 
 body.playing .system-buttons {
   position: absolute;
-  top: 60px;
-  right: 8px;
+  top: 8px;
+  left: 8px;
+  right: auto;
   bottom: auto;
-  left: auto;
   flex-direction: column;
   gap: 10px;
 }

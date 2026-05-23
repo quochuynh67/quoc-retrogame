@@ -93,7 +93,11 @@ app.innerHTML = `
         <button id="launchBtn" class="primary">Tải Game</button>
         <button id="pauseBtn" disabled>Tạm Dừng</button>
         <button id="resumeBtn" disabled>Tiếp Tục</button>
-        <button id="exitBtn" disabled>Thoát</button>
+        <div class="exit-actions" style="display: flex; flex-direction: column; gap: 10px;">
+          <button id="exitBtn" disabled>Thoát</button>
+          <button id="saveBtn" disabled>Save Game</button>
+          <button id="loadBtn" disabled>Chơi Tiếp</button>
+        </div>
       </div>
 
       <!-- VIRTUAL GAMEPAD -->
@@ -113,7 +117,7 @@ app.innerHTML = `
         </div>
 
         <div class="system-buttons">
-          <div class="sys-btn" data-key="Shift">Nạp xu</div>
+          <div class="sys-btn" data-key="Shift">Bỏ xu</div>
           <div class="sys-btn" data-key="Enter">Bắt đầu</div>
         </div>
 
@@ -1014,10 +1018,11 @@ function showToast(msg, type = 'success') {
 }
 
 // --- TIMED PLAYTIME LOGIC ---
-let gameTimer = null;
-let timeLeft = 0;
+let emulator = null;
 let continueTimer = null;
 let continueCountdownVal = 9;
+let timeLeft = 0;
+let gameTimer = null;
 
 function updateTimerHud() {
   const timerHud = document.getElementById('timerHud');
@@ -1887,8 +1892,8 @@ const sidebarLaunchBtn = document.querySelector('#sidebarLaunchBtn');
 const pauseBtn = document.querySelector('#pauseBtn');
 const resumeBtn = document.querySelector('#resumeBtn');
 const exitBtn = document.querySelector('#exitBtn');
-
-let emulator = null;
+const saveBtn = document.querySelector('#saveBtn');
+const loadBtn = document.querySelector('#loadBtn');
 
 function setStatus(text) {
   statusEl.textContent = text;
@@ -1900,6 +1905,8 @@ function setLog(message) {
 }
 
 function setControlState(running) {
+  saveBtn.disabled = !running;
+  loadBtn.disabled = !running;
   pauseBtn.disabled = !running;
   resumeBtn.disabled = !running;
   exitBtn.disabled = !running;
@@ -2346,6 +2353,47 @@ exitBtn.addEventListener('click', async () => {
   setLog('Đã thoát game và dọn dẹp giả lập.');
 });
 
+saveBtn.addEventListener('click', async () => {
+  if (!emulator) return;
+  try {
+    const state = await emulator.saveState();
+    const blob = state.state || state;
+    
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'retro-game.state';
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    setStatus('Đã lưu file game');
+    setLog('Game đã được tải về dưới dạng file .state.');
+  } catch (err) {
+    console.error('Lỗi khi save game', err);
+    setLog('Lỗi khi save game: ' + err.message);
+  }
+});
+
+loadBtn.addEventListener('click', () => {
+  if (!emulator) return;
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.state';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      await emulator.loadState(file);
+      setStatus('Đã load game');
+      setLog('Đã load state từ file thành công.');
+    } catch (err) {
+      console.error('Lỗi khi load game', err);
+      setLog('Lỗi khi load game: ' + err.message);
+    }
+  };
+  input.click();
+});
+
 // --- KEYBOARD CONTROLS LOGIC ---
 const keyboardMap = {
   // Movement WASD
@@ -2538,11 +2586,11 @@ vButtons.forEach(btn => {
             'macro-du': ['down', 'up'],
             'macro-lr': ['left', 'right'],
             'macro-rl': ['right', 'left'],
-            'macro-skill-r': ['left', 'right', 'b'],
-            'macro-skill-l': ['right', 'left', 'b'],
+            'macro-skill-r': ['right', 'left', 'right', 'b'],
+            'macro-skill-l': ['left', 'right', 'left', 'b'],
             'macro-unti': ['down', 'up', 'b'],
-            'macro-slide-l': ['left', 'left', 'b'],
-            'macro-slide-r': ['right', 'right', 'b']
+            'macro-slide-l': ['left', 'left', 'left', 'b'],
+            'macro-slide-r': ['right', 'right', 'right', 'b']
           };
           const dirs = macroMap[btnName];
           if (dirs) {
