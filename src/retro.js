@@ -56,16 +56,16 @@ app.innerHTML = `
       </div>
       <div class="header-controls">
         <!-- Timer HUD Overlay -->
-        <div id="timerHud" class="timer-hud hidden">
+        <div id="timerHud" class="timer-hud hidden" style="display: none !important;">
           <span class="hud-icon">⏱️</span> THỜI GIAN CÒN LẠI: <span id="timerVal">03:00</span>
         </div>
 
-        <div class="coin-dashboard">
+        <div class="coin-dashboard" style="display: none !important;">
           <div class="coin-balance-display">
             <span class="coin-pulse">🪙</span>
             <span class="coin-val" id="coinCount">--</span> <span class="coin-unit">xu</span>
           </div>
-          <button id="shopBtn" class="primary shop-trigger">Nạp Xu</button>
+          <button id="shopBtn" class="primary shop-trigger" style="display: none !important;">Nạp Xu</button>
         </div>
       </div>
     </div>
@@ -79,9 +79,9 @@ app.innerHTML = `
           <div class="continue-box">
             <h2 class="continue-title">CONTINUE?</h2>
             <div id="continueCountdown" class="continue-number">9</div>
-            <p class="continue-hint">Nhấn [Shift] hoặc đút xu để tiếp tục</p>
+            <p class="continue-hint">Nhấn [Shift] để tiếp tục</p>
             <div class="continue-actions">
-              <button id="insertCoinContinueBtn" class="primary neon-btn">Đút Xu Tiếp Tục (1 Xu)</button>
+              <button id="insertCoinContinueBtn" class="primary neon-btn">Tiếp Tục Chơi (Miễn Phí)</button>
               <button id="exitGameContinueBtn" class="secondary">Thoát Game</button>
             </div>
           </div>
@@ -117,7 +117,7 @@ app.innerHTML = `
         </div>
 
         <div class="system-buttons">
-          <div class="sys-btn" data-key="Shift">Bỏ xu</div>
+          <div class="sys-btn" data-key="Shift">Nhét xu</div>
           <div class="sys-btn" data-key="Enter">Bắt đầu</div>
         </div>
 
@@ -955,7 +955,7 @@ const CoinSystem = {
   },
 
   isInfinite() {
-    return Date.now() < this.infiniteUntil;
+    return true; // Tạm thời free toàn bộ
   },
 
   getCoinsDisplay() {
@@ -1159,7 +1159,7 @@ function handleInsertCoinContinue() {
 
 function handleExtendPlayTime() {
   if (CoinSystem.isInfinite()) {
-    showToast('Tài khoản Vô Hạn đang kích hoạt!', 'success');
+    // showToast('Tài khoản Vô Hạn đang kích hoạt!', 'success');
     return;
   }
 
@@ -1928,9 +1928,9 @@ async function destroyRunningGame() {
           <div class="continue-box">
             <h2 class="continue-title">CONTINUE?</h2>
             <div id="continueCountdown" class="continue-number">9</div>
-            <p class="continue-hint">Nhấn [Shift] hoặc đút xu để tiếp tục</p>
+            <p class="continue-hint">Nhấn [Shift] để tiếp tục</p>
             <div class="continue-actions">
-              <button id="insertCoinContinueBtn" class="primary neon-btn">Đút Xu Tiếp Tục (1 Xu)</button>
+              <button id="insertCoinContinueBtn" class="primary neon-btn">Tiếp Tục Chơi (Miễn Phí)</button>
               <button id="exitGameContinueBtn" class="secondary">Thoát Game</button>
             </div>
           </div>
@@ -1961,9 +1961,9 @@ async function destroyRunningGame() {
         <div class="continue-box">
           <h2 class="continue-title">CONTINUE?</h2>
           <div id="continueCountdown" class="continue-number">9</div>
-          <p class="continue-hint">Nhấn [Shift] hoặc đút xu để tiếp tục</p>
+          <p class="continue-hint">Nhấn [Shift] để tiếp tục</p>
           <div class="continue-actions">
-            <button id="insertCoinContinueBtn" class="primary neon-btn">Đút Xu Tiếp Tục (1 Xu)</button>
+            <button id="insertCoinContinueBtn" class="primary neon-btn">Tiếp Tục Chơi (Miễn Phí)</button>
             <button id="exitGameContinueBtn" class="secondary">Thoát Game</button>
           </div>
         </div>
@@ -2358,14 +2358,14 @@ saveBtn.addEventListener('click', async () => {
   try {
     const state = await emulator.saveState();
     const blob = state.state || state;
-    
+
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'retro-game.state';
     a.click();
     URL.revokeObjectURL(url);
-    
+
     setStatus('Đã lưu file game');
     setLog('Game đã được tải về dưới dạng file .state.');
   } catch (err) {
