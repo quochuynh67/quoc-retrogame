@@ -151,11 +151,11 @@ app.innerHTML = `
         <!-- 1. Selection dropdown (Default) -->
         <div id="romListContainer" class="rom-input-group">
           <select id="romUrl" class="input" style="display: none;">
-          <option value="/roms/kov.zip">kov (Knights of Valour)</option>
-          <option value="/roms/kovplus.zip">kovplus (Knights of Valour Plus)</option>
-          <option value="/roms/sengoku3.zip">sengoku3 (Sengoku 3)</option>
-          <option value="/roms/dmnfrnt.zip">dmnfrnt (Demon Front)</option>
-          <option value="/roms/dino.zip">dino (Cadillacs and Dinosaurs)</option>
+          <option value="/roms/kov.zip">kov</option>
+          <option value="/roms/kovplus.zip">kovplus</option>
+          <option value="/roms/sengoku3.zip">sengoku3</option>
+          <option value="/roms/dmnfrnt.zip">dmnfrnt</option>
+          <option value="/roms/dino.zip">dino</option>
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/1942.zip">1942</option>
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/1943.zip">1943</option>
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/1943kai.zip">1943kai</option>

@@ -469,6 +469,11 @@
     "title": "Dig Dug (rev 2)",
     "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Dig%20Dug%20(rev%202).png"
   },
+  "dino": {
+    "rom": "dino",
+    "title": "Cadillacs and Dinosaurs (World 930201)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Cadillacs%20_%20Dinosaurs%20(930201%20World).png"
+  },
   "dkong": {
     "rom": "dkong",
     "title": "Donkey Kong (US double drill)",
@@ -487,7 +492,7 @@
   "dmnfrnt": {
     "rom": "dmnfrnt",
     "title": "Demon Front (V105)",
-    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Demon%20Front%20(V105).png"
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Demon%20Front%20(V102%2C%20China).png"
   },
   "docastle": {
     "rom": "docastle",
@@ -913,6 +918,16 @@
     "rom": "kof95h",
     "title": "Kof95h",
     "thumbnail": null
+  },
+  "kov": {
+    "rom": "kov",
+    "title": "Knights of Valour / Sangoku Senki (V117)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Knights%20of%20Valour%20-%20Sangoku%20Senki%20(V117).png"
+  },
+  "kovplus": {
+    "rom": "kovplus",
+    "title": "Knights of Valour Plus / Sangoku Senki Plus (V119)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Knights%20of%20Valour%20-%20Sangoku%20Senki%20(V117).png"
   },
   "krull": {
     "rom": "krull",
@@ -1478,6 +1493,11 @@
     "rom": "seicross",
     "title": "Seicross",
     "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Seicross.png"
+  },
+  "sengoku3": {
+    "rom": "sengoku3",
+    "title": "Sengoku 3 / Sengoku Densho 2001 (set 1)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Sengoku%203%20_%20Sengoku%20Densho%202001%20(set%201).png"
   },
   "sf": {
     "rom": "sf",
