@@ -2163,13 +2163,24 @@ async function launchGame() {
         input_player1_left: 'a',
         input_player1_down: 's',
         input_player1_right: 'd',
-
         input_player1_x: 'i',
         input_player1_y: 'j',
         input_player1_a: 'k',
         input_player1_b: 'l',
-
+        input_player1_select: 'space',
         input_player1_start: 'enter',
+
+
+        input_player2_up: 'up',
+        input_player2_left: 'left',
+        input_player2_down: 'down',
+        input_player2_right: 'right',
+        input_player2_x: 'num1',
+        input_player2_y: 'num2',
+        input_player2_a: 'num3',
+        input_player2_b: 'num4',
+        input_player2_select: 'num5',
+        input_player2_start: 'num6',
       },
       onLaunch() {
         setStatus('Đang chạy');
