@@ -504,6 +504,11 @@
     "title": "Don Doko Don (US)",
     "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Don%20Doko%20Don%20(US).png"
   },
+  "doubledr": {
+    "rom": "doubledr",
+    "title": "Double Dragon (Neo-Geo)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Double%20Dragon%20(Neo-Geo).png"
+  },
   "drgnbstr": {
     "rom": "drgnbstr",
     "title": "Dragon Buster",
@@ -1203,6 +1208,11 @@
     "rom": "osman",
     "title": "Osman (World)",
     "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Osman%20(World).png"
+  },
+  "olds": {
+    "rom": "olds",
+    "title": "Oriental Legend - Xi Yo Gi Shi Re Zuang (V126)",
+    "thumbnail": "https://thumbnails.libretro.com/FBNeo%20-%20Arcade%20Games/Named_Boxarts/Oriental%20Legend%20-%20Xi%20Yo%20Gi%20Shi%20Re%20Zuang%20(V126).png"
   },
   "outfxies": {
     "rom": "outfxies",
