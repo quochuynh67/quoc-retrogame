@@ -1909,7 +1909,9 @@ function detectBiosForRom(romUrl) {
     urlLower.includes('viewpoin') ||
     urlLower.includes('wakuwak7') ||
     urlLower.includes('rotd') ||
-    urlLower.includes('matrimec')
+    urlLower.includes('matrimec') ||
+    urlLower.includes('doubledr') ||
+    urlLower.includes('double')
   ) {
     biosList.push('neogeo.zip');
   }
