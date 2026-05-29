@@ -1175,6 +1175,30 @@ function stopContinueCountdown() {
   if (continueOverlay) continueOverlay.classList.add('hidden');
 }
 
+async function pauseForControlEditing() {
+  if (!emulator || userPausedGame || autoPausedForControls) return;
+  try {
+    await emulator.pause();
+    autoPausedForControls = true;
+    setStatus('Đang chỉnh nút - game đã tạm dừng');
+  } catch (err) {
+    console.warn('Không thể auto-pause khi chỉnh nút', err);
+  }
+}
+
+async function resumeAfterControlEditing() {
+  const continueOverlay = document.getElementById('continueOverlay');
+  const waitingForContinue = continueOverlay && !continueOverlay.classList.contains('hidden');
+  if (!emulator || userPausedGame || !autoPausedForControls || controlEditMode || waitingForContinue) return;
+  try {
+    await emulator.resume();
+    autoPausedForControls = false;
+    setStatus('Đang chạy');
+  } catch (err) {
+    console.warn('Không thể auto-resume sau khi chỉnh nút', err);
+  }
+}
+
 function handleInsertCoinContinue() {
   if (CoinSystem.isInfinite() || CoinSystem.coins > 0) {
     if (CoinSystem.consumeCoin()) {
@@ -1878,6 +1902,8 @@ function setControlState(running) {
   resumeBtn.disabled = !running;
   exitBtn.disabled = !running;
   if (running) {
+    userPausedGame = false;
+    autoPausedForControls = false;
     document.body.classList.add('playing');
     if (settingsBtn && controlsBar && settingsBtn.parentElement !== controlsBar) {
       controlsBar.insertBefore(settingsBtn, controlsBar.firstElementChild);
@@ -1893,6 +1919,8 @@ function setControlState(running) {
     }
     applySavedControlLayout();
   } else {
+    userPausedGame = false;
+    autoPausedForControls = false;
     document.body.classList.remove('playing');
     setControlEditMode(false);
     if (settingsBtn && headerControls && settingsBtn.parentElement !== headerControls) {
@@ -2346,6 +2374,8 @@ if (sidebarLaunchBtn) {
 pauseBtn.addEventListener('click', async () => {
   if (!emulator) return;
   await emulator.pause();
+  userPausedGame = true;
+  autoPausedForControls = false;
   setStatus('Đã tạm dừng');
   setLog('Game đã được tạm dừng.');
 });
@@ -2353,6 +2383,8 @@ pauseBtn.addEventListener('click', async () => {
 resumeBtn.addEventListener('click', async () => {
   if (!emulator) return;
   await emulator.resume();
+  userPausedGame = false;
+  autoPausedForControls = false;
   setStatus('Đang chạy');
   setLog('Tiếp tục chơi game.');
 });
@@ -2553,6 +2585,8 @@ let controlEditMode = false;
 let isDraggingControl = false;
 let isScalingControl = false;
 let editingCustomControlId = null;
+let userPausedGame = false;
+let autoPausedForControls = false;
 
 const controlElements = Array.from(document.querySelectorAll('.virtual-gamepad [data-control-id]'));
 const originalControlPlacements = new Map(controlElements.map(el => [
@@ -2947,6 +2981,7 @@ function resetCustomControlForm(control = null) {
 }
 
 function openCustomControlModal(control = null) {
+  pauseForControlEditing();
   resetCustomControlForm(control);
   customControlModal?.classList.remove('hidden');
   customControlModal?.setAttribute('aria-hidden', 'false');
@@ -2956,6 +2991,7 @@ function closeCustomControlModal() {
   customControlModal?.classList.add('hidden');
   customControlModal?.setAttribute('aria-hidden', 'true');
   editingCustomControlId = null;
+  resumeAfterControlEditing();
 }
 
 function pressVirtualAction(action, pressed) {
@@ -3161,11 +3197,13 @@ function setControlEditMode(enabled) {
   }
 
   if (enabled) {
+    pauseForControlEditing();
     applySavedControlLayout();
     attachControlEditHandles();
     setStatus('Đang cài đặt nút');
   } else {
     setStatus(emulator ? 'Đang chạy' : 'Đang chờ...');
+    resumeAfterControlEditing();
   }
 }
 
