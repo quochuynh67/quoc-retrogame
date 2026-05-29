@@ -177,7 +177,7 @@ app.innerHTML = `
                   <option value="A">A</option>
                   <option value="B">B</option>
                 </select>
-                <input class="input custom-delay-input" data-index="${idx}" type="number" min="0" max="3000" step="10" value="${idx === 0 ? 0 : 60}" />
+                <input class="input custom-delay-input" data-index="${idx}" type="text" inputmode="numeric" pattern="[0-9]*" value="${idx === 0 ? 0 : 60}" />
                 <button type="button" class="custom-remove-action-btn" title="Xoá action">×</button>
               </div>
             `).join('')}
@@ -2594,6 +2594,21 @@ window.addEventListener('beforeunload', () => {
   }, { capture: true });
 });
 
+document.addEventListener('touchmove', (e) => {
+  if (!document.body.classList.contains('playing')) return;
+  if (e.target.closest('input, textarea, select, .custom-control-modal')) return;
+  if (e.touches && e.touches.length > 1) {
+    e.preventDefault();
+  }
+}, { passive: false, capture: true });
+
+['gesturestart', 'gesturechange', 'gestureend'].forEach(eventName => {
+  document.addEventListener(eventName, (e) => {
+    if (!document.body.classList.contains('playing')) return;
+    e.preventDefault();
+  }, { passive: false });
+});
+
 // --- VIRTUAL GAMEPAD LOGIC ---
 const CONTROL_LAYOUT_KEY = 'retro.controlLayout.v4';
 const CUSTOM_CONTROLS_KEY = 'retro.customControls.v1';
@@ -2972,7 +2987,7 @@ function createCustomActionRow(action = '', delay = 60) {
       <option value="A">A</option>
       <option value="B">B</option>
     </select>
-    <input class="input custom-delay-input" data-index="${idx}" type="number" min="0" max="3000" step="10" value="${delay}" />
+    <input class="input custom-delay-input" data-index="${idx}" type="text" inputmode="numeric" pattern="[0-9]*" value="${delay}" />
     <button type="button" class="custom-remove-action-btn" title="Xoá action">×</button>
   `;
   row.querySelector('.custom-action-select').value = action;
@@ -3001,6 +3016,7 @@ function resetCustomControlForm(control = null) {
 function openCustomControlModal(control = null) {
   pauseForControlEditing();
   resetCustomControlForm(control);
+  document.body.classList.add('custom-control-modal-open');
   customControlModal?.classList.remove('hidden');
   customControlModal?.setAttribute('aria-hidden', 'false');
 }
@@ -3008,6 +3024,7 @@ function openCustomControlModal(control = null) {
 function closeCustomControlModal() {
   customControlModal?.classList.add('hidden');
   customControlModal?.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('custom-control-modal-open');
   editingCustomControlId = null;
   resumeAfterControlEditing();
 }
@@ -3246,6 +3263,14 @@ addCustomControlBtn?.addEventListener('click', () => {
 
 closeCustomControlModalBtn?.addEventListener('click', () => {
   closeCustomControlModal();
+});
+
+customControlModal?.addEventListener('focusin', (e) => {
+  const field = e.target.closest('input, select, textarea');
+  if (!field) return;
+  setTimeout(() => {
+    field.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
+  }, 80);
 });
 
 customControlForm?.addEventListener('submit', (e) => {
