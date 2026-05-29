@@ -2497,7 +2497,7 @@ window.addEventListener('beforeunload', () => {
 });
 
 // --- VIRTUAL GAMEPAD LOGIC ---
-const CONTROL_LAYOUT_KEY = 'retro.controlLayout.v3';
+const CONTROL_LAYOUT_KEY = 'retro.controlLayout.v4';
 const MIN_CONTROL_SCALE = 0.65;
 const MAX_CONTROL_SCALE = 1.65;
 let controlEditMode = false;
@@ -2542,19 +2542,19 @@ function getDefaultControlLayout() {
     'macro-slide-r': { x: 32, y: 63 },
     'select': { x: 12, y: 8 },
     'start': { x: 12, y: 18 },
-    'macro-lr': { x: 34, y: 92 },
-    'macro-rl': { x: 44, y: 92 },
-    'macro-ud': { x: 54, y: 92 },
-    'macro-du': { x: 64, y: 92 },
-    'macro-skill-l': { x: 58, y: 62 },
-    'macro-skill-r': { x: 58, y: 74 },
-    'macro-unti': { x: 58, y: 86 },
-    'btn-x': { x: 80, y: 65 },
-    'btn-y': { x: 72, y: 74 },
-    'btn-b': { x: 88, y: 74 },
-    'btn-a': { x: 80, y: 83 },
-    'combo-yab': { x: 94, y: 62 },
-    'combo-ab': { x: 94, y: 86 }
+    'macro-lr': { x: 30, y: 91 },
+    'macro-rl': { x: 41, y: 91 },
+    'macro-ud': { x: 52, y: 91 },
+    'macro-du': { x: 63, y: 91 },
+    'macro-skill-l': { x: 52, y: 62 },
+    'macro-skill-r': { x: 52, y: 73 },
+    'macro-unti': { x: 52, y: 84 },
+    'btn-x': { x: 76, y: 64 },
+    'btn-y': { x: 67, y: 73 },
+    'btn-b': { x: 85, y: 73 },
+    'btn-a': { x: 76, y: 82 },
+    'combo-yab': { x: 91, y: 62 },
+    'combo-ab': { x: 91, y: 85 }
   };
 }
 
@@ -2631,12 +2631,53 @@ function ensureControlLayout() {
 
 function positionControlElement(el, controlConfig) {
   el.classList.add('custom-control-positioned');
-  el.style.left = `${controlConfig.x}%`;
-  el.style.top = `${controlConfig.y}%`;
+  const boundedConfig = getBoundedControlConfig(el, controlConfig);
+  el.style.left = `${boundedConfig.x}%`;
+  el.style.top = `${boundedConfig.y}%`;
   el.style.right = 'auto';
   el.style.bottom = 'auto';
-  el.style.setProperty('--control-scale', clampControlScale(controlConfig.scale || 1));
-  el.classList.toggle('control-hidden', Boolean(controlConfig.hidden));
+  el.style.setProperty('--control-scale', clampControlScale(boundedConfig.scale || 1));
+  el.classList.toggle('control-hidden', Boolean(boundedConfig.hidden));
+}
+
+function getControlBounds(el) {
+  const id = el.dataset.controlId;
+  const isPortrait = window.innerHeight >= window.innerWidth;
+  const marginX = isPortrait ? 8 : 4;
+  const baseBounds = {
+    minX: marginX,
+    maxX: 100 - marginX,
+    minY: isPortrait ? 52 : 5,
+    maxY: isPortrait ? 94 : 95
+  };
+
+  if (id === 'select' || id === 'start') {
+    return {
+      minX: 4,
+      maxX: isPortrait ? 28 : 18,
+      minY: 5,
+      maxY: isPortrait ? 28 : 34
+    };
+  }
+
+  if (id === 'joystick' || id === 'macro-slide-l' || id === 'macro-slide-r') {
+    return {
+      ...baseBounds,
+      minX: 6,
+      maxX: isPortrait ? 44 : 36
+    };
+  }
+
+  return baseBounds;
+}
+
+function getBoundedControlConfig(el, config) {
+  const bounds = getControlBounds(el);
+  return {
+    ...config,
+    x: Math.min(bounds.maxX, Math.max(bounds.minX, config.x ?? 50)),
+    y: Math.min(bounds.maxY, Math.max(bounds.minY, config.y ?? 50))
+  };
 }
 
 function moveControlsToOverlayRoot() {
@@ -2740,20 +2781,20 @@ function startControlDrag(e, el) {
 
   const moveControl = (moveEvent) => {
     moveEvent.preventDefault();
-    const nextLeft = Math.min(
-      window.innerWidth - rect.width / 2,
-      Math.max(rect.width / 2, moveEvent.clientX - shiftX + rect.width / 2)
-    );
-    const nextTop = Math.min(
-      window.innerHeight - rect.height / 2,
-      Math.max(rect.height / 2, moveEvent.clientY - shiftY + rect.height / 2)
-    );
     const layout = readControlLayout();
     const currentConfig = layout[el.dataset.controlId] || {};
-    positionControlElement(el, {
+    const bounds = getControlBounds(el);
+    const rawX = ((moveEvent.clientX - shiftX + rect.width / 2) / window.innerWidth) * 100;
+    const rawY = ((moveEvent.clientY - shiftY + rect.height / 2) / window.innerHeight) * 100;
+    const nextConfig = getBoundedControlConfig(el, {
       ...currentConfig,
-      x: (nextLeft / window.innerWidth) * 100,
-      y: (nextTop / window.innerHeight) * 100
+      x: rawX,
+      y: rawY
+    });
+    positionControlElement(el, {
+      ...nextConfig,
+      x: Math.min(bounds.maxX, Math.max(bounds.minX, nextConfig.x)),
+      y: Math.min(bounds.maxY, Math.max(bounds.minY, nextConfig.y))
     });
   };
 

@@ -971,6 +971,32 @@ body.playing .joystick-base.joystick-floating {
   opacity: 0.9;
 }
 
+@media (orientation: portrait) {
+  body.playing .action-btn {
+    width: 54px;
+    height: 54px;
+    font-size: 13px;
+  }
+
+  body.playing .macro-btn,
+  body.playing .btn-combo-ab,
+  body.playing .btn-combo-yab {
+    width: 38px;
+    height: 38px;
+    font-size: 10px;
+  }
+
+  body.playing .joystick-base {
+    width: 132px;
+    height: 132px;
+  }
+
+  body.playing .joystick-knob {
+    width: 52px;
+    height: 52px;
+  }
+}
+
 body.playing .timer-hud {
   position: fixed;
   top: 8px;
