@@ -68,6 +68,7 @@ app.innerHTML = `
           <button id="shopBtn" class="primary shop-trigger" style="display: none !important;">Nạp Xu</button>
         </div>
         <button id="settingsBtn" class="secondary">Cài Đặt</button>
+        <button id="restoreControlsBtn" class="secondary" type="button">Khôi phục</button>
       </div>
     </div>
   </header>
@@ -1813,6 +1814,7 @@ const exitBtn = document.querySelector('#exitBtn');
 const saveBtn = document.querySelector('#saveBtn');
 const loadBtn = document.querySelector('#loadBtn');
 const settingsBtn = document.querySelector('#settingsBtn');
+const restoreControlsBtn = document.querySelector('#restoreControlsBtn');
 const customizeControlsBtn = document.querySelector('#customizeControlsBtn');
 const controlsBar = document.querySelector('.controls-bar');
 const headerControls = document.querySelector('.header-controls');
@@ -1838,12 +1840,25 @@ function setControlState(running) {
     if (settingsBtn && controlsBar && settingsBtn.parentElement !== controlsBar) {
       controlsBar.insertBefore(settingsBtn, controlsBar.firstElementChild);
     }
+    if (restoreControlsBtn && controlsBar && restoreControlsBtn.parentElement !== controlsBar) {
+      settingsBtn?.after(restoreControlsBtn);
+    }
+    if (exitBtn && controlsBar && exitBtn.parentElement !== controlsBar) {
+      controlsBar.appendChild(exitBtn);
+    }
     applySavedControlLayout();
   } else {
     document.body.classList.remove('playing');
     setControlEditMode(false);
     if (settingsBtn && headerControls && settingsBtn.parentElement !== headerControls) {
       headerControls.appendChild(settingsBtn);
+    }
+    if (restoreControlsBtn && headerControls && restoreControlsBtn.parentElement !== headerControls) {
+      headerControls.appendChild(restoreControlsBtn);
+    }
+    const exitActions = document.querySelector('.exit-actions');
+    if (exitBtn && exitActions && exitBtn.parentElement !== exitActions) {
+      exitActions.insertBefore(exitBtn, exitActions.firstElementChild);
     }
     clearControlLayoutStyles(true);
     restoreControlParents();
@@ -2482,7 +2497,7 @@ window.addEventListener('beforeunload', () => {
 });
 
 // --- VIRTUAL GAMEPAD LOGIC ---
-const CONTROL_LAYOUT_KEY = 'retro.controlLayout.v1';
+const CONTROL_LAYOUT_KEY = 'retro.controlLayout.v3';
 const MIN_CONTROL_SCALE = 0.65;
 const MAX_CONTROL_SCALE = 1.65;
 let controlEditMode = false;
@@ -2503,21 +2518,21 @@ function getDefaultControlLayout() {
       'joystick': { x: 16, y: 74 },
       'macro-slide-l': { x: 9, y: 52 },
       'macro-slide-r': { x: 24, y: 52 },
-      'select': { x: 10, y: 14 },
-      'start': { x: 24, y: 14 },
-      'macro-ud': { x: 62, y: 42 },
-      'macro-du': { x: 69, y: 42 },
-      'macro-lr': { x: 62, y: 54 },
-      'macro-rl': { x: 69, y: 54 },
-      'macro-skill-l': { x: 65, y: 72 },
-      'macro-skill-r': { x: 72, y: 62 },
-      'macro-unti': { x: 79, y: 72 },
-      'btn-x': { x: 88, y: 54 },
-      'btn-y': { x: 82, y: 68 },
-      'btn-b': { x: 94, y: 68 },
-      'btn-a': { x: 88, y: 82 },
-      'combo-yab': { x: 96, y: 50 },
-      'combo-ab': { x: 96, y: 86 }
+      'select': { x: 6, y: 8 },
+      'start': { x: 6, y: 19 },
+      'macro-lr': { x: 42, y: 86 },
+      'macro-rl': { x: 49, y: 86 },
+      'macro-ud': { x: 56, y: 86 },
+      'macro-du': { x: 63, y: 86 },
+      'macro-skill-l': { x: 72, y: 56 },
+      'macro-skill-r': { x: 72, y: 70 },
+      'macro-unti': { x: 72, y: 84 },
+      'btn-x': { x: 86, y: 59 },
+      'btn-y': { x: 80, y: 70 },
+      'btn-b': { x: 92, y: 70 },
+      'btn-a': { x: 86, y: 81 },
+      'combo-yab': { x: 96, y: 56 },
+      'combo-ab': { x: 96, y: 84 }
     };
   }
 
@@ -2525,21 +2540,21 @@ function getDefaultControlLayout() {
     'joystick': { x: 22, y: 78 },
     'macro-slide-l': { x: 12, y: 63 },
     'macro-slide-r': { x: 32, y: 63 },
-    'select': { x: 18, y: 14 },
-    'start': { x: 42, y: 14 },
-    'macro-ud': { x: 54, y: 52 },
-    'macro-du': { x: 66, y: 52 },
-    'macro-lr': { x: 54, y: 62 },
-    'macro-rl': { x: 66, y: 62 },
-    'macro-skill-l': { x: 58, y: 74 },
-    'macro-skill-r': { x: 70, y: 66 },
-    'macro-unti': { x: 82, y: 74 },
-    'btn-x': { x: 82, y: 58 },
-    'btn-y': { x: 70, y: 70 },
-    'btn-b': { x: 94, y: 70 },
-    'btn-a': { x: 82, y: 84 },
-    'combo-yab': { x: 94, y: 56 },
-    'combo-ab': { x: 94, y: 88 }
+    'select': { x: 12, y: 8 },
+    'start': { x: 12, y: 18 },
+    'macro-lr': { x: 34, y: 92 },
+    'macro-rl': { x: 44, y: 92 },
+    'macro-ud': { x: 54, y: 92 },
+    'macro-du': { x: 64, y: 92 },
+    'macro-skill-l': { x: 58, y: 62 },
+    'macro-skill-r': { x: 58, y: 74 },
+    'macro-unti': { x: 58, y: 86 },
+    'btn-x': { x: 80, y: 65 },
+    'btn-y': { x: 72, y: 74 },
+    'btn-b': { x: 88, y: 74 },
+    'btn-a': { x: 80, y: 83 },
+    'combo-yab': { x: 94, y: 62 },
+    'combo-ab': { x: 94, y: 86 }
   };
 }
 
@@ -2554,6 +2569,24 @@ function readControlLayout() {
 
 function writeControlLayout(layout) {
   localStorage.setItem(CONTROL_LAYOUT_KEY, JSON.stringify(layout));
+}
+
+function buildRestoredControlLayout() {
+  const defaultLayout = getDefaultControlLayout();
+  return Object.fromEntries(controlElements.map(el => {
+    const id = el.dataset.controlId;
+    return [id, { ...(defaultLayout[id] || { x: 50, y: 50 }), scale: 1, hidden: false }];
+  }).filter(([id]) => Boolean(id)));
+}
+
+function restoreDefaultControls() {
+  writeControlLayout(buildRestoredControlLayout());
+  controlElements.forEach(el => {
+    el.classList.remove('control-hidden', 'active', 'is-dragging-control', 'is-scaling-control');
+    el.style.setProperty('--control-scale', '1');
+  });
+  applySavedControlLayout();
+  setStatus(controlEditMode ? 'Đã khôi phục nút' : (emulator ? 'Đang chạy' : 'Đang chờ...'));
 }
 
 function clampControlScale(scale) {
@@ -2844,6 +2877,10 @@ settingsBtn?.addEventListener('click', () => {
   setControlEditMode(!controlEditMode);
 });
 
+restoreControlsBtn?.addEventListener('click', () => {
+  restoreDefaultControls();
+});
+
 window.addEventListener('resize', () => {
   if (document.body.classList.contains('playing') || controlEditMode) {
     applySavedControlLayout();
@@ -3098,21 +3135,32 @@ function resetJoystick(e) {
   restoreJoystickPosition();
 }
 
-function startJoystick(e) {
+function shouldStartJoystickFromPoint(e) {
+  if (e.target.closest('[data-key], button, .control-edit-handle')) return false;
+  return e.clientX <= window.innerWidth * 0.48;
+}
+
+function startJoystick(e, allowWideZone = false) {
   if (controlEditMode || isDraggingControl) return;
+  if (isDragging) return;
   if (e.target.closest('[data-key]') && e.target !== joystickBase) return;
+  if (allowWideZone && !shouldStartJoystickFromPoint(e)) return;
   e.preventDefault();
   isDragging = true;
   activeJoystickPointerId = e.pointerId ?? null;
   placeJoystickAt(e.clientX, e.clientY);
-  joystickTouchZone?.setPointerCapture?.(e.pointerId);
+  e.currentTarget?.setPointerCapture?.(e.pointerId);
   handleJoystickEvent(e);
 }
 
-joystickTouchZone?.addEventListener('pointerdown', startJoystick);
+joystickTouchZone?.addEventListener('pointerdown', (e) => startJoystick(e));
 joystickTouchZone?.addEventListener('pointermove', handleJoystickEvent);
 joystickTouchZone?.addEventListener('pointerup', resetJoystick);
 joystickTouchZone?.addEventListener('pointercancel', resetJoystick);
+virtualGamepad?.addEventListener('pointerdown', (e) => startJoystick(e, true));
+virtualGamepad?.addEventListener('pointermove', handleJoystickEvent);
+virtualGamepad?.addEventListener('pointerup', resetJoystick);
+virtualGamepad?.addEventListener('pointercancel', resetJoystick);
 
 joystickTouchZone?.addEventListener('touchstart', (e) => {
   if (controlEditMode || isDraggingControl) return;

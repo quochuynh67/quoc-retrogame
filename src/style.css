@@ -803,10 +803,11 @@ body.playing .header-controls {
   gap: 8px;
 }
 
-body.playing #settingsBtn {
+body.playing #settingsBtn,
+body.playing #restoreControlsBtn {
   display: inline-block;
-  font-size: 14px;
-  padding: 10px 20px;
+  font-size: 11px;
+  padding: 6px 9px;
   opacity: 0.9;
   background: rgba(0, 0, 0, 0.65);
   font-weight: bold;
@@ -860,9 +861,11 @@ body.playing .controls-bar {
   border: none;
   padding: 0;
   width: auto;
+  gap: 4px;
+  align-items: flex-start;
 }
 
-body.playing .controls-bar button:not(#settingsBtn):not(#exitBtn):not(#saveBtn):not(#loadBtn) {
+body.playing .controls-bar button:not(#settingsBtn):not(#restoreControlsBtn):not(#exitBtn):not(#saveBtn):not(#loadBtn) {
   display: none;
 }
 
@@ -875,15 +878,25 @@ body.playing .controls-bar #settingsBtn {
   position: static !important;
 }
 
+body.playing .controls-bar #restoreControlsBtn {
+  display: inline-block !important;
+  position: static !important;
+}
+
 body.playing #exitBtn,
 body.playing #saveBtn,
 body.playing #loadBtn {
-  font-size: 14px;
-  padding: 10px 20px;
+  font-size: 11px;
+  padding: 6px 9px;
   opacity: 0.8;
   background: rgba(0, 0, 0, 0.6);
   font-weight: bold;
   border: 1px solid var(--accent);
+}
+
+body.playing .controls-bar .exit-actions {
+  flex-direction: row !important;
+  gap: 4px !important;
 }
 
 body.playing .virtual-gamepad {
@@ -895,7 +908,7 @@ body.playing .virtual-gamepad {
   z-index: 500;
   background: transparent;
   border: none;
-  pointer-events: none;
+  pointer-events: auto;
   padding: 0;
 }
 
@@ -942,6 +955,20 @@ body.playing .system-buttons {
   bottom: auto;
   flex-direction: column;
   gap: 10px;
+}
+
+body.playing .sys-btn {
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 18px;
+}
+
+body.playing:not(.control-editing) .joystick-base:not(.joystick-floating) {
+  opacity: 0;
+}
+
+body.playing .joystick-base.joystick-floating {
+  opacity: 0.9;
 }
 
 body.playing .timer-hud {
