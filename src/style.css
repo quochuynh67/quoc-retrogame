@@ -153,6 +153,11 @@ button.primary:hover:not(:disabled) {
   display: none !important;
 }
 
+#settingsBtn,
+#restoreControlsBtn {
+  display: none;
+}
+
 .sidebar {
   width: 100%;
   padding: 15px;

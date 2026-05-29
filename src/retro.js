@@ -106,8 +106,8 @@ app.innerHTML = `
       <!-- VIRTUAL GAMEPAD -->
       <div class="virtual-gamepad">
         <div class="joystick-wrapper">
-          <div class="action-btn macro-btn macro-slide-l" data-key="macro-slide-l" data-control-id="macro-slide-l">Slide.L</div>
-          <div class="action-btn macro-btn macro-slide-r" data-key="macro-slide-r" data-control-id="macro-slide-r">Slide.R</div>
+          <div class="action-btn macro-btn macro-slide-l" data-key="macro-slide-l" data-control-id="macro-slide-l">⬅️⬅️B</div>
+          <div class="action-btn macro-btn macro-slide-r" data-key="macro-slide-r" data-control-id="macro-slide-r">➡️➡️B</div>
           <div class="joystick-base" id="joystickBase" data-control-id="joystick">
             <div class="joystick-knob" id="joystickKnob"></div>
           </div>
@@ -115,16 +115,16 @@ app.innerHTML = `
         
         <div class="skill-buttons">
           <div class="skill-macro-row">
-            <div class="action-btn macro-btn macro-ud" data-key="macro-ud" data-control-id="macro-ud">U+D</div>
-            <div class="action-btn macro-btn macro-du" data-key="macro-du" data-control-id="macro-du">D+U</div>
+            <div class="action-btn macro-btn macro-ud" data-key="macro-ud" data-control-id="macro-ud">⬇️⬆️</div>
+            <div class="action-btn macro-btn macro-du" data-key="macro-du" data-control-id="macro-du">⬆️⬇️</div>
           </div>
           <div class="skill-macro-row">
-            <div class="action-btn macro-btn macro-lr" data-key="macro-lr" data-control-id="macro-lr">L+R</div>
-            <div class="action-btn macro-btn macro-rl" data-key="macro-rl" data-control-id="macro-rl">R+L</div>
+            <div class="action-btn macro-btn macro-lr" data-key="macro-lr" data-control-id="macro-lr">⬅️➡️</div>
+            <div class="action-btn macro-btn macro-rl" data-key="macro-rl" data-control-id="macro-rl">➡️⬅️</div>
           </div>
-          <div class="action-btn macro-btn macro-skill-l" data-key="macro-skill-l" data-control-id="macro-skill-l">S.Trái</div>
-          <div class="action-btn macro-btn macro-skill-r" data-key="macro-skill-r" data-control-id="macro-skill-r">S.Phải</div>
-          <div class="action-btn macro-btn macro-unti" data-key="macro-unti" data-control-id="macro-unti">Unti</div>
+          <div class="action-btn macro-btn macro-skill-l" data-key="macro-skill-l" data-control-id="macro-skill-l">➡️⬅️B</div>
+          <div class="action-btn macro-btn macro-skill-r" data-key="macro-skill-r" data-control-id="macro-skill-r">⬅️➡️B</div>
+          <div class="action-btn macro-btn macro-unti" data-key="macro-unti" data-control-id="macro-unti">⬇️⬆️B</div>
         </div>
 
         <div class="system-buttons">
