@@ -13,6 +13,12 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#app {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -27,12 +33,114 @@ body {
   /* Prevent scrolling when playing */
 }
 
+body.playing,
+body.playing *:not(input):not(textarea):not(select) {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+body.playing img,
+body.playing canvas,
+body.playing button,
+body.playing .virtual-gamepad,
+body.playing .virtual-gamepad * {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
 #app {
   width: 100%;
   max-width: 1200px;
   height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+.rotate-prompt {
+  display: none;
+}
+
+@media (hover: none) and (pointer: coarse) and (orientation: portrait) {
+  .rotate-prompt {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.92);
+    color: #fff;
+    text-align: center;
+    pointer-events: auto;
+  }
+
+  .rotate-phone {
+    width: 76px;
+    height: 124px;
+    border: 4px solid #00ffcc;
+    border-radius: 16px;
+    position: relative;
+    animation: rotatePhoneHint 1.8s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.45);
+  }
+
+  .rotate-phone::after {
+    content: "";
+    position: absolute;
+    bottom: 7px;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    background: #00ffcc;
+  }
+
+  .rotate-phone-screen {
+    position: absolute;
+    inset: 13px 9px 24px;
+    border: 1px solid rgba(0, 255, 204, 0.55);
+    background: rgba(0, 255, 204, 0.08);
+  }
+
+  .rotate-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 280px;
+  }
+
+  .rotate-copy strong {
+    color: #00ffcc;
+    font-size: 18px;
+    text-transform: uppercase;
+  }
+
+  .rotate-copy span {
+    color: #ccc;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+}
+
+@keyframes rotatePhoneHint {
+  0%,
+  18% {
+    transform: rotate(0deg);
+  }
+
+  58%,
+  78% {
+    transform: rotate(90deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
 .header {

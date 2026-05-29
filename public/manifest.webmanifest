@@ -1,0 +1,26 @@
+{
+  "name": "Retro Arcade",
+  "short_name": "Retro",
+  "description": "Chơi game arcade retro trên mobile như một app.",
+  "start_url": "/?feature=retro",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#000000",
+  "theme_color": "#111111",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "/icons.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

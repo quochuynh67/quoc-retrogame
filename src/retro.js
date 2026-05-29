@@ -48,6 +48,16 @@ console.error = function (...args) {
 const app = document.querySelector('#app');
 
 app.innerHTML = `
+  <div id="rotatePrompt" class="rotate-prompt" aria-hidden="true">
+    <div class="rotate-phone">
+      <div class="rotate-phone-screen"></div>
+    </div>
+    <div class="rotate-copy">
+      <strong>Xoay ngang màn hình</strong>
+      <span>Game sẽ dễ nhìn và điều khiển mượt hơn.</span>
+    </div>
+  </div>
+
   <header class="header">
     <div class="header-content">
       <div class="brand">
@@ -2576,6 +2586,14 @@ window.addEventListener('beforeunload', () => {
   if (emulator) emulator.exit().catch(() => { });
 });
 
+['contextmenu', 'selectstart', 'dragstart'].forEach(eventName => {
+  document.addEventListener(eventName, (e) => {
+    if (!document.body.classList.contains('playing')) return;
+    if (e.target.closest('input, textarea, select, .custom-control-modal')) return;
+    e.preventDefault();
+  }, { capture: true });
+});
+
 // --- VIRTUAL GAMEPAD LOGIC ---
 const CONTROL_LAYOUT_KEY = 'retro.controlLayout.v4';
 const CUSTOM_CONTROLS_KEY = 'retro.customControls.v1';
@@ -3279,6 +3297,7 @@ vButtons.forEach(btn => {
 
   const downHandler = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     if (controlEditMode || isDraggingControl) return;
     if (!btn.classList.contains('active')) {
       btn.classList.add('active');
@@ -3359,6 +3378,7 @@ vButtons.forEach(btn => {
 
   const upHandler = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     if (controlEditMode || isDraggingControl) return;
     if (btn.classList.contains('active')) {
       btn.classList.remove('active');
@@ -3381,8 +3401,8 @@ vButtons.forEach(btn => {
   };
 
   btn.addEventListener('touchstart', downHandler, { passive: false });
-  btn.addEventListener('touchend', upHandler);
-  btn.addEventListener('touchcancel', upHandler);
+  btn.addEventListener('touchend', upHandler, { passive: false });
+  btn.addEventListener('touchcancel', upHandler, { passive: false });
 
   btn.addEventListener('mousedown', downHandler);
   btn.addEventListener('mouseup', upHandler);
@@ -3401,9 +3421,13 @@ let joystickWasFloating = false;
 let currentDirs = { up: false, down: false, left: false, right: false };
 
 function getPointFromEvent(e) {
+  if (typeof e.pointerId === 'number' && activeJoystickPointerId !== null && e.pointerId !== activeJoystickPointerId) {
+    return null;
+  }
+
   if (e.changedTouches && activeJoystickPointerId !== null) {
     const matchingTouch = Array.from(e.changedTouches).find(t => t.identifier === activeJoystickPointerId);
-    if (matchingTouch) return { clientX: matchingTouch.clientX, clientY: matchingTouch.clientY };
+    return matchingTouch ? { clientX: matchingTouch.clientX, clientY: matchingTouch.clientY } : null;
   }
 
   if (e.touches && e.touches.length > 0) {
@@ -3452,9 +3476,12 @@ function restoreJoystickPosition() {
 
 function handleJoystickEvent(e) {
   if (!isDragging || controlEditMode || isDraggingControl) return;
+
+  const point = getPointFromEvent(e);
+  if (!point) return;
   e.preventDefault();
 
-  const { clientX, clientY } = getPointFromEvent(e);
+  const { clientX, clientY } = point;
 
   const rect = joystickBase.getBoundingClientRect();
   const radius = rect.width / 2;
@@ -3494,7 +3521,11 @@ function handleJoystickEvent(e) {
 }
 
 function resetJoystick(e) {
-  if (e) e.preventDefault();
+  if (e) {
+    const point = getPointFromEvent(e);
+    if (!point && activeJoystickPointerId !== null) return;
+    e.preventDefault();
+  }
   isDragging = false;
   activeJoystickPointerId = null;
   activeJoystickCenter = null;
@@ -3537,6 +3568,7 @@ virtualGamepad?.addEventListener('pointercancel', resetJoystick);
 
 joystickTouchZone?.addEventListener('touchstart', (e) => {
   if (controlEditMode || isDraggingControl) return;
+  if (isDragging) return;
   if (e.target.closest('[data-key]') && e.target !== joystickBase) return;
   isDragging = true;
   activeJoystickPointerId = e.changedTouches?.[0]?.identifier ?? null;
