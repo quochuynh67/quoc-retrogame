@@ -642,6 +642,11 @@ body.control-editing .macro-unti {
   opacity: 0.95;
 }
 
+.joystick-base.joystick-running {
+  border-color: #00ffcc;
+  box-shadow: inset 0 0 18px rgba(0, 255, 204, 0.24), 0 0 18px rgba(0, 255, 204, 0.35);
+}
+
 .custom-control-modal {
   position: fixed;
   inset: 0;

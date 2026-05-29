@@ -3419,6 +3419,11 @@ let activeJoystickPointerId = null;
 let activeJoystickCenter = null;
 let joystickWasFloating = false;
 let currentDirs = { up: false, down: false, left: false, right: false };
+let joystickRunDir = null;
+let joystickLastRunAt = 0;
+let joystickRunTimers = [];
+let joystickRunCandidateDir = null;
+let joystickRunCandidateAt = 0;
 
 function getPointFromEvent(e) {
   if (typeof e.pointerId === 'number' && activeJoystickPointerId !== null && e.pointerId !== activeJoystickPointerId) {
@@ -3474,6 +3479,38 @@ function restoreJoystickPosition() {
   joystickWasFloating = false;
 }
 
+function clearJoystickRunTimers() {
+  joystickRunTimers.forEach((timer) => clearTimeout(timer));
+  joystickRunTimers = [];
+  joystickRunDir = null;
+  joystickRunCandidateDir = null;
+  joystickRunCandidateAt = 0;
+}
+
+function triggerJoystickRun(dir) {
+  if (!emulator?.pressDown || !emulator?.pressUp) return;
+  if (dir !== 'left' && dir !== 'right') return;
+
+  const now = performance.now();
+  if (joystickRunDir === dir || now - joystickLastRunAt < 420) return;
+
+  clearJoystickRunTimers();
+  joystickRunDir = dir;
+  joystickLastRunAt = now;
+
+  emulator.pressUp({ button: dir, player: 1 });
+  joystickRunTimers.push(setTimeout(() => {
+    emulator.pressDown({ button: dir, player: 1 });
+  }, 20));
+  joystickRunTimers.push(setTimeout(() => {
+    emulator.pressUp({ button: dir, player: 1 });
+  }, 70));
+  joystickRunTimers.push(setTimeout(() => {
+    emulator.pressDown({ button: dir, player: 1 });
+    currentDirs[dir] = true;
+  }, 120));
+}
+
 function handleJoystickEvent(e) {
   if (!isDragging || controlEditMode || isDraggingControl) return;
 
@@ -3490,17 +3527,19 @@ function handleJoystickEvent(e) {
 
   let dx = clientX - centerX;
   let dy = clientY - centerY;
-  const distance = Math.hypot(dx, dy);
+  let distance = Math.hypot(dx, dy);
 
   if (distance > radius) {
     const angle = Math.atan2(dy, dx);
     dx = Math.cos(angle) * radius;
     dy = Math.sin(angle) * radius;
+    distance = radius;
   }
 
   joystickKnob.style.transform = `translate(${dx}px, ${dy}px)`;
 
   const threshold = radius * 0.3;
+  const runThreshold = radius * 0.86;
   const newDirs = {
     up: dy < -threshold,
     down: dy > threshold,
@@ -3518,6 +3557,25 @@ function handleJoystickEvent(e) {
       currentDirs[dir] = newDirs[dir];
     }
   }
+
+  const horizontalRunDir = Math.abs(dx) > Math.abs(dy) && distance > runThreshold
+    ? (dx < 0 ? 'left' : 'right')
+    : null;
+  joystickBase.classList.toggle('joystick-running', Boolean(horizontalRunDir));
+  if (horizontalRunDir && newDirs[horizontalRunDir]) {
+    const now = performance.now();
+    if (joystickRunCandidateDir !== horizontalRunDir) {
+      joystickRunCandidateDir = horizontalRunDir;
+      joystickRunCandidateAt = now;
+    }
+    if (now - joystickRunCandidateAt > 130) {
+      triggerJoystickRun(horizontalRunDir);
+    }
+  } else if (!horizontalRunDir) {
+    joystickRunDir = null;
+    joystickRunCandidateDir = null;
+    joystickRunCandidateAt = 0;
+  }
 }
 
 function resetJoystick(e) {
@@ -3530,6 +3588,8 @@ function resetJoystick(e) {
   activeJoystickPointerId = null;
   activeJoystickCenter = null;
   joystickKnob.style.transform = `translate(0px, 0px)`;
+  joystickBase.classList.remove('joystick-running');
+  clearJoystickRunTimers();
   for (const dir in currentDirs) {
     if (currentDirs[dir]) {
       if (emulator && emulator.pressUp) emulator.pressUp({ button: dir, player: 1 });
