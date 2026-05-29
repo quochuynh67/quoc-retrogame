@@ -2694,7 +2694,7 @@ function clearControlLayoutStyles(force = false) {
 }
 
 function startControlDrag(e, el) {
-  if (!controlEditMode) return;
+  if (!controlEditMode || isScalingControl || e.target.closest('.control-edit-handle')) return;
   e.preventDefault();
   e.stopPropagation();
 
@@ -2715,11 +2715,13 @@ function startControlDrag(e, el) {
       window.innerHeight - rect.height / 2,
       Math.max(rect.height / 2, moveEvent.clientY - shiftY + rect.height / 2)
     );
-    positionControlElement(
-      el,
-      (nextLeft / window.innerWidth) * 100,
-      (nextTop / window.innerHeight) * 100
-    );
+    const layout = readControlLayout();
+    const currentConfig = layout[el.dataset.controlId] || {};
+    positionControlElement(el, {
+      ...currentConfig,
+      x: (nextLeft / window.innerWidth) * 100,
+      y: (nextTop / window.innerHeight) * 100
+    });
   };
 
   const stopControlDrag = (upEvent) => {
@@ -2745,6 +2747,72 @@ controlElements.forEach(el => {
   el.addEventListener('pointerdown', (e) => startControlDrag(e, el));
 });
 
+function createControlHandle(className, text, title) {
+  const handle = document.createElement('span');
+  handle.className = `control-edit-handle ${className}`;
+  handle.textContent = text;
+  handle.title = title;
+  handle.setAttribute('aria-label', title);
+  return handle;
+}
+
+function attachControlEditHandles() {
+  controlElements.forEach(el => {
+    if (!el.querySelector(':scope > .control-scale-handle')) {
+      const scaleHandle = createControlHandle('control-scale-handle', '↘', 'Phóng to/thu nhỏ nút');
+      scaleHandle.addEventListener('pointerdown', (e) => {
+        if (!controlEditMode) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        isScalingControl = true;
+        const rect = el.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const startDistance = Math.max(12, Math.hypot(e.clientX - centerX, e.clientY - centerY));
+        const currentScale = Number(el.style.getPropertyValue('--control-scale')) || 1;
+        scaleHandle.setPointerCapture?.(e.pointerId);
+        el.classList.add('is-scaling-control');
+
+        const moveScale = (moveEvent) => {
+          moveEvent.preventDefault();
+          const nextDistance = Math.max(12, Math.hypot(moveEvent.clientX - centerX, moveEvent.clientY - centerY));
+          saveControlScale(el, currentScale * (nextDistance / startDistance));
+        };
+
+        const stopScale = (upEvent) => {
+          upEvent.preventDefault();
+          upEvent.stopPropagation();
+          scaleHandle.releasePointerCapture?.(e.pointerId);
+          scaleHandle.removeEventListener('pointermove', moveScale);
+          scaleHandle.removeEventListener('pointerup', stopScale);
+          scaleHandle.removeEventListener('pointercancel', stopScale);
+          el.classList.remove('is-scaling-control');
+          setTimeout(() => {
+            isScalingControl = false;
+          }, 0);
+        };
+
+        scaleHandle.addEventListener('pointermove', moveScale);
+        scaleHandle.addEventListener('pointerup', stopScale);
+        scaleHandle.addEventListener('pointercancel', stopScale);
+      });
+      el.appendChild(scaleHandle);
+    }
+
+    if (el.dataset.controlId !== 'joystick' && !el.querySelector(':scope > .control-delete-handle')) {
+      const deleteHandle = createControlHandle('control-delete-handle', '×', 'Ẩn nút này');
+      deleteHandle.addEventListener('pointerdown', (e) => {
+        if (!controlEditMode) return;
+        e.preventDefault();
+        e.stopPropagation();
+        hideControl(el);
+      });
+      el.appendChild(deleteHandle);
+    }
+  });
+}
+
 function setControlEditMode(enabled) {
   controlEditMode = enabled;
   document.body.classList.toggle('control-editing', enabled);
@@ -2761,6 +2829,7 @@ function setControlEditMode(enabled) {
 
   if (enabled) {
     applySavedControlLayout();
+    attachControlEditHandles();
     setStatus('Đang cài đặt nút');
   } else {
     setStatus(emulator ? 'Đang chạy' : 'Đang chờ...');

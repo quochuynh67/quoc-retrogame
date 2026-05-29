@@ -422,19 +422,21 @@ button.primary:hover:not(:disabled) {
 
 .custom-control-positioned {
   position: fixed !important;
-  transform: translate(-50%, -50%);
+  --control-scale: 1;
+  transform: translate(-50%, -50%) scale(var(--control-scale));
   z-index: 520;
   pointer-events: auto;
+  transform-origin: center;
 }
 
 .custom-control-positioned.action-btn:active,
 .custom-control-positioned.action-btn.active {
-  transform: translate(-50%, calc(-50% + 4px));
+  transform: translate(-50%, calc(-50% + 4px)) scale(var(--control-scale));
 }
 
 .custom-control-positioned.sys-btn:active,
 .custom-control-positioned.sys-btn.active {
-  transform: translate(-50%, calc(-50% + 3px));
+  transform: translate(-50%, calc(-50% + 3px)) scale(var(--control-scale));
 }
 
 body.control-editing .custom-control-positioned,
@@ -452,6 +454,53 @@ body.control-editing .is-dragging-control {
   cursor: grabbing;
   opacity: 0.95;
   z-index: 700;
+}
+
+body.control-editing .is-scaling-control {
+  z-index: 710;
+}
+
+.control-hidden {
+  display: none !important;
+}
+
+.control-edit-handle {
+  display: none;
+}
+
+body.control-editing .control-edit-handle {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #111;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+  pointer-events: auto;
+  touch-action: none;
+  z-index: 4;
+}
+
+body.control-editing .control-delete-handle {
+  top: -12px;
+  right: -12px;
+  background: #ff0055;
+  box-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
+}
+
+body.control-editing .control-scale-handle {
+  right: -12px;
+  bottom: -12px;
+  background: #00ffcc;
+  color: #00110f;
+  cursor: nwse-resize;
+  box-shadow: 0 0 10px rgba(0, 255, 204, 0.55);
 }
 
 body.control-editing .macro-skill-l,
