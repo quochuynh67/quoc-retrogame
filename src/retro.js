@@ -67,6 +67,7 @@ app.innerHTML = `
           </div>
           <button id="shopBtn" class="primary shop-trigger" style="display: none !important;">Nạp Xu</button>
         </div>
+        <button id="settingsBtn" class="secondary">Cài Đặt</button>
       </div>
     </div>
   </header>
@@ -93,6 +94,7 @@ app.innerHTML = `
         <button id="launchBtn" class="primary">Tải Game</button>
         <button id="pauseBtn" disabled>Tạm Dừng</button>
         <button id="resumeBtn" disabled>Tiếp Tục</button>
+        <button id="customizeControlsBtn" class="secondary" type="button">Cài đặt nút</button>
         <div class="exit-actions" style="display: flex; flex-direction: column; gap: 10px;">
           <button id="exitBtn" disabled>Thoát</button>
           <button id="saveBtn" disabled>Save Game</button>
@@ -103,31 +105,39 @@ app.innerHTML = `
       <!-- VIRTUAL GAMEPAD -->
       <div class="virtual-gamepad">
         <div class="joystick-wrapper">
-          <div class="action-btn macro-btn macro-slide-l" data-key="macro-slide-l">Slide.L</div>
-          <div class="action-btn macro-btn macro-slide-r" data-key="macro-slide-r">Slide.R</div>
-          <div class="joystick-base" id="joystickBase">
+          <div class="action-btn macro-btn macro-slide-l" data-key="macro-slide-l" data-control-id="macro-slide-l">Slide.L</div>
+          <div class="action-btn macro-btn macro-slide-r" data-key="macro-slide-r" data-control-id="macro-slide-r">Slide.R</div>
+          <div class="joystick-base" id="joystickBase" data-control-id="joystick">
             <div class="joystick-knob" id="joystickKnob"></div>
           </div>
         </div>
         
         <div class="skill-buttons">
-          <div class="action-btn macro-btn macro-skill-l" data-key="macro-skill-l">S.Trái</div>
-          <div class="action-btn macro-btn macro-skill-r" data-key="macro-skill-r">S.Phải</div>
-          <div class="action-btn macro-btn macro-unti" data-key="macro-unti">Unti</div>
+          <div class="skill-macro-row">
+            <div class="action-btn macro-btn macro-ud" data-key="macro-ud" data-control-id="macro-ud">U+D</div>
+            <div class="action-btn macro-btn macro-du" data-key="macro-du" data-control-id="macro-du">D+U</div>
+          </div>
+          <div class="skill-macro-row">
+            <div class="action-btn macro-btn macro-lr" data-key="macro-lr" data-control-id="macro-lr">L+R</div>
+            <div class="action-btn macro-btn macro-rl" data-key="macro-rl" data-control-id="macro-rl">R+L</div>
+          </div>
+          <div class="action-btn macro-btn macro-skill-l" data-key="macro-skill-l" data-control-id="macro-skill-l">S.Trái</div>
+          <div class="action-btn macro-btn macro-skill-r" data-key="macro-skill-r" data-control-id="macro-skill-r">S.Phải</div>
+          <div class="action-btn macro-btn macro-unti" data-key="macro-unti" data-control-id="macro-unti">Unti</div>
         </div>
 
         <div class="system-buttons">
-          <div class="sys-btn" data-key="Shift">Nhét xu</div>
-          <div class="sys-btn" data-key="Enter">Bắt đầu</div>
+          <div class="sys-btn" data-key="Shift" data-control-id="select">Nhét xu</div>
+          <div class="sys-btn" data-key="Enter" data-control-id="start">Bắt đầu</div>
         </div>
 
         <div class="action-buttons">
-          <div class="action-btn btn-x" data-key="s">X</div>
-          <div class="action-btn btn-y" data-key="a">Y</div>
-          <div class="action-btn btn-a" data-key="x">A</div>
-          <div class="action-btn btn-b" data-key="z">B</div>
-          <div class="action-btn btn-combo-ab" data-key="combo-xz">A+B</div>
-          <div class="action-btn btn-combo-yab" data-key="combo-axz">Y+A+B</div>
+          <div class="action-btn btn-x" data-key="s" data-control-id="btn-x">X</div>
+          <div class="action-btn btn-y" data-key="a" data-control-id="btn-y">Y</div>
+          <div class="action-btn btn-a" data-key="x" data-control-id="btn-a">A</div>
+          <div class="action-btn btn-b" data-key="z" data-control-id="btn-b">B</div>
+          <div class="action-btn btn-combo-ab" data-key="combo-xz" data-control-id="combo-ab">A+B</div>
+          <div class="action-btn btn-combo-yab" data-key="combo-axz" data-control-id="combo-yab">Y+A+B</div>
         </div>
       </div>
     </section>
@@ -1802,6 +1812,11 @@ const resumeBtn = document.querySelector('#resumeBtn');
 const exitBtn = document.querySelector('#exitBtn');
 const saveBtn = document.querySelector('#saveBtn');
 const loadBtn = document.querySelector('#loadBtn');
+const settingsBtn = document.querySelector('#settingsBtn');
+const customizeControlsBtn = document.querySelector('#customizeControlsBtn');
+const controlsBar = document.querySelector('.controls-bar');
+const headerControls = document.querySelector('.header-controls');
+const virtualGamepad = document.querySelector('.virtual-gamepad');
 
 function setStatus(text) {
   statusEl.textContent = text;
@@ -1820,8 +1835,18 @@ function setControlState(running) {
   exitBtn.disabled = !running;
   if (running) {
     document.body.classList.add('playing');
+    if (settingsBtn && controlsBar && settingsBtn.parentElement !== controlsBar) {
+      controlsBar.insertBefore(settingsBtn, controlsBar.firstElementChild);
+    }
+    applySavedControlLayout();
   } else {
     document.body.classList.remove('playing');
+    setControlEditMode(false);
+    if (settingsBtn && headerControls && settingsBtn.parentElement !== headerControls) {
+      headerControls.appendChild(settingsBtn);
+    }
+    clearControlLayoutStyles(true);
+    restoreControlParents();
   }
 }
 
@@ -2457,6 +2482,305 @@ window.addEventListener('beforeunload', () => {
 });
 
 // --- VIRTUAL GAMEPAD LOGIC ---
+const CONTROL_LAYOUT_KEY = 'retro.controlLayout.v1';
+const MIN_CONTROL_SCALE = 0.65;
+const MAX_CONTROL_SCALE = 1.65;
+let controlEditMode = false;
+let isDraggingControl = false;
+let isScalingControl = false;
+
+const controlElements = Array.from(document.querySelectorAll('.virtual-gamepad [data-control-id]'));
+const originalControlPlacements = new Map(controlElements.map(el => [
+  el,
+  { parent: el.parentElement, nextSibling: el.nextSibling }
+]));
+
+function getDefaultControlLayout() {
+  const isLandscape = window.innerWidth > window.innerHeight;
+
+  if (isLandscape) {
+    return {
+      'joystick': { x: 16, y: 74 },
+      'macro-slide-l': { x: 9, y: 52 },
+      'macro-slide-r': { x: 24, y: 52 },
+      'select': { x: 10, y: 14 },
+      'start': { x: 24, y: 14 },
+      'macro-ud': { x: 62, y: 42 },
+      'macro-du': { x: 69, y: 42 },
+      'macro-lr': { x: 62, y: 54 },
+      'macro-rl': { x: 69, y: 54 },
+      'macro-skill-l': { x: 65, y: 72 },
+      'macro-skill-r': { x: 72, y: 62 },
+      'macro-unti': { x: 79, y: 72 },
+      'btn-x': { x: 88, y: 54 },
+      'btn-y': { x: 82, y: 68 },
+      'btn-b': { x: 94, y: 68 },
+      'btn-a': { x: 88, y: 82 },
+      'combo-yab': { x: 96, y: 50 },
+      'combo-ab': { x: 96, y: 86 }
+    };
+  }
+
+  return {
+    'joystick': { x: 22, y: 78 },
+    'macro-slide-l': { x: 12, y: 63 },
+    'macro-slide-r': { x: 32, y: 63 },
+    'select': { x: 18, y: 14 },
+    'start': { x: 42, y: 14 },
+    'macro-ud': { x: 54, y: 52 },
+    'macro-du': { x: 66, y: 52 },
+    'macro-lr': { x: 54, y: 62 },
+    'macro-rl': { x: 66, y: 62 },
+    'macro-skill-l': { x: 58, y: 74 },
+    'macro-skill-r': { x: 70, y: 66 },
+    'macro-unti': { x: 82, y: 74 },
+    'btn-x': { x: 82, y: 58 },
+    'btn-y': { x: 70, y: 70 },
+    'btn-b': { x: 94, y: 70 },
+    'btn-a': { x: 82, y: 84 },
+    'combo-yab': { x: 94, y: 56 },
+    'combo-ab': { x: 94, y: 88 }
+  };
+}
+
+function readControlLayout() {
+  try {
+    return JSON.parse(localStorage.getItem(CONTROL_LAYOUT_KEY) || '{}');
+  } catch (err) {
+    console.warn('Không đọc được layout nút đã lưu', err);
+    return {};
+  }
+}
+
+function writeControlLayout(layout) {
+  localStorage.setItem(CONTROL_LAYOUT_KEY, JSON.stringify(layout));
+}
+
+function clampControlScale(scale) {
+  return Math.min(MAX_CONTROL_SCALE, Math.max(MIN_CONTROL_SCALE, scale));
+}
+
+function hasOverlappingControlLayout(layout) {
+  const positions = Object.values(layout).filter(item => !item.hidden);
+  for (let i = 0; i < positions.length; i += 1) {
+    for (let j = i + 1; j < positions.length; j += 1) {
+      const dx = positions[i].x - positions[j].x;
+      const dy = positions[i].y - positions[j].y;
+      if (Math.hypot(dx, dy) < 3) return true;
+    }
+  }
+  return false;
+}
+
+function ensureControlLayout() {
+  const savedLayout = readControlLayout();
+  const defaultLayout = getDefaultControlLayout();
+  let changed = false;
+
+  if (hasOverlappingControlLayout(savedLayout)) {
+    writeControlLayout(defaultLayout);
+    return defaultLayout;
+  }
+
+  controlElements.forEach(el => {
+    const id = el.dataset.controlId;
+    if (!id || savedLayout[id]) return;
+    savedLayout[id] = { ...(defaultLayout[id] || { x: 50, y: 50 }), scale: 1, hidden: false };
+    changed = true;
+  });
+
+  if (changed) {
+    writeControlLayout(savedLayout);
+  }
+
+  return savedLayout;
+}
+
+function positionControlElement(el, controlConfig) {
+  el.classList.add('custom-control-positioned');
+  el.style.left = `${controlConfig.x}%`;
+  el.style.top = `${controlConfig.y}%`;
+  el.style.right = 'auto';
+  el.style.bottom = 'auto';
+  el.style.setProperty('--control-scale', clampControlScale(controlConfig.scale || 1));
+  el.classList.toggle('control-hidden', Boolean(controlConfig.hidden));
+}
+
+function moveControlsToOverlayRoot() {
+  if (!virtualGamepad) return;
+  controlElements.forEach(el => {
+    if (el.parentElement !== virtualGamepad) {
+      virtualGamepad.appendChild(el);
+    }
+  });
+}
+
+function restoreControlParents() {
+  controlElements.forEach(el => {
+    const placement = originalControlPlacements.get(el);
+    if (!placement?.parent || el.parentElement === placement.parent) return;
+
+    if (placement.nextSibling && placement.nextSibling.parentElement === placement.parent) {
+      placement.parent.insertBefore(el, placement.nextSibling);
+    } else {
+      placement.parent.appendChild(el);
+    }
+  });
+}
+
+function saveControlPosition(el) {
+  const id = el.dataset.controlId;
+  if (!id) return;
+
+  const rect = el.getBoundingClientRect();
+  const layout = readControlLayout();
+  layout[id] = {
+    ...(layout[id] || {}),
+    x: ((rect.left + rect.width / 2) / window.innerWidth) * 100,
+    y: ((rect.top + rect.height / 2) / window.innerHeight) * 100
+  };
+  writeControlLayout(layout);
+}
+
+function saveControlScale(el, scale) {
+  const id = el.dataset.controlId;
+  if (!id) return;
+
+  const layout = readControlLayout();
+  layout[id] = {
+    ...(layout[id] || {}),
+    scale: clampControlScale(scale)
+  };
+  writeControlLayout(layout);
+  el.style.setProperty('--control-scale', layout[id].scale);
+}
+
+function hideControl(el) {
+  const id = el.dataset.controlId;
+  if (!id) return;
+
+  const layout = readControlLayout();
+  layout[id] = {
+    ...(layout[id] || {}),
+    hidden: true
+  };
+  writeControlLayout(layout);
+  el.classList.add('control-hidden');
+}
+
+function applySavedControlLayout() {
+  if (!document.body.classList.contains('playing') && !controlEditMode) return;
+  moveControlsToOverlayRoot();
+  const layout = ensureControlLayout();
+  controlElements.forEach(el => {
+    const saved = layout[el.dataset.controlId];
+    if (!saved) return;
+    positionControlElement(el, saved);
+  });
+}
+
+function clearControlLayoutStyles(force = false) {
+  if (controlEditMode) return;
+
+  const layout = readControlLayout();
+  controlElements.forEach(el => {
+    if (!force && layout[el.dataset.controlId]) return;
+    el.classList.remove('custom-control-positioned');
+    el.style.left = '';
+    el.style.top = '';
+    el.style.right = '';
+    el.style.bottom = '';
+  });
+}
+
+function startControlDrag(e, el) {
+  if (!controlEditMode) return;
+  e.preventDefault();
+  e.stopPropagation();
+
+  isDraggingControl = true;
+  const rect = el.getBoundingClientRect();
+  const shiftX = e.clientX - rect.left;
+  const shiftY = e.clientY - rect.top;
+  el.classList.add('is-dragging-control');
+  el.setPointerCapture?.(e.pointerId);
+
+  const moveControl = (moveEvent) => {
+    moveEvent.preventDefault();
+    const nextLeft = Math.min(
+      window.innerWidth - rect.width / 2,
+      Math.max(rect.width / 2, moveEvent.clientX - shiftX + rect.width / 2)
+    );
+    const nextTop = Math.min(
+      window.innerHeight - rect.height / 2,
+      Math.max(rect.height / 2, moveEvent.clientY - shiftY + rect.height / 2)
+    );
+    positionControlElement(
+      el,
+      (nextLeft / window.innerWidth) * 100,
+      (nextTop / window.innerHeight) * 100
+    );
+  };
+
+  const stopControlDrag = (upEvent) => {
+    upEvent.preventDefault();
+    upEvent.stopPropagation();
+    saveControlPosition(el);
+    el.classList.remove('is-dragging-control');
+    el.releasePointerCapture?.(e.pointerId);
+    el.removeEventListener('pointermove', moveControl);
+    el.removeEventListener('pointerup', stopControlDrag);
+    el.removeEventListener('pointercancel', stopControlDrag);
+    setTimeout(() => {
+      isDraggingControl = false;
+    }, 0);
+  };
+
+  el.addEventListener('pointermove', moveControl);
+  el.addEventListener('pointerup', stopControlDrag);
+  el.addEventListener('pointercancel', stopControlDrag);
+}
+
+controlElements.forEach(el => {
+  el.addEventListener('pointerdown', (e) => startControlDrag(e, el));
+});
+
+function setControlEditMode(enabled) {
+  controlEditMode = enabled;
+  document.body.classList.toggle('control-editing', enabled);
+  if (settingsBtn) {
+    settingsBtn.textContent = enabled ? 'Lưu nút' : 'Cài Đặt';
+    settingsBtn.classList.toggle('primary', enabled);
+    settingsBtn.classList.toggle('secondary', !enabled);
+  }
+  if (customizeControlsBtn) {
+    customizeControlsBtn.textContent = enabled ? 'Lưu nút' : 'Cài đặt nút';
+    customizeControlsBtn.classList.toggle('primary', enabled);
+    customizeControlsBtn.classList.toggle('secondary', !enabled);
+  }
+
+  if (enabled) {
+    applySavedControlLayout();
+    setStatus('Đang cài đặt nút');
+  } else {
+    setStatus(emulator ? 'Đang chạy' : 'Đang chờ...');
+  }
+}
+
+customizeControlsBtn?.addEventListener('click', () => {
+  setControlEditMode(!controlEditMode);
+});
+
+settingsBtn?.addEventListener('click', () => {
+  setControlEditMode(!controlEditMode);
+});
+
+window.addEventListener('resize', () => {
+  if (document.body.classList.contains('playing') || controlEditMode) {
+    applySavedControlLayout();
+  }
+});
+
 // Action and System Buttons
 const vButtons = document.querySelectorAll('.virtual-gamepad [data-key]');
 
@@ -2476,6 +2800,7 @@ vButtons.forEach(btn => {
 
   const downHandler = (e) => {
     e.preventDefault();
+    if (controlEditMode || isDraggingControl) return;
     if (!btn.classList.contains('active')) {
       btn.classList.add('active');
 
@@ -2555,6 +2880,7 @@ vButtons.forEach(btn => {
 
   const upHandler = (e) => {
     e.preventDefault();
+    if (controlEditMode || isDraggingControl) return;
     if (btn.classList.contains('active')) {
       btn.classList.remove('active');
       if (emulator && emulator.pressUp) {
@@ -2585,23 +2911,76 @@ vButtons.forEach(btn => {
 });
 
 // Joystick Logic
+const joystickTouchZone = document.querySelector('.joystick-wrapper');
 const joystickBase = document.getElementById('joystickBase');
 const joystickKnob = document.getElementById('joystickKnob');
 
 let isDragging = false;
+let activeJoystickPointerId = null;
+let activeJoystickCenter = null;
+let joystickWasFloating = false;
 let currentDirs = { up: false, down: false, left: false, right: false };
 
+function getPointFromEvent(e) {
+  if (e.changedTouches && activeJoystickPointerId !== null) {
+    const matchingTouch = Array.from(e.changedTouches).find(t => t.identifier === activeJoystickPointerId);
+    if (matchingTouch) return { clientX: matchingTouch.clientX, clientY: matchingTouch.clientY };
+  }
+
+  if (e.touches && e.touches.length > 0) {
+    const touch = activeJoystickPointerId === null
+      ? e.touches[0]
+      : Array.from(e.touches).find(t => t.identifier === activeJoystickPointerId) || e.touches[0];
+    return { clientX: touch.clientX, clientY: touch.clientY };
+  }
+
+  return { clientX: e.clientX, clientY: e.clientY };
+}
+
+function placeJoystickAt(clientX, clientY) {
+  if (!joystickBase || !joystickTouchZone) return;
+  const wrapperRect = joystickTouchZone.getBoundingClientRect();
+  const baseRect = joystickBase.getBoundingClientRect();
+
+  joystickWasFloating = true;
+  joystickBase.classList.add('joystick-floating');
+  if (joystickBase.classList.contains('custom-control-positioned')) {
+    joystickBase.style.left = `${(clientX / window.innerWidth) * 100}%`;
+    joystickBase.style.top = `${(clientY / window.innerHeight) * 100}%`;
+  } else {
+    joystickBase.style.left = `${clientX - wrapperRect.left - baseRect.width / 2}px`;
+    joystickBase.style.top = `${clientY - wrapperRect.top - baseRect.height / 2}px`;
+  }
+  joystickBase.style.right = 'auto';
+  joystickBase.style.bottom = 'auto';
+  activeJoystickCenter = { x: clientX, y: clientY };
+}
+
+function restoreJoystickPosition() {
+  if (!joystickBase || !joystickWasFloating) return;
+
+  joystickBase.classList.remove('joystick-floating');
+  if (joystickBase.classList.contains('custom-control-positioned')) {
+    applySavedControlLayout();
+  } else {
+    joystickBase.style.left = '';
+    joystickBase.style.top = '';
+    joystickBase.style.right = '';
+    joystickBase.style.bottom = '';
+  }
+  joystickWasFloating = false;
+}
+
 function handleJoystickEvent(e) {
-  if (!isDragging) return;
+  if (!isDragging || controlEditMode || isDraggingControl) return;
   e.preventDefault();
 
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const { clientX, clientY } = getPointFromEvent(e);
 
   const rect = joystickBase.getBoundingClientRect();
   const radius = rect.width / 2;
-  const centerX = rect.left + radius;
-  const centerY = rect.top + radius;
+  const centerX = activeJoystickCenter?.x ?? rect.left + radius;
+  const centerY = activeJoystickCenter?.y ?? rect.top + radius;
 
   let dx = clientX - centerX;
   let dy = clientY - centerY;
@@ -2638,6 +3017,8 @@ function handleJoystickEvent(e) {
 function resetJoystick(e) {
   if (e) e.preventDefault();
   isDragging = false;
+  activeJoystickPointerId = null;
+  activeJoystickCenter = null;
   joystickKnob.style.transform = `translate(0px, 0px)`;
   for (const dir in currentDirs) {
     if (currentDirs[dir]) {
@@ -2645,25 +3026,37 @@ function resetJoystick(e) {
       currentDirs[dir] = false;
     }
   }
+  restoreJoystickPosition();
 }
 
-joystickBase.addEventListener('pointerdown', (e) => {
+function startJoystick(e) {
+  if (controlEditMode || isDraggingControl) return;
+  if (e.target.closest('[data-key]') && e.target !== joystickBase) return;
+  e.preventDefault();
   isDragging = true;
-  joystickBase.setPointerCapture(e.pointerId);
+  activeJoystickPointerId = e.pointerId ?? null;
+  placeJoystickAt(e.clientX, e.clientY);
+  joystickTouchZone?.setPointerCapture?.(e.pointerId);
   handleJoystickEvent(e);
-});
+}
 
-joystickBase.addEventListener('pointermove', handleJoystickEvent);
-joystickBase.addEventListener('pointerup', resetJoystick);
-joystickBase.addEventListener('pointercancel', resetJoystick);
+joystickTouchZone?.addEventListener('pointerdown', startJoystick);
+joystickTouchZone?.addEventListener('pointermove', handleJoystickEvent);
+joystickTouchZone?.addEventListener('pointerup', resetJoystick);
+joystickTouchZone?.addEventListener('pointercancel', resetJoystick);
 
-joystickBase.addEventListener('touchstart', (e) => {
+joystickTouchZone?.addEventListener('touchstart', (e) => {
+  if (controlEditMode || isDraggingControl) return;
+  if (e.target.closest('[data-key]') && e.target !== joystickBase) return;
   isDragging = true;
+  activeJoystickPointerId = e.changedTouches?.[0]?.identifier ?? null;
+  const point = getPointFromEvent(e);
+  placeJoystickAt(point.clientX, point.clientY);
   handleJoystickEvent(e);
 }, { passive: false });
-joystickBase.addEventListener('touchmove', handleJoystickEvent, { passive: false });
-joystickBase.addEventListener('touchend', resetJoystick);
-joystickBase.addEventListener('touchcancel', resetJoystick);
+joystickTouchZone?.addEventListener('touchmove', handleJoystickEvent, { passive: false });
+joystickTouchZone?.addEventListener('touchend', resetJoystick);
+joystickTouchZone?.addEventListener('touchcancel', resetJoystick);
 
 // Auto-launch game from URL parameter if present
 (function autoLaunchFromUrl() {

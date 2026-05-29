@@ -389,6 +389,11 @@ button.primary:hover:not(:disabled) {
   z-index: 10;
 }
 
+.skill-macro-row {
+  display: flex;
+  gap: 10px;
+}
+
 .skill-buttons .action-btn {
   position: relative;
   top: auto;
@@ -399,6 +404,12 @@ button.primary:hover:not(:disabled) {
   height: 44px;
 }
 
+.skill-buttons .skill-macro-row .action-btn {
+  width: 40px;
+  height: 40px;
+  font-size: 11px;
+}
+
 .joystick-knob {
   width: 60px;
   height: 60px;
@@ -407,6 +418,51 @@ button.primary:hover:not(:disabled) {
   box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.4), 0 5px 15px rgba(0, 0, 0, 0.8);
   pointer-events: none;
   transition: transform 0.05s linear;
+}
+
+.custom-control-positioned {
+  position: fixed !important;
+  transform: translate(-50%, -50%);
+  z-index: 520;
+  pointer-events: auto;
+}
+
+.custom-control-positioned.action-btn:active,
+.custom-control-positioned.action-btn.active {
+  transform: translate(-50%, calc(-50% + 4px));
+}
+
+.custom-control-positioned.sys-btn:active,
+.custom-control-positioned.sys-btn.active {
+  transform: translate(-50%, calc(-50% + 3px));
+}
+
+body.control-editing .custom-control-positioned,
+body.control-editing .virtual-gamepad [data-control-id] {
+  cursor: grab;
+  outline: 2px dashed rgba(0, 255, 204, 0.75);
+  outline-offset: 4px;
+  box-shadow: 0 0 18px rgba(0, 255, 204, 0.25);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body.control-editing .is-dragging-control {
+  cursor: grabbing;
+  opacity: 0.95;
+  z-index: 700;
+}
+
+body.control-editing .macro-skill-l,
+body.control-editing .macro-skill-r,
+body.control-editing .macro-unti {
+  min-width: 54px;
+  min-height: 54px;
+}
+
+.joystick-base.joystick-floating {
+  opacity: 0.95;
 }
 
 .action-buttons {
@@ -688,6 +744,26 @@ body.playing .coin-dashboard {
   display: none !important;
 }
 
+body.playing .header-controls {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  z-index: 504;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+body.playing #settingsBtn {
+  display: inline-block;
+  font-size: 14px;
+  padding: 10px 20px;
+  opacity: 0.9;
+  background: rgba(0, 0, 0, 0.65);
+  font-weight: bold;
+  border: 1px solid var(--accent);
+}
+
 body.playing #app {
   max-width: 100vw;
   height: 100vh;
@@ -737,8 +813,17 @@ body.playing .controls-bar {
   width: auto;
 }
 
-body.playing .controls-bar button:not(#exitBtn):not(#saveBtn):not(#loadBtn) {
+body.playing .controls-bar button:not(#settingsBtn):not(#exitBtn):not(#saveBtn):not(#loadBtn) {
   display: none;
+}
+
+body.playing .controls-bar #customizeControlsBtn {
+  display: none;
+}
+
+body.playing .controls-bar #settingsBtn {
+  display: inline-block !important;
+  position: static !important;
 }
 
 body.playing #exitBtn,
@@ -763,6 +848,11 @@ body.playing .virtual-gamepad {
   border: none;
   pointer-events: none;
   padding: 0;
+}
+
+body.playing.control-editing .virtual-gamepad {
+  pointer-events: auto;
+  background: rgba(0, 0, 0, 0.18);
 }
 
 body.playing .joystick-wrapper,
