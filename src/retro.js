@@ -96,6 +96,7 @@ app.innerHTML = `
         <button id="pauseBtn" disabled>Tạm Dừng</button>
         <button id="resumeBtn" disabled>Tiếp Tục</button>
         <button id="customizeControlsBtn" class="secondary" type="button">Cài đặt nút</button>
+        <button id="addCustomControlBtn" class="secondary" type="button">Thêm nút</button>
         <div class="exit-actions" style="display: flex; flex-direction: column; gap: 10px;">
           <button id="exitBtn" disabled>Thoát</button>
           <button id="saveBtn" disabled>Save Game</button>
@@ -140,6 +141,40 @@ app.innerHTML = `
           <div class="action-btn btn-combo-ab" data-key="combo-xz" data-control-id="combo-ab">A+B</div>
           <div class="action-btn btn-combo-yab" data-key="combo-axz" data-control-id="combo-yab">Y+A+B</div>
         </div>
+      </div>
+
+      <div id="customControlModal" class="custom-control-modal hidden" aria-hidden="true">
+        <form id="customControlForm" class="custom-control-form">
+          <div class="custom-control-form-head">
+            <strong>Tạo nút combo</strong>
+            <button type="button" id="closeCustomControlModalBtn" class="secondary">Đóng</button>
+          </div>
+          <label>
+            Tên nút
+            <input id="customControlName" class="input" maxlength="12" value="Combo" />
+          </label>
+          <div class="custom-action-list" id="customActionList">
+            ${[0, 1, 2].map((idx) => `
+              <div class="custom-action-row">
+                <select class="input custom-action-select" data-index="${idx}">
+                  <option value="">Bỏ qua</option>
+                  <option value="left">left</option>
+                  <option value="right">right</option>
+                  <option value="down">down</option>
+                  <option value="up">up</option>
+                  <option value="X">X</option>
+                  <option value="Y">Y</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                </select>
+                <input class="input custom-delay-input" data-index="${idx}" type="number" min="0" max="3000" step="10" value="${idx === 0 ? 0 : 60}" />
+                <button type="button" class="custom-remove-action-btn" title="Xoá action">×</button>
+              </div>
+            `).join('')}
+          </div>
+          <button type="button" id="addCustomActionRowBtn" class="secondary">Thêm action</button>
+          <button type="submit" class="primary">Tạo nút</button>
+        </form>
       </div>
     </section>
 
@@ -1815,6 +1850,13 @@ const saveBtn = document.querySelector('#saveBtn');
 const loadBtn = document.querySelector('#loadBtn');
 const settingsBtn = document.querySelector('#settingsBtn');
 const restoreControlsBtn = document.querySelector('#restoreControlsBtn');
+const addCustomControlBtn = document.querySelector('#addCustomControlBtn');
+const customControlModal = document.querySelector('#customControlModal');
+const customControlForm = document.querySelector('#customControlForm');
+const closeCustomControlModalBtn = document.querySelector('#closeCustomControlModalBtn');
+const customControlName = document.querySelector('#customControlName');
+const customActionList = document.querySelector('#customActionList');
+const addCustomActionRowBtn = document.querySelector('#addCustomActionRowBtn');
 const customizeControlsBtn = document.querySelector('#customizeControlsBtn');
 const controlsBar = document.querySelector('.controls-bar');
 const headerControls = document.querySelector('.header-controls');
@@ -1843,6 +1885,9 @@ function setControlState(running) {
     if (restoreControlsBtn && controlsBar && restoreControlsBtn.parentElement !== controlsBar) {
       settingsBtn?.after(restoreControlsBtn);
     }
+    if (addCustomControlBtn && controlsBar && addCustomControlBtn.parentElement !== controlsBar) {
+      restoreControlsBtn?.after(addCustomControlBtn);
+    }
     if (exitBtn && controlsBar && exitBtn.parentElement !== controlsBar) {
       controlsBar.appendChild(exitBtn);
     }
@@ -1855,6 +1900,9 @@ function setControlState(running) {
     }
     if (restoreControlsBtn && headerControls && restoreControlsBtn.parentElement !== headerControls) {
       headerControls.appendChild(restoreControlsBtn);
+    }
+    if (addCustomControlBtn && controlsBar && addCustomControlBtn.parentElement !== controlsBar) {
+      controlsBar.insertBefore(addCustomControlBtn, document.querySelector('.exit-actions'));
     }
     const exitActions = document.querySelector('.exit-actions');
     if (exitBtn && exitActions && exitBtn.parentElement !== exitActions) {
@@ -2498,17 +2546,43 @@ window.addEventListener('beforeunload', () => {
 
 // --- VIRTUAL GAMEPAD LOGIC ---
 const CONTROL_LAYOUT_KEY = 'retro.controlLayout.v4';
+const CUSTOM_CONTROLS_KEY = 'retro.customControls.v1';
 const MIN_CONTROL_SCALE = 0.65;
 const MAX_CONTROL_SCALE = 1.65;
 let controlEditMode = false;
 let isDraggingControl = false;
 let isScalingControl = false;
+let editingCustomControlId = null;
 
 const controlElements = Array.from(document.querySelectorAll('.virtual-gamepad [data-control-id]'));
 const originalControlPlacements = new Map(controlElements.map(el => [
   el,
   { parent: el.parentElement, nextSibling: el.nextSibling }
 ]));
+
+const customActionButtonMap = {
+  left: 'left',
+  right: 'right',
+  down: 'down',
+  up: 'up',
+  X: 'x',
+  Y: 'y',
+  A: 'a',
+  B: 'b'
+};
+
+function readCustomControls() {
+  try {
+    return JSON.parse(localStorage.getItem(CUSTOM_CONTROLS_KEY) || '[]');
+  } catch (err) {
+    console.warn('Không đọc được nút custom đã lưu', err);
+    return [];
+  }
+}
+
+function writeCustomControls(controls) {
+  localStorage.setItem(CUSTOM_CONTROLS_KEY, JSON.stringify(controls));
+}
 
 function getDefaultControlLayout() {
   const isLandscape = window.innerWidth > window.innerHeight;
@@ -2830,8 +2904,193 @@ function createControlHandle(className, text, title) {
   return handle;
 }
 
+function createCustomActionRow(action = '', delay = 60) {
+  const idx = customActionList?.querySelectorAll('.custom-action-row').length || 0;
+  const row = document.createElement('div');
+  row.className = 'custom-action-row';
+  row.innerHTML = `
+    <select class="input custom-action-select" data-index="${idx}">
+      <option value="">Bỏ qua</option>
+      <option value="left">left</option>
+      <option value="right">right</option>
+      <option value="down">down</option>
+      <option value="up">up</option>
+      <option value="X">X</option>
+      <option value="Y">Y</option>
+      <option value="A">A</option>
+      <option value="B">B</option>
+    </select>
+    <input class="input custom-delay-input" data-index="${idx}" type="number" min="0" max="3000" step="10" value="${delay}" />
+    <button type="button" class="custom-remove-action-btn" title="Xoá action">×</button>
+  `;
+  row.querySelector('.custom-action-select').value = action;
+  return row;
+}
+
+function resetCustomControlForm(control = null) {
+  editingCustomControlId = control?.id || null;
+  if (customControlName) {
+    customControlName.value = control?.label || 'Combo';
+  }
+  if (customActionList) {
+    customActionList.innerHTML = '';
+    const steps = control?.steps?.length ? control.steps : [
+      { action: '', delay: 0 },
+      { action: '', delay: 60 },
+      { action: '', delay: 60 }
+    ];
+    steps.forEach(step => {
+      customActionList.appendChild(createCustomActionRow(step.action, step.delay));
+    });
+  }
+  customControlForm?.querySelector('button[type="submit"]')?.replaceChildren(document.createTextNode(control ? 'Lưu nút' : 'Tạo nút'));
+}
+
+function openCustomControlModal(control = null) {
+  resetCustomControlForm(control);
+  customControlModal?.classList.remove('hidden');
+  customControlModal?.setAttribute('aria-hidden', 'false');
+}
+
+function closeCustomControlModal() {
+  customControlModal?.classList.add('hidden');
+  customControlModal?.setAttribute('aria-hidden', 'true');
+  editingCustomControlId = null;
+}
+
+function pressVirtualAction(action, pressed) {
+  const button = customActionButtonMap[action];
+  if (!button || !emulator) return;
+
+  const method = pressed ? 'pressDown' : 'pressUp';
+  if (emulator[method]) {
+    emulator[method]({ button, player: 1 });
+  }
+}
+
+function executeCustomControl(control, el) {
+  if (controlEditMode || isDraggingControl || isScalingControl || !control?.steps?.length) return;
+
+  el.classList.add('active');
+  let elapsed = 0;
+  control.steps.forEach((step, idx) => {
+    elapsed += Math.max(0, Number(step.delay) || 0);
+    setTimeout(() => {
+      pressVirtualAction(step.action, true);
+      setTimeout(() => {
+        pressVirtualAction(step.action, false);
+        if (idx === control.steps.length - 1) {
+          el.classList.remove('active');
+        }
+      }, 45);
+    }, elapsed);
+  });
+}
+
+function registerControlElement(el) {
+  if (!controlElements.includes(el)) {
+    controlElements.push(el);
+  }
+  if (!originalControlPlacements.has(el)) {
+    originalControlPlacements.set(el, { parent: virtualGamepad, nextSibling: null });
+  }
+  el.addEventListener('pointerdown', (e) => startControlDrag(e, el));
+}
+
+function createCustomControlButton(control) {
+  if (!virtualGamepad || document.querySelector(`[data-control-id="${control.id}"]`)) return;
+
+  const btn = document.createElement('div');
+  btn.className = 'action-btn macro-btn custom-macro-btn';
+  btn.dataset.controlId = control.id;
+  btn.dataset.customControl = 'true';
+  btn.textContent = control.label;
+  btn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    const currentControl = readCustomControls().find(item => item.id === control.id) || control;
+    executeCustomControl(currentControl, btn);
+  }, { passive: false });
+  btn.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    const currentControl = readCustomControls().find(item => item.id === control.id) || control;
+    executeCustomControl(currentControl, btn);
+  });
+
+  virtualGamepad.appendChild(btn);
+  registerControlElement(btn);
+}
+
+function appendCustomActionRow() {
+  if (!customActionList) return;
+  customActionList.appendChild(createCustomActionRow('', 60));
+}
+
+function loadCustomControls() {
+  readCustomControls().forEach(createCustomControlButton);
+}
+
+function createCustomControlFromForm() {
+  const steps = Array.from(document.querySelectorAll('.custom-action-row')).map(row => {
+    const action = row.querySelector('.custom-action-select')?.value;
+    const delay = Number(row.querySelector('.custom-delay-input')?.value) || 0;
+    return action ? { action, delay } : null;
+  }).filter(Boolean);
+
+  if (steps.length === 0) {
+    setStatus('Chưa chọn action cho nút mới');
+    return;
+  }
+
+  const controls = readCustomControls();
+  const label = (customControlName?.value || 'Combo').trim().slice(0, 12) || 'Combo';
+  const existingIndex = controls.findIndex(item => item.id === editingCustomControlId);
+
+  if (existingIndex >= 0) {
+    const control = { ...controls[existingIndex], label, steps };
+    controls[existingIndex] = control;
+    writeCustomControls(controls);
+    const btn = document.querySelector(`[data-control-id="${control.id}"]`);
+    if (btn) {
+      btn.textContent = control.label;
+      attachControlEditHandles();
+    }
+    closeCustomControlModal();
+    setStatus('Đã cập nhật nút combo');
+    return;
+  }
+
+  const id = `custom-${Date.now()}`;
+  const control = { id, label, steps };
+  controls.push(control);
+  writeCustomControls(controls);
+  createCustomControlButton(control);
+
+  const layout = readControlLayout();
+  const isPortrait = window.innerHeight >= window.innerWidth;
+  layout[id] = { x: isPortrait ? 50 : 58, y: isPortrait ? 78 : 74, scale: 1, hidden: false };
+  writeControlLayout(layout);
+  applySavedControlLayout();
+  attachControlEditHandles();
+  closeCustomControlModal();
+  setStatus('Đã thêm nút combo');
+}
+
 function attachControlEditHandles() {
   controlElements.forEach(el => {
+    if (el.dataset.customControl === 'true' && !el.querySelector(':scope > .control-edit-combo-handle')) {
+      const editHandle = createControlHandle('control-edit-combo-handle', '✎', 'Sửa combo');
+      editHandle.addEventListener('pointerdown', (e) => {
+        if (!controlEditMode) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const control = readCustomControls().find(item => item.id === el.dataset.controlId);
+        if (control) {
+          openCustomControlModal(control);
+        }
+      });
+      el.appendChild(editHandle);
+    }
+
     if (!el.querySelector(':scope > .control-scale-handle')) {
       const scaleHandle = createControlHandle('control-scale-handle', '↘', 'Phóng to/thu nhỏ nút');
       scaleHandle.addEventListener('pointerdown', (e) => {
@@ -2922,11 +3181,46 @@ restoreControlsBtn?.addEventListener('click', () => {
   restoreDefaultControls();
 });
 
+addCustomControlBtn?.addEventListener('click', () => {
+  openCustomControlModal();
+  if (!controlEditMode) {
+    setControlEditMode(true);
+  }
+});
+
+closeCustomControlModalBtn?.addEventListener('click', () => {
+  closeCustomControlModal();
+});
+
+customControlForm?.addEventListener('submit', (e) => {
+  e.preventDefault();
+  createCustomControlFromForm();
+});
+
+addCustomActionRowBtn?.addEventListener('click', () => {
+  appendCustomActionRow();
+});
+
+customActionList?.addEventListener('click', (e) => {
+  const removeBtn = e.target.closest('.custom-remove-action-btn');
+  if (!removeBtn) return;
+  e.preventDefault();
+  const row = removeBtn.closest('.custom-action-row');
+  if (row && customActionList.querySelectorAll('.custom-action-row').length > 1) {
+    row.remove();
+  } else if (row) {
+    row.querySelector('.custom-action-select').value = '';
+    row.querySelector('.custom-delay-input').value = '0';
+  }
+});
+
 window.addEventListener('resize', () => {
   if (document.body.classList.contains('playing') || controlEditMode) {
     applySavedControlLayout();
   }
 });
+
+loadCustomControls();
 
 // Action and System Buttons
 const vButtons = document.querySelectorAll('.virtual-gamepad [data-key]');

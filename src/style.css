@@ -154,7 +154,8 @@ button.primary:hover:not(:disabled) {
 }
 
 #settingsBtn,
-#restoreControlsBtn {
+#restoreControlsBtn,
+#addCustomControlBtn {
   display: none;
 }
 
@@ -469,6 +470,12 @@ body.control-editing .is-scaling-control {
   display: none !important;
 }
 
+.custom-macro-btn {
+  background: rgba(255, 0, 85, 0.12);
+  border-color: rgba(255, 0, 85, 0.45);
+  color: #fff;
+}
+
 .control-edit-handle {
   display: none;
 }
@@ -499,6 +506,14 @@ body.control-editing .control-delete-handle {
   box-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
 }
 
+body.control-editing .control-edit-combo-handle {
+  top: -12px;
+  left: -12px;
+  background: #ffaa00;
+  color: #111;
+  box-shadow: 0 0 10px rgba(255, 170, 0, 0.55);
+}
+
 body.control-editing .control-scale-handle {
   right: -12px;
   bottom: -12px;
@@ -517,6 +532,71 @@ body.control-editing .macro-unti {
 
 .joystick-base.joystick-floating {
   opacity: 0.95;
+}
+
+.custom-control-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.62);
+  padding: 16px;
+}
+
+.custom-control-modal.hidden {
+  display: none !important;
+}
+
+.custom-control-form {
+  width: min(420px, 100%);
+  background: #161616;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  box-shadow: var(--accent-glow);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.custom-control-form-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--accent);
+}
+
+.custom-control-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: #ccc;
+}
+
+.custom-action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.custom-action-row {
+  display: grid;
+  grid-template-columns: 1fr 110px 34px;
+  gap: 8px;
+}
+
+.custom-remove-action-btn {
+  min-width: 0;
+  padding: 0;
+  border-radius: 4px;
+  border-color: #ff0055;
+  color: #ff0055;
+  font-size: 18px;
+  line-height: 1;
 }
 
 .action-buttons {
@@ -809,7 +889,8 @@ body.playing .header-controls {
 }
 
 body.playing #settingsBtn,
-body.playing #restoreControlsBtn {
+body.playing #restoreControlsBtn,
+body.playing #addCustomControlBtn {
   display: inline-block;
   font-size: 11px;
   padding: 6px 9px;
@@ -870,7 +951,7 @@ body.playing .controls-bar {
   align-items: flex-start;
 }
 
-body.playing .controls-bar button:not(#settingsBtn):not(#restoreControlsBtn):not(#exitBtn):not(#saveBtn):not(#loadBtn) {
+body.playing .controls-bar button:not(#settingsBtn):not(#restoreControlsBtn):not(#addCustomControlBtn):not(#exitBtn):not(#saveBtn):not(#loadBtn) {
   display: none;
 }
 
@@ -884,6 +965,11 @@ body.playing .controls-bar #settingsBtn {
 }
 
 body.playing .controls-bar #restoreControlsBtn {
+  display: inline-block !important;
+  position: static !important;
+}
+
+body.playing .controls-bar #addCustomControlBtn {
   display: inline-block !important;
   position: static !important;
 }
