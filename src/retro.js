@@ -117,8 +117,8 @@ app.innerHTML = `
       <!-- VIRTUAL GAMEPAD -->
       <div class="virtual-gamepad">
         <div class="joystick-wrapper">
-          <div class="action-btn macro-btn macro-slide-l" data-key="macro-slide-l" data-control-id="macro-slide-l">⬅️⬅️B</div>
-          <div class="action-btn macro-btn macro-slide-r" data-key="macro-slide-r" data-control-id="macro-slide-r">➡️➡️B</div>
+          <div class="action-btn macro-btn macro-slide-l" data-key="macro-slide-l" data-control-id="macro-slide-l">⬅️⬅️⬅️</div>
+          <div class="action-btn macro-btn macro-slide-r" data-key="macro-slide-r" data-control-id="macro-slide-r">➡️➡️➡️</div>
           <div class="joystick-base" id="joystickBase" data-control-id="joystick">
             <div class="joystick-knob" id="joystickKnob"></div>
           </div>
@@ -3333,8 +3333,8 @@ vButtons.forEach(btn => {
             'macro-skill-r': ['right', 'left', 'right', 'b'],
             'macro-skill-l': ['left', 'right', 'left', 'b'],
             'macro-unti': ['down', 'up', 'b'],
-            'macro-slide-l': ['left', 'left', 'left', 'b'],
-            'macro-slide-r': ['right', 'right', 'right', 'b']
+            'macro-slide-l': ['left', 'left', 'left'],
+            'macro-slide-r': ['right', 'right', 'right']
           };
           const dirs = macroMap[btnName];
           if (dirs) {
@@ -3350,7 +3350,7 @@ vButtons.forEach(btn => {
                   const btnElem = document.querySelector(`.btn-${btnKey}`);
                   if (btnElem) btnElem.classList.add('active');
                 }
-              }, idx * 60);
+              }, idx * 100);
 
               setTimeout(() => {
                 emulator.pressUp({ button: btnKey, player: 1 });
@@ -3366,7 +3366,7 @@ vButtons.forEach(btn => {
                 if (idx === dirs.length - 1) {
                   btn.classList.remove('active');
                 }
-              }, idx * 60 + 40);
+              }, idx * 100 + 70);
             });
           }
         } else if (padBtn) {
