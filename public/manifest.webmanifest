@@ -1,25 +1,28 @@
 {
-  "name": "Retro Arcade",
-  "short_name": "Retro",
-  "description": "Chơi game arcade retro trên mobile như một app.",
+  "name": "Chơi game thùng tuổi thơ",
+  "short_name": "Chơi game thùng tuổi thơ",
+  "description": "Chơi game thùng trên mobile như một app.",
   "start_url": "/?feature=retro",
   "scope": "/",
   "display": "standalone",
   "orientation": "landscape",
   "background_color": "#000000",
   "theme_color": "#111111",
-  "categories": ["games", "entertainment"],
+  "categories": [
+    "games",
+    "entertainment"
+  ],
   "icons": [
     {
-      "src": "/icons.svg",
+      "src": "/Icon-192.png",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/favicon.svg",
+      "src": "/Icon-192.png",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any"
     }
   ]
