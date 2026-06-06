@@ -136,6 +136,7 @@ body.playing .virtual-gamepad * {
 }
 
 @keyframes rotatePhoneHint {
+
   0%,
   18% {
     transform: rotate(0deg);
@@ -2384,29 +2385,38 @@ body.playing .timer-hud {
   color: #00ffcc;
 }
 
-/* --- FLASH GAMEPAD (Ruffle / .swf mode) --- */
-.flash-gamepad {
+/* --- FLASH CONTROLS (Ruffle / .swf mode) --- */
+.flash-dirs,
+.flash-action-panel {
   display: none;
 }
 
 body.playing.flash-mode .game-area {
-  height: calc(100vh - 155px);
+  height: 100vh;
 }
 
 body.playing.flash-mode .screen-shell {
-  height: calc(100vh - 155px);
-  max-height: calc(100vh - 155px);
+  height: 100vh;
+  max-height: 100vh;
+  touch-action: manipulation;
+}
+
+body.playing.flash-mode ruffle-player {
+  touch-action: manipulation;
+  pointer-events: auto;
+  background: #000;
 }
 
 body.playing.flash-mode .virtual-gamepad {
-  top: calc(100vh - 155px);
+  top: 0;
   bottom: 0;
-  height: 155px;
-  background: rgba(0, 0, 0, 0.88);
-  border-top: 1px solid rgba(0, 255, 204, 0.18);
+  height: 100vh;
+  background: transparent;
+  border-top: none;
+  pointer-events: none;
 }
 
-body.playing.flash-mode .virtual-gamepad > *:not(.flash-gamepad) {
+body.playing.flash-mode .virtual-gamepad > *:not(.flash-dirs):not(.flash-action-panel) {
   display: none !important;
   pointer-events: none !important;
 }
@@ -2419,43 +2429,40 @@ body.playing.flash-mode #loadBtn {
   display: none !important;
 }
 
-body.playing.flash-mode .controls-bar .exit-actions {
-  flex-direction: row !important;
-}
-
 body.playing.flash-mode #exitBtn {
   display: inline-block !important;
 }
 
-body.playing.flash-mode .flash-gamepad {
+/* 4-direction grid cross */
+body.playing.flash-mode .flash-dirs {
+  display: grid;
+  grid-template-areas:
+    ".    up   ."
+    "left .    right"
+    ".    down .";
+  grid-template-columns: 54px 54px 54px;
+  grid-template-rows: 54px 54px 54px;
+  gap: 6px;
+  position: absolute;
+  bottom: 24px;
+  left: 16px;
+  pointer-events: none;
+}
+
+body.playing.flash-mode .flash-action-panel {
   display: flex;
-  width: 100%;
-  height: 100%;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 36px;
-  box-sizing: border-box;
+  position: absolute;
+  bottom: 24px;
+  right: 16px;
+  pointer-events: none;
 }
 
-.flash-dpad {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-}
+.flash-btn-up    { grid-area: up; }
+.flash-btn-left  { grid-area: left; }
+.flash-btn-right { grid-area: right; }
+.flash-btn-down  { grid-area: down; }
 
-.flash-dpad-mid {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.flash-dpad-center {
-  width: 44px;
-  height: 44px;
-}
-
-.flash-dpad-btn {
+.flash-dir-btn {
   width: 54px;
   height: 54px;
   padding: 0;
@@ -2463,39 +2470,7 @@ body.playing.flash-mode .flash-gamepad {
   background: rgba(0, 255, 204, 0.12);
   border: 2px solid rgba(0, 255, 204, 0.4);
   color: #00ffcc;
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  user-select: none;
-  touch-action: none;
-  -webkit-tap-highlight-color: transparent;
-  font-family: inherit;
-  transition: background 0.1s, transform 0.08s;
-}
-
-.flash-dpad-btn:active,
-.flash-dpad-btn.active {
-  background: rgba(0, 255, 204, 0.35);
-  transform: scale(0.88);
-}
-
-.flash-action-panel {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.flash-action-btn {
-  width: 76px;
-  height: 76px;
-  padding: 0;
-  border-radius: 50%;
-  background: rgba(255, 80, 80, 0.15);
-  border: 2px solid rgba(255, 80, 80, 0.55);
-  color: #ff5050;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: bold;
   display: flex;
   align-items: center;
@@ -2504,13 +2479,39 @@ body.playing.flash-mode .flash-gamepad {
   user-select: none;
   touch-action: none;
   -webkit-tap-highlight-color: transparent;
-  text-transform: uppercase;
   font-family: inherit;
   transition: background 0.1s, transform 0.08s;
+  pointer-events: auto;
+}
+
+.flash-dir-btn:active,
+.flash-dir-btn.active {
+  background: rgba(0, 255, 204, 0.38);
+  transform: scale(0.88);
+}
+
+.flash-action-btn {
+  width: 72px;
+  height: 72px;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(255, 200, 0, 0.15);
+  border: 2px solid rgba(255, 200, 0, 0.5);
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  font-family: inherit;
+  transition: background 0.1s, transform 0.08s;
+  pointer-events: auto;
 }
 
 .flash-action-btn:active,
 .flash-action-btn.active {
-  background: rgba(255, 80, 80, 0.45);
+  background: rgba(255, 200, 0, 0.4);
   transform: scale(0.88);
 }

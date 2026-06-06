@@ -152,20 +152,15 @@ app.innerHTML = `
           <div class="action-btn btn-combo-yab" data-key="combo-axz" data-control-id="combo-yab">Y+A+B</div>
         </div>
 
-        <!-- FLASH D-PAD (shown only for Ruffle/Flash games) -->
-        <div class="flash-gamepad">
-          <div class="flash-dpad">
-            <button class="flash-dpad-btn flash-btn-up" data-flash-key="ArrowUp" data-flash-code="ArrowUp">⬆</button>
-            <div class="flash-dpad-mid">
-              <button class="flash-dpad-btn flash-btn-left" data-flash-key="ArrowLeft" data-flash-code="ArrowLeft">⬅</button>
-              <div class="flash-dpad-center"></div>
-              <button class="flash-dpad-btn flash-btn-right" data-flash-key="ArrowRight" data-flash-code="ArrowRight">➡</button>
-            </div>
-            <button class="flash-dpad-btn flash-btn-down" data-flash-key="ArrowDown" data-flash-code="ArrowDown">⬇</button>
-          </div>
-          <div class="flash-action-panel">
-            <button class="flash-action-btn flash-btn-jump" data-flash-key=" " data-flash-code="Space">Jump</button>
-          </div>
+        <!-- FLASH CONTROLS (shown only for Ruffle/Flash games) -->
+        <div class="flash-dirs">
+          <button class="flash-dir-btn flash-btn-up"    data-flash-key="ArrowUp"    data-flash-code="ArrowUp">Lên</button>
+          <button class="flash-dir-btn flash-btn-left"  data-flash-key="ArrowLeft"  data-flash-code="ArrowLeft">Trái</button>
+          <button class="flash-dir-btn flash-btn-right" data-flash-key="ArrowRight" data-flash-code="ArrowRight">Phải</button>
+          <button class="flash-dir-btn flash-btn-down"  data-flash-key="ArrowDown"  data-flash-code="ArrowDown">Xuống</button>
+        </div>
+        <div class="flash-action-panel">
+          <button class="flash-action-btn flash-btn-jump" data-flash-key=" " data-flash-code="Space">😊</button>
         </div>
       </div>
 
@@ -2251,7 +2246,7 @@ async function launchGame() {
       const gameCanvas = document.getElementById('game');
       if (gameCanvas) gameCanvas.replaceWith(player);
 
-      await player.load({ url: swfUrl, allowScriptAccess: false });
+      await player.load({ url: swfUrl, allowScriptAccess: false, allowFullscreen: true, scale: 'showAll', letterbox: 'on', backgroundColor: '#000000' });
 
       emulator = {
         async pause() { player.pause(); },
@@ -3756,7 +3751,7 @@ function dispatchFlashKey(key, code, type) {
 
 const activeFlashKeys = new Set();
 
-document.querySelectorAll('.flash-dpad-btn, .flash-action-btn').forEach(btn => {
+document.querySelectorAll('.flash-dir-btn, .flash-action-btn').forEach(btn => {
   const key = btn.dataset.flashKey;
   const code = btn.dataset.flashCode;
 
