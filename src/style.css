@@ -2383,3 +2383,134 @@ body.playing .timer-hud {
 .game-card.active .card-system-badge {
   color: #00ffcc;
 }
+
+/* --- FLASH GAMEPAD (Ruffle / .swf mode) --- */
+.flash-gamepad {
+  display: none;
+}
+
+body.playing.flash-mode .game-area {
+  height: calc(100vh - 155px);
+}
+
+body.playing.flash-mode .screen-shell {
+  height: calc(100vh - 155px);
+  max-height: calc(100vh - 155px);
+}
+
+body.playing.flash-mode .virtual-gamepad {
+  top: calc(100vh - 155px);
+  bottom: 0;
+  height: 155px;
+  background: rgba(0, 0, 0, 0.88);
+  border-top: 1px solid rgba(0, 255, 204, 0.18);
+}
+
+body.playing.flash-mode .virtual-gamepad > *:not(.flash-gamepad) {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+body.playing.flash-mode .controls-bar #settingsBtn,
+body.playing.flash-mode .controls-bar #restoreControlsBtn,
+body.playing.flash-mode .controls-bar #addCustomControlBtn,
+body.playing.flash-mode #saveBtn,
+body.playing.flash-mode #loadBtn {
+  display: none !important;
+}
+
+body.playing.flash-mode .controls-bar .exit-actions {
+  flex-direction: row !important;
+}
+
+body.playing.flash-mode #exitBtn {
+  display: inline-block !important;
+}
+
+body.playing.flash-mode .flash-gamepad {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 36px;
+  box-sizing: border-box;
+}
+
+.flash-dpad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.flash-dpad-mid {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.flash-dpad-center {
+  width: 44px;
+  height: 44px;
+}
+
+.flash-dpad-btn {
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  border-radius: 10px;
+  background: rgba(0, 255, 204, 0.12);
+  border: 2px solid rgba(0, 255, 204, 0.4);
+  color: #00ffcc;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  font-family: inherit;
+  transition: background 0.1s, transform 0.08s;
+}
+
+.flash-dpad-btn:active,
+.flash-dpad-btn.active {
+  background: rgba(0, 255, 204, 0.35);
+  transform: scale(0.88);
+}
+
+.flash-action-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flash-action-btn {
+  width: 76px;
+  height: 76px;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(255, 80, 80, 0.15);
+  border: 2px solid rgba(255, 80, 80, 0.55);
+  color: #ff5050;
+  font-size: 13px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  text-transform: uppercase;
+  font-family: inherit;
+  transition: background 0.1s, transform 0.08s;
+}
+
+.flash-action-btn:active,
+.flash-action-btn.active {
+  background: rgba(255, 80, 80, 0.45);
+  transform: scale(0.88);
+}

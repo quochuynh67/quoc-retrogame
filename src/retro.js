@@ -151,6 +151,22 @@ app.innerHTML = `
           <div class="action-btn btn-combo-ab" data-key="combo-xz" data-control-id="combo-ab">A+B</div>
           <div class="action-btn btn-combo-yab" data-key="combo-axz" data-control-id="combo-yab">Y+A+B</div>
         </div>
+
+        <!-- FLASH D-PAD (shown only for Ruffle/Flash games) -->
+        <div class="flash-gamepad">
+          <div class="flash-dpad">
+            <button class="flash-dpad-btn flash-btn-up" data-flash-key="ArrowUp" data-flash-code="ArrowUp">⬆</button>
+            <div class="flash-dpad-mid">
+              <button class="flash-dpad-btn flash-btn-left" data-flash-key="ArrowLeft" data-flash-code="ArrowLeft">⬅</button>
+              <div class="flash-dpad-center"></div>
+              <button class="flash-dpad-btn flash-btn-right" data-flash-key="ArrowRight" data-flash-code="ArrowRight">➡</button>
+            </div>
+            <button class="flash-dpad-btn flash-btn-down" data-flash-key="ArrowDown" data-flash-code="ArrowDown">⬇</button>
+          </div>
+          <div class="flash-action-panel">
+            <button class="flash-action-btn flash-btn-jump" data-flash-key=" " data-flash-code="Space">Jump</button>
+          </div>
+        </div>
       </div>
 
       <div id="customControlModal" class="custom-control-modal hidden" aria-hidden="true">
@@ -602,6 +618,7 @@ app.innerHTML = `
           <button type="button" class="category-btn" data-system="nes">🔴 NES</button>
           <button type="button" class="category-btn" data-system="snes">🟣 SNES</button>
           <button type="button" class="category-btn" data-system="gameboy">🟢 Game Boy</button>
+          <button type="button" class="category-btn" data-system="flash">⚡ Flash</button>
         </div>
 
         <!-- SEARCH INPUT -->
@@ -654,6 +671,7 @@ app.innerHTML = `
       <div class="stack">
         <label class="label" for="coreName">Trình Giả Lập (Core)</label>
         <select id="coreName" class="input">
+          <option value="ruffle">ruffle (Flash / SWF)</option>
           <option value="fbneo">fbneo (FinalBurn Neo)</option>
           <option value="fbalpha2012_cps1">fbalpha2012_cps1 (Arcade)</option>
           <option value="fbalpha2012">fbalpha2012 (Arcade)</option>
@@ -1500,6 +1518,8 @@ function initDevRomHandlers() {
           coreNameEl.value = 'fceumm';
         } else if (ext === 'sfc' || ext === 'smc') {
           coreNameEl.value = 'snes9x';
+        } else if (ext === 'swf') {
+          coreNameEl.value = 'ruffle';
         }
       } else {
         fileNameDisplay.textContent = 'Chưa chọn file nào';
@@ -1515,6 +1535,8 @@ function initDevRomHandlers() {
         coreNameEl.value = 'fceumm';
       } else if (urlValue.endsWith('.sfc') || urlValue.endsWith('.smc')) {
         coreNameEl.value = 'snes9x';
+      } else if (urlValue.endsWith('.swf')) {
+        coreNameEl.value = 'ruffle';
       }
     });
   }
@@ -1643,6 +1665,18 @@ function initGameLibraryGrid() {
   // 2. Predefined high-quality console ROM databases
   const consoleGames = [];
 
+  // Flash games played via Ruffle
+  const flashGames = [
+    {
+      title: 'Jump Run Turtle Odyssey 2',
+      rom: 'jump-run-turtle-odyssey-2',
+      url: '/ruffle/jump-run-turtle-odyssey-2.swf',
+      system: 'flash',
+      thumbnail: '',
+      core: 'ruffle',
+    },
+  ];
+
   // 3. Dynamically parse Arcade options from DOM select
   const arcadeOptions = Array.from(romUrlEl.querySelectorAll('option'));
   const arcadeGames = arcadeOptions.map(opt => {
@@ -1661,7 +1695,7 @@ function initGameLibraryGrid() {
     };
   });
 
-  const allGames = [...arcadeGames, ...consoleGames];
+  const allGames = [...arcadeGames, ...consoleGames, ...flashGames];
   let activeSystemFilter = 'all';
   let activeSearchQuery = '';
   let currentlySelectedUrl = romUrlEl.value;
@@ -1932,6 +1966,7 @@ function setControlState(running) {
     userPausedGame = false;
     autoPausedForControls = false;
     document.body.classList.remove('playing');
+    document.body.classList.remove('flash-mode');
     setControlEditMode(false);
     if (settingsBtn && headerControls && settingsBtn.parentElement !== headerControls) {
       headerControls.appendChild(settingsBtn);
@@ -2202,6 +2237,52 @@ async function launchGame() {
   }
 
   await destroyRunningGame();
+
+  // Ruffle Flash Player branch
+  if (core === 'ruffle') {
+    const swfUrl = typeof rom === 'string' ? rom : (Array.isArray(rom) ? rom[0] : '');
+    try {
+      const ruffle = window.RufflePlayer?.newest();
+      if (!ruffle) throw new Error('Ruffle player chưa tải. Vui lòng tải lại trang.');
+
+      const player = ruffle.createPlayer();
+      player.style.cssText = 'width:100%;height:100%;display:block;';
+
+      const gameCanvas = document.getElementById('game');
+      if (gameCanvas) gameCanvas.replaceWith(player);
+
+      await player.load({ url: swfUrl, allowScriptAccess: false });
+
+      emulator = {
+        async pause() { player.pause(); },
+        async resume() { player.play(); },
+        async exit() {},
+        async saveState() { throw new Error('Flash không hỗ trợ Save State'); },
+        async loadState() { throw new Error('Flash không hỗ trợ Load State'); },
+      };
+
+      setStatus('Đang chạy');
+      setLog(['Tải Flash thành công!', `ROM: ${romLogName}`, '', 'Ruffle đang chạy file .swf.'].join('\n'));
+      CoinSystem.consumeCoin();
+      startPlayTimer();
+      RecentSystem.add(swfUrl);
+      setControlState(true);
+      document.body.classList.add('flash-mode');
+    } catch (error) {
+      emulator = null;
+      setControlState(false);
+      setStatus('Lỗi');
+      setLog(['Không thể khởi động Flash game.', '', `Lỗi: ${error?.message || String(error)}`].join('\n'));
+    } finally {
+      launchBtn.disabled = false;
+      launchBtn.innerHTML = originalBtnHtml || 'Tải Game';
+      if (sidebarLaunchBtn) {
+        sidebarLaunchBtn.disabled = false;
+        sidebarLaunchBtn.innerHTML = originalSidebarBtnHtml || 'Bắt Đầu Chơi';
+      }
+    }
+    return;
+  }
 
   try {
     const launchOptions = {
@@ -3664,6 +3745,46 @@ joystickTouchZone?.addEventListener('touchstart', (e) => {
 joystickTouchZone?.addEventListener('touchmove', handleJoystickEvent, { passive: false });
 joystickTouchZone?.addEventListener('touchend', resetJoystick);
 joystickTouchZone?.addEventListener('touchcancel', resetJoystick);
+
+// Flash D-pad: dispatch real keyboard events to Ruffle player
+function dispatchFlashKey(key, code, type) {
+  const rufflePlayer = document.querySelector('ruffle-player');
+  const event = new KeyboardEvent(type, { key, code, bubbles: true, cancelable: true, composed: true });
+  if (rufflePlayer) rufflePlayer.dispatchEvent(event);
+  window.dispatchEvent(new KeyboardEvent(type, { key, code, bubbles: true, cancelable: true }));
+}
+
+const activeFlashKeys = new Set();
+
+document.querySelectorAll('.flash-dpad-btn, .flash-action-btn').forEach(btn => {
+  const key = btn.dataset.flashKey;
+  const code = btn.dataset.flashCode;
+
+  const pressDown = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (activeFlashKeys.has(code)) return;
+    activeFlashKeys.add(code);
+    btn.classList.add('active');
+    dispatchFlashKey(key, code, 'keydown');
+  };
+
+  const pressUp = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!activeFlashKeys.has(code)) return;
+    activeFlashKeys.delete(code);
+    btn.classList.remove('active');
+    dispatchFlashKey(key, code, 'keyup');
+  };
+
+  btn.addEventListener('touchstart', pressDown, { passive: false });
+  btn.addEventListener('touchend', pressUp, { passive: false });
+  btn.addEventListener('touchcancel', pressUp, { passive: false });
+  btn.addEventListener('mousedown', pressDown);
+  btn.addEventListener('mouseup', pressUp);
+  btn.addEventListener('mouseleave', pressUp);
+});
 
 // Auto-launch game from URL parameter if present
 (function autoLaunchFromUrl() {
