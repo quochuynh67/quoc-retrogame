@@ -160,7 +160,8 @@ app.innerHTML = `
           <button class="flash-dir-btn flash-btn-down"  data-flash-key="ArrowDown"  data-flash-code="ArrowDown">Xuống</button>
         </div>
         <div class="flash-action-panel">
-          <button class="flash-action-btn flash-btn-jump" data-flash-key=" " data-flash-code="Space">😊</button>
+          <button class="flash-action-btn flash-btn-jump"     data-flash-key=" "     data-flash-code="Space">😊</button>
+          <button class="flash-action-btn flash-btn-continue" data-flash-key="Enter" data-flash-code="Enter">Bắt đầu game/ Qua ải tiếp</button>
         </div>
       </div>
 
@@ -2245,13 +2246,56 @@ async function launchGame() {
 
       const gameCanvas = document.getElementById('game');
       if (gameCanvas) gameCanvas.replaceWith(player);
+      window.RufflePlayer.config = {
+        // Merge with any existing config, such as the user's extension config. Options you set below will have priority.
+        ...window.RufflePlayer.config,
 
-      await player.load({ url: swfUrl, allowScriptAccess: false, allowFullscreen: true, scale: 'showAll', letterbox: 'on', backgroundColor: '#000000' });
+        // Options affecting the whole page
+        "publicPath": undefined,
+        "polyfills": true,
+
+        // Options affecting files only
+        "allowScriptAccess": true, // Polyfill elements have a different default value, see the allowScriptAccess section
+        "autoplay": "auto",
+        "unmuteOverlay": "visible",
+        "backgroundColor": '#000000',
+        "wmode": "window",
+        "letterbox": "fullscreen",
+        "warnOnUnsupportedContent": true,
+        "contextMenu": "off",
+        "showSwfDownload": false,
+        "upgradeToHttps": window.location.protocol === "https:",
+        "maxExecutionDuration": 15,
+        "logLevel": "error",
+        "base": null,
+        "menu": true,
+        "salign": "",
+        "forceAlign": true,
+        "scale": "showAll",
+        "forceScale": true,
+        "frameRate": null,
+        "quality": "high",
+        "splashScreen": true,
+        "preferredRenderer": null,
+        "openUrlMode": "allow",
+        "allowNetworking": "all",
+        "favorFlash": true,
+        "playerVersion": 32,
+        "socketProxy": [],
+        "fontSources": [],
+        "defaultFonts": {},
+        "credentialAllowList": [],
+        "playerRuntime": "flashPlayer",
+        "allowFullscreen": true,
+        "fullScreenAspectRatio": "",
+        "backgroundExecutionMode": "none",
+      };
+      await player.load({ url: swfUrl, allowScriptAccess: true, allowFullscreen: true, scale: 'showAll', letterbox: 'off', backgroundColor: '#000000' });
 
       emulator = {
         async pause() { player.pause(); },
         async resume() { player.play(); },
-        async exit() {},
+        async exit() { },
         async saveState() { throw new Error('Flash không hỗ trợ Save State'); },
         async loadState() { throw new Error('Flash không hỗ trợ Load State'); },
       };

@@ -2451,6 +2451,8 @@ body.playing.flash-mode .flash-dirs {
 
 body.playing.flash-mode .flash-action-panel {
   display: flex;
+  flex-direction: column;
+  gap: 10px;
   position: absolute;
   bottom: 24px;
   right: 16px;
@@ -2514,4 +2516,23 @@ body.playing.flash-mode .flash-action-panel {
 .flash-action-btn.active {
   background: rgba(255, 200, 0, 0.4);
   transform: scale(0.88);
+}
+
+.flash-btn-continue {
+  width: auto;
+  height: auto;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 8px 10px;
+  white-space: nowrap;
+  background: rgba(0, 200, 255, 0.25);
+  border: 2px solid #00c8ff;
+  color: #fff;
+  text-shadow: 0 0 6px rgba(0, 200, 255, 0.9);
+}
+
+.flash-btn-continue:active,
+.flash-btn-continue.active {
+  background: rgba(0, 200, 255, 0.4);
 }
