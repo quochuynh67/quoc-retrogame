@@ -2564,6 +2564,20 @@ body.playing.flash-mode .flash-action-panel {
   animation: pulsePlaySmall 1.5s infinite;
 }
 
+.game-card.active .card-play-btn.loading {
+  animation: spinPlayBtn 1s linear infinite !important;
+  background: #ffcc00 !important; /* Bright gold spinner */
+  box-shadow: 0 0 8px #ffcc00;
+  padding-left: 0 !important; /* Center the spinner text */
+  font-size: 11px !important;
+  pointer-events: none;
+}
+
+@keyframes spinPlayBtn {
+  0% { transform: scale(1) rotate(0deg); }
+  100% { transform: scale(1) rotate(360deg); }
+}
+
 @keyframes pulsePlaySmall {
   0% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0.7); }
   70% { box-shadow: 0 0 0 6px rgba(255, 0, 85, 0); }

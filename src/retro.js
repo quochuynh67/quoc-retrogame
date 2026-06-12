@@ -1093,6 +1093,7 @@ function showToast(msg, type = 'success') {
 
 // --- TIMED PLAYTIME LOGIC ---
 let emulator = null;
+let isLaunching = false;
 let continueTimer = null;
 let continueCountdownVal = 9;
 let timeLeft = 0;
@@ -2105,10 +2106,29 @@ function detectBiosForRom(romUrl) {
 }
 
 async function launchGame() {
+  if (isLaunching) return;
+  isLaunching = true;
+
+  const activeCard = document.querySelector('.game-card.active');
+  const activePlayBtn = activeCard ? activeCard.querySelector('.card-play-btn') : null;
+  if (activePlayBtn) {
+    activePlayBtn.classList.add('loading');
+    activePlayBtn.innerHTML = '↻';
+  }
+
+  function resetLaunchState() {
+    isLaunching = false;
+    if (activePlayBtn) {
+      activePlayBtn.classList.remove('loading');
+      activePlayBtn.innerHTML = '▶';
+    }
+  }
+
   if (!CoinSystem.isInfinite() && CoinSystem.coins <= 0) {
     AudioSynth.playWarning();
     showToast('Tài khoản của bạn đã hết xu! Hãy nạp thêm xu để chơi game.', 'error');
     openShopModal();
+    resetLaunchState();
     return;
   }
 
@@ -2123,6 +2143,7 @@ async function launchGame() {
     if (files.length === 0) {
       setStatus('Thiếu ROM');
       setLog('Bạn cần chọn file ROM từ máy tính trước khi tải game.');
+      resetLaunchState();
       return;
     }
 
@@ -2140,6 +2161,7 @@ async function launchGame() {
     if (romFiles.length === 0) {
       setStatus('Thiếu ROM');
       setLog('Bạn cần chọn file ROM game (không phải chỉ file BIOS).');
+      resetLaunchState();
       return;
     }
 
@@ -2152,6 +2174,7 @@ async function launchGame() {
     if (!customUrl) {
       setStatus('Thiếu ROM');
       setLog('Bạn cần nhập đường dẫn ROM trước khi tải game.');
+      resetLaunchState();
       return;
     }
     rom = customUrl;
@@ -2162,6 +2185,7 @@ async function launchGame() {
     if (!romUrlRaw) {
       setStatus('Thiếu ROM');
       setLog('Bạn cần chọn ROM từ danh sách trước khi tải game.');
+      resetLaunchState();
       return;
     }
     const romUrls = romUrlRaw.split('\n').map(u => u.trim()).filter(u => u);
@@ -2334,6 +2358,7 @@ async function launchGame() {
         sidebarLaunchBtn.disabled = false;
         sidebarLaunchBtn.innerHTML = originalSidebarBtnHtml || 'Bắt Đầu Chơi';
       }
+      resetLaunchState();
     }
     return;
   }
@@ -2508,6 +2533,7 @@ async function launchGame() {
       sidebarLaunchBtn.disabled = false;
       sidebarLaunchBtn.innerHTML = originalSidebarBtnHtml || 'Bắt Đầu Chơi';
     }
+    resetLaunchState();
   }
 }
 
