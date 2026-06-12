@@ -48,6 +48,7 @@ console.error = function (...args) {
 const app = document.querySelector('#app');
 
 app.innerHTML = `
+  <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background-image: url('/background-tuoitho.jpg'); background-size: cover; background-position: center; filter: blur(8px) brightness(0.5); transform: scale(1.1); pointer-events: none;"></div>
   <div id="rotatePrompt" class="rotate-prompt" aria-hidden="true">
     <div class="rotate-phone">
       <div class="rotate-phone-screen"></div>
@@ -58,10 +59,11 @@ app.innerHTML = `
     </div>
   </div>
 
-  <header class="header">
-    <div class="header-content">
+  <header class="header" style="position: relative; padding-top: 20px; padding-bottom: 20px; background-color: rgba(0, 0, 0, 0.6); overflow: hidden;">
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background-image: url('/background-tuoitho.jpg'); background-size: cover; background-position: center; filter: blur(6px) brightness(0.5); transform: scale(1.05); pointer-events: none;"></div>
+    <div class="header-content" style="position: relative; z-index: 1;">
       <div class="brand">
-        <h1>Hệ Thống Arcade Cổ Điển</h1>
+        <h1>Chơi game thùng Cổ Điển</h1>
         <p>Chơi game giả lập ngay trên trình duyệt với giao diện Retro</p>
       </div>
       <div class="header-controls">
@@ -85,7 +87,7 @@ app.innerHTML = `
 
   <main class="main-content">
     <section class="game-area">
-      <div class="screen-shell" style="position: relative;">
+      <div class="screen-shell" style="position: relative; background-image: url('/background-tuoitho.jpg'); background-size: cover; background-position: center;">
         <!-- Continue Overlay -->
         <div id="continueOverlay" class="continue-overlay hidden">
           <div class="continue-box">
@@ -664,7 +666,7 @@ app.innerHTML = `
         </p>
       </div>
 
-      <div class="stack">
+      <div class="stack" style="display: none;">
         <label class="label" for="coreName">Trình Giả Lập (Core)</label>
         <select id="coreName" class="input">
           <option value="ruffle">ruffle (Flash / SWF)</option>
