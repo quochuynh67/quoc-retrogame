@@ -666,7 +666,7 @@ app.innerHTML = `
         </p>
       </div>
 
-      <div class="stack" style="display: none;">
+      <div class="stack" style="display: none !important;">
         <label class="label" for="coreName">Trình Giả Lập (Core)</label>
         <select id="coreName" class="input">
           <option value="ruffle">ruffle (Flash / SWF)</option>
@@ -1808,8 +1808,12 @@ function initGameLibraryGrid() {
         </div>
         <div class="card-info">
           <h4 class="card-title">${game.title}</h4>
-          <span class="card-system-badge">${game.system}</span>
+          <div class="card-info-bottom">
+            <span class="card-system-badge">${game.system}</span>
+            <div class="card-play-btn">▶</div>
+          </div>
         </div>
+        <div class="play-hint-tooltip">Double Click để chơi</div>
       `;
 
       card.addEventListener('mouseenter', () => {
@@ -1836,6 +1840,15 @@ function initGameLibraryGrid() {
           FavoritesSystem.toggle(game.url);
           RetroSynth.playClick();
           renderGames();
+        });
+      }
+
+      const playBtn = card.querySelector('.card-play-btn');
+      if (playBtn) {
+        playBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectGame(game);
+          launchGame();
         });
       }
 
