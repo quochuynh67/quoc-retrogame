@@ -1821,8 +1821,29 @@ function initGameLibraryGrid() {
         RetroSynth.playHover();
       });
 
+      let pointerStartX = 0;
+      let pointerStartY = 0;
+      let isDragging = false;
+
+      card.addEventListener('pointerdown', (e) => {
+        pointerStartX = e.clientX;
+        pointerStartY = e.clientY;
+        isDragging = false;
+      });
+
+      card.addEventListener('pointermove', (e) => {
+        if (Math.abs(e.clientX - pointerStartX) > 10 || Math.abs(e.clientY - pointerStartY) > 10) {
+          isDragging = true;
+        }
+      });
+
       let lastClick = 0;
-      card.addEventListener('click', () => {
+      card.addEventListener('click', (e) => {
+        if (isDragging) {
+          e.preventDefault();
+          return;
+        }
+        
         const currentTime = new Date().getTime();
         const clickLength = currentTime - lastClick;
 

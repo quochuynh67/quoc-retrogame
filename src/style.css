@@ -936,6 +936,9 @@ body.control-editing .macro-unti {
     height: calc(100dvh - 110px) !important;
     max-height: calc(100dvh - 110px) !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
     /* Let cards grid occupy remaining vertical space */
     grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
     -webkit-overflow-scrolling: touch !important;
