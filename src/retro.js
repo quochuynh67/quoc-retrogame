@@ -227,6 +227,7 @@ app.innerHTML = `
           <option value="/roms/dmnfrnt.zip">dmnfrnt</option>
           <option value="/roms/dino.zip">dino</option>
           <option value="/roms/olds.zip">olds</option>
+          <option value="/roms/oldsplusp.zip">oldsplusp</option>
           <option value="/roms/doubledr.zip">doubledr</option>
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/1942.zip">1942</option>
           <option value="https://quoc67k1-profile.web.app/tuoitho/fb_neo_rom/1943.zip">1943</option>
@@ -2430,6 +2431,10 @@ async function launchGame() {
         if (currentRom.includes('kov100hk') || currentRom.includes('kovplus')) {
           await downloadAndWriteFile('/roms/kov.zip', '/home/web_user/retroarch/userdata/content/kov.zip');
           await downloadAndWriteFile('/roms/kov.zip', '/home/web_user/retroarch/userdata/content/kov');
+        }
+        if (currentRom.includes('oldsplusp')) {
+          await downloadAndWriteFile('/roms/olds.zip', '/home/web_user/retroarch/userdata/content/olds.zip');
+          await downloadAndWriteFile('/roms/olds.zip', '/home/web_user/retroarch/userdata/content/olds');
         }
 
         if (
