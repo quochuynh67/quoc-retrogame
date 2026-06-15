@@ -96,6 +96,7 @@ function updateVideoSources(activeIndex) {
     } else {
       if (videoEl.dataset.videoId) {
         delete videoEl.dataset.videoId;
+        videoEl.src = '';
         videoEl.removeAttribute('src');
         videoEl.innerHTML = '';
         videoEl.load(); // Immediately releases browser decoder buffers and memory
@@ -530,7 +531,7 @@ function renderVlogSlides() {
     slide.innerHTML = `
       <div class="vlog-video-wrapper">
         <!-- Primary Video tag (muted playsinline for webview compatibility) -->
-        <video class="vlog-video" muted playsinline webkit-playsinline></video>
+        <video class="vlog-video" style="transform: translateZ(0); will-change: transform;" preload="metadata" muted playsinline webkit-playsinline></video>
 
         <!-- Tap-to-toggle overlay detector -->
         <div class="vlog-play-pause-center-btn" data-video-index="${index}"></div>
@@ -565,26 +566,6 @@ function renderVlogSlides() {
 
         <!-- BOTTOM RIGHT ACTION BUTTONS PANEL OVERLAY -->
         <div class="vlog-sidebar-overlay">
-          <!-- Add video upload button -->
-          ${vlogConfig.can_upload_vlog ? `
-          <div class="vlog-sidebar-group">
-            <button class="vlog-sidebar-btn" id="actionUploadBtn_${index}" style="background: linear-gradient(135deg, var(--vlog-accent), var(--vlog-pink)); border: none; color: #000;">
-              📤
-            </button>
-            <span class="vlog-sidebar-btn-label">Thêm</span>
-          </div>
-          ` : ''}
-
-          <!-- Likes -->
-          ${vlogConfig.can_like ? `
-          <div class="vlog-sidebar-group">
-            <button class="vlog-sidebar-btn" id="actionLikeBtn_${index}">
-              ❤️
-            </button>
-            <span class="vlog-heart-count">${formatNumber(video.likes)}</span>
-          </div>
-          ` : ''}
-
           <!-- Mute/Unmute Dynamic Button -->
           <div class="vlog-sidebar-group">
             <button class="vlog-sidebar-btn" id="actionSoundBtn_${index}">
@@ -599,42 +580,6 @@ function renderVlogSlides() {
             </button>
             <span class="vlog-sidebar-btn-label">Âm Thanh</span>
           </div>
-
-          <!-- Spots sheet toggle -->
-          ${vlogConfig.show_spots ? `
-          <div class="vlog-sidebar-group">
-            <button class="vlog-sidebar-btn" id="actionSpotsBtn_${index}">
-              📍
-            </button>
-            <span class="vlog-sidebar-btn-label">Vị Trí</span>
-          </div>
-          ` : ''}
-
-          <!-- Hotels sheet toggle -->
-          ${vlogConfig.show_hotels ? `
-          <div class="vlog-sidebar-group">
-            <button class="vlog-sidebar-btn" id="actionHotelsBtn_${index}">
-              🏨
-            </button>
-            <span class="vlog-sidebar-btn-label">Chỗ Ở</span>
-          </div>
-          ` : ''}
-
-          <!-- Detailed description toggle -->
-          <div class="vlog-sidebar-group">
-            <button class="vlog-sidebar-btn" id="actionDescBtn_${index}">
-              📝
-            </button>
-            <span class="vlog-sidebar-btn-label">Mô Tả</span>
-          </div>
-
-          <!-- Help callback simulation -->
-          <div class="vlog-sidebar-group">
-            <button class="vlog-sidebar-btn" id="actionHelpBtn_${index}">
-              💬
-            </button>
-            <span class="vlog-sidebar-btn-label">Liên Hệ</span>
-          </div>
         </div>
       </div>
     `;
@@ -642,62 +587,7 @@ function renderVlogSlides() {
     feed.appendChild(slide);
 
     // Setup action listeners for this slide
-    if (vlogConfig.can_upload_vlog) {
-      document.querySelector(`#actionUploadBtn_${index}`).addEventListener('click', () => {
-        openVlogModal('#vlogUploadModal');
-      });
-    }
-
-    if (vlogConfig.can_like) {
-      const likeBtn = document.querySelector(`#actionLikeBtn_${index}`);
-      likeBtn.addEventListener('click', () => {
-        likeBtn.classList.toggle('liked');
-        if (likeBtn.classList.contains('liked')) {
-          likeBtn.style.transform = 'scale(1.3) rotate(-15deg)';
-          likeBtn.innerHTML = '💖';
-          video.likes++;
-          slide.querySelector('.vlog-heart-count').textContent = formatNumber(video.likes);
-          showVlogToast("Đã thích Vlog này! Cảm ơn bạn!");
-          setTimeout(() => likeBtn.style.transform = '', 300);
-        } else {
-          likeBtn.innerHTML = '❤️';
-          video.likes--;
-          slide.querySelector('.vlog-heart-count').textContent = formatNumber(video.likes);
-        }
-      });
-    }
-
     document.querySelector(`#actionSoundBtn_${index}`).addEventListener('click', toggleGlobalMute);
-
-    if (vlogConfig.show_spots) {
-      document.querySelector(`#actionSpotsBtn_${index}`).addEventListener('click', () => {
-        populateSpotsSheet(video);
-        openVlogSheet('#vlogSpotsSheet');
-      });
-    }
-
-    if (vlogConfig.show_hotels) {
-      document.querySelector(`#actionHotelsBtn_${index}`).addEventListener('click', () => {
-        populateHotelsSheet(video);
-        openVlogSheet('#vlogHotelsSheet');
-      });
-    }
-
-    document.querySelector(`#actionDescBtn_${index}`).addEventListener('click', () => {
-      document.querySelector('#vlogDescContent').innerHTML = `
-        <h4 style="color: #fff; margin-bottom: 12px; font-weight: 700;">${video.title}</h4>
-        <p style="margin-bottom: 20px;">${video.description}</p>
-        <div style="display: flex; justify-content: space-between; font-size: 12px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
-          ${vlogConfig.show_viewer ? `<span>👥 Lượt Xem: <strong>${formatNumber(video.views)}</strong></span>` : ''}
-          ${vlogConfig.can_like ? `<span>❤️ Yêu Thích: <strong>${formatNumber(video.likes)}</strong></span>` : ''}
-        </div>
-      `;
-      openVlogSheet('#vlogDescSheet');
-    });
-
-    document.querySelector(`#actionHelpBtn_${index}`).addEventListener('click', () => {
-      showVlogToast("📞 Đã gửi yêu cầu liên hệ hỗ trợ tới admin Quốc 67k1!");
-    });
 
     // Central play pause tap click
     const tapDetector = slide.querySelector('.vlog-play-pause-center-btn');
