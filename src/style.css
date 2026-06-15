@@ -1187,11 +1187,13 @@ body.playing .sys-btn {
 }
 
 body.playing:not(.control-editing) .joystick-base:not(.joystick-floating) {
-  opacity: 0;
+  opacity: 0.18;
+  transition: opacity 0.2s ease;
 }
 
 body.playing .joystick-base.joystick-floating {
   opacity: 0.9;
+  transition: opacity 0.1s ease;
 }
 
 @media (orientation: portrait) {
