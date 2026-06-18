@@ -109,6 +109,7 @@ app.innerHTML = `
         <button id="resumeBtn" disabled>Tiếp Tục</button>
         <button id="customizeControlsBtn" class="secondary" type="button">Cài đặt nút</button>
         <button id="addCustomControlBtn" class="secondary" type="button">Thêm nút</button>
+        <button id="flashKeyConfigBtn" class="secondary" type="button">⌨️ Cài phím Flash</button>
         <div class="exit-actions" style="display: flex; flex-direction: column; gap: 10px;">
           <button id="exitBtn" disabled>Thoát</button>
           <button id="saveBtn" disabled>Save Game</button>
@@ -155,16 +156,45 @@ app.innerHTML = `
         </div>
 
         <!-- FLASH CONTROLS (shown only for Ruffle/Flash games) -->
-        <div class="flash-dirs">
-          <button class="flash-dir-btn flash-btn-up"    data-flash-key="ArrowUp"    data-flash-code="ArrowUp">Lên</button>
-          <button class="flash-dir-btn flash-btn-left"  data-flash-key="ArrowLeft"  data-flash-code="ArrowLeft">Trái</button>
-          <button class="flash-dir-btn flash-btn-right" data-flash-key="ArrowRight" data-flash-code="ArrowRight">Phải</button>
-          <button class="flash-dir-btn flash-btn-down"  data-flash-key="ArrowDown"  data-flash-code="ArrowDown">Xuống</button>
+        <div class="flash-toggle-row">
+          <button id="flashToggleBtn" class="flash-toggle-btn secondary" type="button">Ẩn nút</button>
         </div>
-        <div class="flash-action-panel">
-          <button class="flash-action-btn flash-btn-jump"     data-flash-key=" "     data-flash-code="Space">😊</button>
-          <button class="flash-action-btn flash-btn-continue" data-flash-key="Enter" data-flash-code="Enter">Bắt đầu game/ Qua ải tiếp</button>
-        </div>
+        <button class="flash-btn flash-dir-btn flash-btn-up"
+                data-flash-key="ArrowUp" data-flash-code="ArrowUp"
+                data-flash-control-id="flash-up">
+          <span class="flash-btn-icon">▲</span>
+          <span class="flash-btn-keylabel">↑</span>
+        </button>
+        <button class="flash-btn flash-dir-btn flash-btn-left"
+                data-flash-key="ArrowLeft" data-flash-code="ArrowLeft"
+                data-flash-control-id="flash-left">
+          <span class="flash-btn-icon">◀</span>
+          <span class="flash-btn-keylabel">←</span>
+        </button>
+        <button class="flash-btn flash-dir-btn flash-btn-right"
+                data-flash-key="ArrowRight" data-flash-code="ArrowRight"
+                data-flash-control-id="flash-right">
+          <span class="flash-btn-icon">▶</span>
+          <span class="flash-btn-keylabel">→</span>
+        </button>
+        <button class="flash-btn flash-dir-btn flash-btn-down"
+                data-flash-key="ArrowDown" data-flash-code="ArrowDown"
+                data-flash-control-id="flash-down">
+          <span class="flash-btn-icon">▼</span>
+          <span class="flash-btn-keylabel">↓</span>
+        </button>
+        <button class="flash-btn flash-action-btn flash-btn-jump"
+                data-flash-key=" " data-flash-code="Space"
+                data-flash-control-id="flash-jump">
+          <span class="flash-btn-icon">😊</span>
+          <span class="flash-btn-keylabel">Space</span>
+        </button>
+        <button class="flash-btn flash-action-btn flash-btn-continue"
+                data-flash-key="Enter" data-flash-code="Enter"
+                data-flash-control-id="flash-continue">
+          <span class="flash-btn-icon">▶START</span>
+          <span class="flash-btn-keylabel">Enter</span>
+        </button>
       </div>
 
       <div id="customControlModal" class="custom-control-modal hidden" aria-hidden="true">
@@ -614,9 +644,6 @@ app.innerHTML = `
           <button type="button" class="category-btn" data-system="favorite">❤️ Yêu thích</button>
           <button type="button" class="category-btn" data-system="recent">⏱️ Vừa chơi</button>
           <button type="button" class="category-btn" data-system="arcade">🕹️ Arcade</button>
-          <button type="button" class="category-btn" data-system="nes">🔴 NES</button>
-          <button type="button" class="category-btn" data-system="snes">🟣 SNES</button>
-          <button type="button" class="category-btn" data-system="gameboy">🟢 Game Boy</button>
           <button type="button" class="category-btn" data-system="flash">⚡ Flash</button>
         </div>
 
@@ -1095,6 +1122,8 @@ function showToast(msg, type = 'success') {
 // --- TIMED PLAYTIME LOGIC ---
 let emulator = null;
 let isLaunching = false;
+let flashButtonsHidden = localStorage.getItem('flash_buttons_hidden') === 'true';
+let activeFlashGameId = null;
 let continueTimer = null;
 let continueCountdownVal = 9;
 let timeLeft = 0;
@@ -1668,12 +1697,563 @@ function initGameLibraryGrid() {
   // Flash games played via Ruffle
   const flashGames = [
     {
+      title: 'Strike Force Heroes',
+      rom: 'strike-force-heroes--14775',
+      url: 'https://cache.armorgames.com/files/games/strike-force-heroes--14775.swf',
+      system: 'flash',
+      thumbnail: '',
+      core: 'ruffle',
+    },
+    {
       title: 'Jump Run Turtle Odyssey 2',
       rom: 'jump-run-turtle-odyssey-2',
       url: '/ruffle/jump-run-turtle-odyssey-2.swf',
       system: 'flash',
       thumbnail: '',
       core: 'ruffle',
+    },
+    {
+      title: 'Age of War 2',
+      rom: 'age-of-war-2-5933',
+      url: '/ruffle/age-of-war-2-5933.swf',
+      system: 'flash',
+      thumbnail: '',
+      core: 'ruffle',
+    },
+    {
+      title: 'Kingdom Rush Frontiers',
+      rom: 'kingdom-rush-frontie-15717',
+      url: '/ruffle/kingdom-rush-frontie-15717.swf',
+      system: 'flash',
+      thumbnail: '',
+      core: 'ruffle',
+    },
+    {
+      title: 'Flash Game 34027',
+      rom: '34027-flash-game',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/34027-flash-game.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Toxic',
+      rom: 'Toxic',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/Toxic.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Achievement Unlocked',
+      rom: 'achievement-unlocked',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/achievement-unlocked.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Age of Defense 8',
+      rom: 'age-of-defense-8',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/age-of-defense-8.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Age of War',
+      rom: 'age-of-war',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/age-of-war.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Animator 2',
+      rom: 'animator-2',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/animator-2.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Animator',
+      rom: 'animator',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/animator.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Bad Ice Cream 3',
+      rom: 'bad-ice-cream-3-www-boysplaygame-com',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/bad-ice-cream-3-www-boysplaygame-com.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Bloons Super Monkey',
+      rom: 'bloons-super-monkey',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/bloons-super-monkey.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Bloons Tower Defence 2',
+      rom: 'bloons-tower-defence-2',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/bloons-tower-defence-2.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Bloons Tower Defence 3',
+      rom: 'bloons-tower-defence-3',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/bloons-tower-defence-3.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Bloons Tower Defence 4',
+      rom: 'bloons-tower-defence-4',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/bloons-tower-defence-4.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Bloons Tower Defence',
+      rom: 'bloons-tower-defence',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/bloons-tower-defence.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Bloons',
+      rom: 'bloons',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/bloons.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Bloxorz',
+      rom: 'bloxorz',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/bloxorz.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Bob the Robber',
+      rom: 'bob-the-robber',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/bob-the-robber.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Checkers',
+      rom: 'checkers',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/checkers.swf',
+    },
+    {
+      title: 'Commando 2 (Miniclip)',
+      rom: 'commando-2-by-miniclip',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/commando-2-by-miniclip.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Commando 2',
+      rom: 'commando-2',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/commando-2.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Commando',
+      rom: 'commando',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/commando.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: "Dad 'n Me",
+      rom: 'dad-n-me',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/dad-n-me.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: "Don't Escape 2",
+      rom: 'dont-escape-2',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/dont-escape-2.swf',
+    },
+    {
+      title: "Don't Escape 3",
+      rom: 'dont-escape-3',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/dont-escape-3.swf',
+    },
+    {
+      title: "Don't Escape",
+      rom: 'dont-escape',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/dont-escape.swf',
+    },
+    {
+      title: "Don't Shoot the Puppy",
+      rom: 'dont-shoot-the-puppy',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/dont-shoot-the-puppy.swf',
+    },
+    {
+      title: 'Doom',
+      rom: 'doom',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/doom.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Duck Life',
+      rom: 'duck-life-1',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/duck-life-1.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Duck Life 2: World Champion',
+      rom: 'duck-life-2-world-champion',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/duck-life-2-world-champion.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Duck Life 3: Evolution',
+      rom: 'duck-life-3--evolution',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/duck-life-3--evolution.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Duck Life 4',
+      rom: 'duck-life-4',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/duck-life-4.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Empires of Arkeia',
+      rom: 'empires-of-arkeia',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/empires-of-arkeia.swf',
+    },
+    {
+      title: 'Extreme Pamplona',
+      rom: 'extreme-pamplona',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/extreme-pamplona.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Fish Tales 2',
+      rom: 'fish-tales-2',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/fish-tales-2.swf',
+    },
+    {
+      title: 'Fish Tales Deluxe Edition',
+      rom: 'fish-tales-deluxe-edition',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/fish-tales-deluxe-edition.swf',
+    },
+    {
+      title: 'Flash Sonic',
+      rom: 'flash-sonic',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/flash-sonic.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Gotham City Rush',
+      rom: 'gotham-city-rush',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/gotham-city-rush.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Henry Stickmin: Breaking the Bank',
+      rom: 'henry-stickmin-breaking-the-bank',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/henry-stickmin-breaking-the-bank.swf',
+    },
+    {
+      title: 'Henry Stickmin: Escaping the Prison',
+      rom: 'henry-stickmin-escaping-the-prison',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/henry-stickmin-escaping-the-prison.swf',
+    },
+    {
+      title: 'Henry Stickmin: Stealing the Diamond',
+      rom: 'henry-stickmin-stealing-the-diamond',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/henry-stickmin-stealing-the-diamond.swf',
+    },
+    {
+      title: 'Interactive Buddy',
+      rom: 'interactive-buddy',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/interactive-buddy.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Learn 2 Fly',
+      rom: 'learn-2-fly',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/learn-2-fly.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Learn to Fly',
+      rom: 'learn-to-fly',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/learn-to-fly.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Mad Arrow',
+      rom: 'mad-arrow',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/mad-arrow.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Minesweeper',
+      rom: 'minesweeper',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/minesweeper.swf',
+    },
+    {
+      title: 'Motherload',
+      rom: 'motherload',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/motherload.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'N',
+      rom: 'n',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/n.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Pac-Man (Flash)',
+      rom: 'pacman-flash',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/pacman.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: "Papa's Pizzeria",
+      rom: 'papas-pizzeria',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/papas-pizzeria.swf',
+    },
+    {
+      title: 'PC Breakdown',
+      rom: 'pc-breakdown',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/pc-breakdown.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Penguin Diner 2',
+      rom: 'penguin-diner-2',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/penguin-diner-2.swf',
+    },
+    {
+      title: 'Penguin Diner',
+      rom: 'penguin-diner',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/penguin-diner.swf',
+    },
+    {
+      title: 'Pipe Riders',
+      rom: 'pipe-riders',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/pipe-riders.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Pocket Fighter Nova (Updated)',
+      rom: 'pocket-fighter-nova-updated',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/pocket-fighter-nova-updated.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Pocket Fighter Nova',
+      rom: 'pocket-fighter-nova',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/pocket-fighter-nova.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Portal Flash',
+      rom: 'portal-flash',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/portal-flash.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Riddle School 3',
+      rom: 'riddle-school-3',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/riddle-school-3.swf',
+    },
+    {
+      title: 'Riddle School 4',
+      rom: 'riddle-school-4',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/riddle-school-4.swf',
+    },
+    {
+      title: 'Riddle School: Transfer',
+      rom: 'riddle-school-transfer',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/riddle-school-transfer.swf',
+    },
+    {
+      title: 'Riddle School',
+      rom: 'riddle-school',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/riddle-school.swf',
+    },
+    {
+      title: 'Rollercoaster Creator',
+      rom: 'rollercoaster-creator',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/rollercoaster-creator.swf',
+    },
+    {
+      title: "Rubik's Cube",
+      rom: 'rubiks-cube',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/rubiks-cube.swf',
+    },
+    {
+      title: 'Scrap Metal Heroes',
+      rom: 'scrap-metal-heroes',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/scrap-metal-heroes.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Shopping Cart Hero',
+      rom: 'shopping-cart-hero',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/shopping-cart-hero.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Showdown',
+      rom: 'showdown',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/showdown.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Snake (Flash)',
+      rom: 'snake-flash',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/snake.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Stick RPG',
+      rom: 'stick-rpg',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/stick-rpg.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Storm the House 2',
+      rom: 'storm-the-house-2',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/storm-the-house-2.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Storm the House',
+      rom: 'storm-the-house',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/storm-the-house.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Strikeforce Kitty 2',
+      rom: 'strikeforce-kitty-2',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/strikeforce-kitty-2.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Strikeforce Kitty: Last Stand',
+      rom: 'strikeforce-kitty-last-stand',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/strikeforce-kitty-last-stand.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Strikeforce Kitty League',
+      rom: 'strikeforce-kitty-league',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/strikeforce-kitty-league.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Strikeforce Kitty',
+      rom: 'strikeforce-kitty',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/strikeforce-kitty.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Super Mario Flash (SMFCreator)',
+      rom: 'super-mario-flash-by-smfcreator',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/super-mario-flash-by-smfcreator.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Super Smash Flash',
+      rom: 'super-smash-flash',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/super-smash-flash.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'The Fancy Pants Adventure 1',
+      rom: 'the-fancy-pants-adventure-1',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/the-fancy-pants-adventure-1.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'The Fancy Pants Adventure 2',
+      rom: 'the-fancy-pants-adventure-2',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/the-fancy-pants-adventure-2.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'The Impossible Quiz',
+      rom: 'the-impossible-quiz',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/the-impossible-quiz.swf',
+    },
+    {
+      title: "The World's Hardest Game",
+      rom: 'the-worlds-hardest-game',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/the-worlds-hardest-game.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Toxic 2',
+      rom: 'toxic-2',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/toxic-2.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Truck Loader 2',
+      rom: 'truck-loader-2',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/truck-loader-2.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Truck Loader 3',
+      rom: 'truck-loader-3',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/truck-loader-3.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Truck Loader 4',
+      rom: 'truck-loader-4',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/truck-loader-4.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Truck Loader 5',
+      rom: 'truck-loader-5',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/truck-loader-5.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Truck Loader',
+      rom: 'truck-loader',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/truck-loader.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Turtle',
+      rom: 'turtle',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/turtle.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Super Mario Flash 4',
+      rom: 'super-mario-flash-4',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/super-mario-flash-4.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Super Mario 63',
+      rom: 'super-mario-63',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/super-mario-63.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Super Mario Bros Crossover 3',
+      rom: 'super-mario-bros-crossover-3',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/super-mario-bros-crossover-3.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Super Mario Flash 2',
+      rom: 'super-mario-flash-2',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/super-mario-flash-2.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
+      title: 'Sugar Sugar 2',
+      rom: 'sugar-sugar-2',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/sugar-sugar-2.swf',
+    },
+    {
+      title: 'Sugar Sugar 3',
+      rom: 'sugar-sugar-3',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/sugar-sugar-3.swf',
+    },
+    {
+      title: 'Sugar Sugar',
+      rom: 'sugar-sugar',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/sugar-sugar.swf',
     },
   ];
 
@@ -1844,7 +2424,7 @@ function initGameLibraryGrid() {
           e.preventDefault();
           return;
         }
-        
+
         const currentTime = new Date().getTime();
         const clickLength = currentTime - lastClick;
 
@@ -2001,6 +2581,7 @@ function setControlState(running) {
     autoPausedForControls = false;
     document.body.classList.remove('playing');
     document.body.classList.remove('flash-mode');
+    document.body.classList.remove('flash-no-buttons');
     setControlEditMode(false);
     if (settingsBtn && headerControls && settingsBtn.parentElement !== headerControls) {
       headerControls.appendChild(settingsBtn);
@@ -2083,6 +2664,9 @@ async function destroyRunningGame() {
     destroyRunningGame();
   });
 
+  activeFlashGameId = null;
+  if (flashEditMode) setFlashEditMode(false);
+  resetFlashButtonLayout();
   setControlState(false);
   setStatus('Đang chờ...');
 }
@@ -2368,6 +2952,9 @@ async function launchGame() {
       RecentSystem.add(swfUrl);
       setControlState(true);
       document.body.classList.add('flash-mode');
+      document.body.classList.toggle('flash-no-buttons', flashButtonsHidden);
+      activeFlashGameId = swfUrl;
+      loadAndApplyFlashLayout(swfUrl);
     } catch (error) {
       emulator = null;
       setControlState(false);
@@ -3433,6 +4020,201 @@ customizeControlsBtn?.addEventListener('click', () => {
   setControlEditMode(!controlEditMode);
 });
 
+const flashToggleBtn = document.querySelector('#flashToggleBtn');
+function updateFlashToggleBtn() {
+  if (!flashToggleBtn) return;
+  flashToggleBtn.textContent = flashButtonsHidden ? 'Hiện nút' : 'Ẩn nút';
+}
+flashToggleBtn?.addEventListener('click', () => {
+  flashButtonsHidden = !flashButtonsHidden;
+  localStorage.setItem('flash_buttons_hidden', flashButtonsHidden);
+  document.body.classList.toggle('flash-no-buttons', flashButtonsHidden);
+  updateFlashToggleBtn();
+});
+updateFlashToggleBtn();
+
+// --- FLASH KEY CONFIG SYSTEM ---
+const FlashKeyConfig = {
+  BUTTONS: [
+    { id: 'up',       selector: '.flash-btn-up',       defaultKey: 'ArrowUp',    defaultCode: 'ArrowUp',    label: '⬆️ Lên' },
+    { id: 'down',     selector: '.flash-btn-down',      defaultKey: 'ArrowDown',  defaultCode: 'ArrowDown',  label: '⬇️ Xuống' },
+    { id: 'left',     selector: '.flash-btn-left',      defaultKey: 'ArrowLeft',  defaultCode: 'ArrowLeft',  label: '⬅️ Trái' },
+    { id: 'right',    selector: '.flash-btn-right',     defaultKey: 'ArrowRight', defaultCode: 'ArrowRight', label: '➡️ Phải' },
+    { id: 'jump',     selector: '.flash-btn-jump',      defaultKey: ' ',          defaultCode: 'Space',      label: '😊 Hành động' },
+    { id: 'continue', selector: '.flash-btn-continue',  defaultKey: 'Enter',      defaultCode: 'Enter',      label: '▶ Bắt đầu/Qua ải' },
+  ],
+
+  storageKey(gameId) {
+    return `flash_key_cfg_${gameId}`;
+  },
+
+  getConfig(gameId) {
+    if (!gameId) return null;
+    try {
+      const raw = localStorage.getItem(this.storageKey(gameId));
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  },
+
+  saveConfig(gameId, config) {
+    if (!gameId) return;
+    localStorage.setItem(this.storageKey(gameId), JSON.stringify(config));
+  },
+
+  applyConfig(config) {
+    this.BUTTONS.forEach(({ id, selector, defaultKey, defaultCode }) => {
+      const btn = document.querySelector(selector);
+      if (!btn) return;
+      const mapping = config && config[id];
+      btn.dataset.flashKey = mapping ? mapping.key : defaultKey;
+      btn.dataset.flashCode = mapping ? mapping.code : defaultCode;
+    });
+  },
+
+  loadAndApply(gameId) {
+    const config = this.getConfig(gameId);
+    this.applyConfig(config);
+  },
+};
+
+// Pending key config edits (not yet saved)
+let flashKeyConfigDraft = {};
+let flashKeyCaptureTarget = null; // which button id is capturing
+
+function openFlashKeyConfigModal() {
+  const modal = document.getElementById('flashKeyConfigModal');
+  if (!modal) return;
+
+  const savedConfig = activeFlashGameId ? FlashKeyConfig.getConfig(activeFlashGameId) : null;
+
+  flashKeyConfigDraft = {};
+  FlashKeyConfig.BUTTONS.forEach(({ id, defaultKey, defaultCode }) => {
+    const saved = savedConfig && savedConfig[id];
+    flashKeyConfigDraft[id] = {
+      key: saved ? saved.key : defaultKey,
+      code: saved ? saved.code : defaultCode,
+    };
+  });
+
+  renderFlashKeyConfigList();
+  modal.classList.remove('hidden');
+  modal.setAttribute('aria-hidden', 'false');
+  flashKeyCaptureTarget = null;
+}
+
+function closeFlashKeyConfigModal() {
+  const modal = document.getElementById('flashKeyConfigModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+  flashKeyCaptureTarget = null;
+  stopFlashKeyCapture();
+}
+
+function renderFlashKeyConfigList() {
+  const list = document.getElementById('flashKeyConfigList');
+  if (!list) return;
+
+  list.innerHTML = FlashKeyConfig.BUTTONS.map(({ id, label }) => {
+    const mapping = flashKeyConfigDraft[id] || {};
+    const displayKey = mapping.key === ' ' ? 'Space' : (mapping.key || '?');
+    return `
+      <div class="flash-key-row" data-btn-id="${id}">
+        <span class="flash-key-label">${label}</span>
+        <span class="flash-key-display" id="flash-key-display-${id}">${displayKey}</span>
+        <button type="button" class="flash-key-capture-btn secondary" data-capture-id="${id}">Ghi phím</button>
+      </div>
+    `;
+  }).join('');
+
+  list.querySelectorAll('.flash-key-capture-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const captureId = btn.dataset.captureId;
+      if (flashKeyCaptureTarget === captureId) {
+        stopFlashKeyCapture();
+      } else {
+        startFlashKeyCapture(captureId);
+      }
+    });
+  });
+}
+
+function startFlashKeyCapture(btnId) {
+  flashKeyCaptureTarget = btnId;
+  const display = document.getElementById(`flash-key-display-${btnId}`);
+  if (display) {
+    display.textContent = '⏳ Bấm phím...';
+    display.classList.add('capturing');
+  }
+  document.querySelectorAll('.flash-key-capture-btn').forEach(b => {
+    b.disabled = b.dataset.captureId !== btnId;
+    if (b.dataset.captureId === btnId) b.textContent = 'Hủy';
+  });
+}
+
+function stopFlashKeyCapture() {
+  flashKeyCaptureTarget = null;
+  document.querySelectorAll('.flash-key-capture-btn').forEach(b => {
+    b.disabled = false;
+    b.textContent = 'Ghi phím';
+  });
+  document.querySelectorAll('.flash-key-display').forEach(d => d.classList.remove('capturing'));
+}
+
+function handleFlashKeyCapture(e) {
+  if (!flashKeyCaptureTarget) return;
+  const modal = document.getElementById('flashKeyConfigModal');
+  if (!modal || modal.classList.contains('hidden')) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const id = flashKeyCaptureTarget;
+  flashKeyConfigDraft[id] = { key: e.key, code: e.code };
+
+  const display = document.getElementById(`flash-key-display-${id}`);
+  if (display) {
+    display.textContent = e.key === ' ' ? 'Space' : e.key;
+    display.classList.remove('capturing');
+  }
+
+  stopFlashKeyCapture();
+}
+
+document.addEventListener('keydown', handleFlashKeyCapture, { capture: true });
+
+document.getElementById('closeFlashKeyConfigBtn')?.addEventListener('click', closeFlashKeyConfigModal);
+
+document.getElementById('saveFlashKeyConfigBtn')?.addEventListener('click', () => {
+  if (activeFlashGameId) {
+    FlashKeyConfig.saveConfig(activeFlashGameId, flashKeyConfigDraft);
+    FlashKeyConfig.applyConfig(flashKeyConfigDraft);
+    showToast('Đã lưu cài đặt phím cho game này!', 'success');
+  } else {
+    FlashKeyConfig.applyConfig(flashKeyConfigDraft);
+    showToast('Đã áp dụng (chưa có game đang chạy, sẽ không lưu lâu dài)', 'success');
+  }
+  closeFlashKeyConfigModal();
+});
+
+document.getElementById('resetFlashKeyConfigBtn')?.addEventListener('click', () => {
+  if (activeFlashGameId) {
+    localStorage.removeItem(FlashKeyConfig.storageKey(activeFlashGameId));
+  }
+  FlashKeyConfig.applyConfig(null);
+  FlashKeyConfig.BUTTONS.forEach(({ id, defaultKey, defaultCode }) => {
+    flashKeyConfigDraft[id] = { key: defaultKey, code: defaultCode };
+  });
+  renderFlashKeyConfigList();
+  showToast('Đã khôi phục phím mặc định!', 'success');
+});
+
+document.getElementById('flashKeyConfigModal')?.querySelector('.flash-key-config-backdrop')
+  ?.addEventListener('click', closeFlashKeyConfigModal);
+
+document.getElementById('flashKeyConfigBtn')?.addEventListener('click', openFlashKeyConfigModal);
+
 settingsBtn?.addEventListener('click', () => {
   setControlEditMode(!controlEditMode);
 });
@@ -3863,12 +4645,11 @@ function dispatchFlashKey(key, code, type) {
 const activeFlashKeys = new Set();
 
 document.querySelectorAll('.flash-dir-btn, .flash-action-btn').forEach(btn => {
-  const key = btn.dataset.flashKey;
-  const code = btn.dataset.flashCode;
-
   const pressDown = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    const key = btn.dataset.flashKey;
+    const code = btn.dataset.flashCode;
     if (activeFlashKeys.has(code)) return;
     activeFlashKeys.add(code);
     btn.classList.add('active');
@@ -3878,6 +4659,8 @@ document.querySelectorAll('.flash-dir-btn, .flash-action-btn').forEach(btn => {
   const pressUp = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    const key = btn.dataset.flashKey;
+    const code = btn.dataset.flashCode;
     if (!activeFlashKeys.has(code)) return;
     activeFlashKeys.delete(code);
     btn.classList.remove('active');
