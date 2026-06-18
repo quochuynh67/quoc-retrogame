@@ -79,8 +79,8 @@ app.innerHTML = `
           </div>
           <button id="shopBtn" class="primary shop-trigger" style="display: none !important;">Nạp Xu</button>
         </div>
-        <button id="settingsBtn" class="secondary">Cài Đặt</button>
-        <button id="restoreControlsBtn" class="secondary" type="button">Khôi phục</button>
+        <button id="settingsBtn" class="secondary" title="Cài đặt nút điều khiển">⚙ Nút</button>
+        <button id="restoreControlsBtn" class="secondary" type="button" title="Khôi phục vị trí mặc định">↺ Reset</button>
       </div>
     </div>
   </header>
@@ -108,12 +108,19 @@ app.innerHTML = `
         <button id="pauseBtn" disabled>Tạm Dừng</button>
         <button id="resumeBtn" disabled>Tiếp Tục</button>
         <button id="customizeControlsBtn" class="secondary" type="button">Cài đặt nút</button>
-        <button id="addCustomControlBtn" class="secondary" type="button">Thêm nút</button>
-        <button id="flashKeyConfigBtn" class="secondary" type="button">⌨️ Cài phím Flash</button>
+        <button id="addCustomControlBtn" class="secondary" type="button" title="Thêm nút combo">＋ Nút</button>
+        <div class="flash-controls-bar-group">
+          <button id="flashKeyConfigBtn" class="flash-icon-btn" type="button" title="Cài đặt phím Flash / Lưu">⚙️</button>
+          <label class="flash-toggle-switch" title="Ẩn / Hiện nút Flash">
+            <input type="checkbox" id="flashHideAllToggle" />
+            <span class="flash-toggle-track"><span class="flash-toggle-thumb"></span></span>
+            <span class="flash-toggle-label">Ẩn nút</span>
+          </label>
+        </div>
         <div class="exit-actions" style="display: flex; flex-direction: column; gap: 10px;">
-          <button id="exitBtn" disabled>Thoát</button>
-          <button id="saveBtn" disabled>Save Game</button>
-          <button id="loadBtn" disabled>Chơi Tiếp</button>
+          <button id="exitBtn" disabled title="Thoát game">✕ Thoát</button>
+          <button id="saveBtn" disabled title="Lưu game">💾 Save</button>
+          <button id="loadBtn" disabled title="Chơi tiếp">▶ Tiếp</button>
         </div>
       </div>
 
@@ -155,10 +162,7 @@ app.innerHTML = `
           <div class="action-btn btn-combo-yab" data-key="combo-axz" data-control-id="combo-yab">Y+A+B</div>
         </div>
 
-        <!-- FLASH CONTROLS (shown only for Ruffle/Flash games) -->
-        <div class="flash-toggle-row">
-          <button id="flashToggleBtn" class="flash-toggle-btn secondary" type="button">Ẩn nút</button>
-        </div>
+        
         <button class="flash-btn flash-dir-btn flash-btn-up"
                 data-flash-key="ArrowUp" data-flash-code="ArrowUp"
                 data-flash-control-id="flash-up">
@@ -195,6 +199,40 @@ app.innerHTML = `
           <span class="flash-btn-icon">▶START</span>
           <span class="flash-btn-keylabel">Enter</span>
         </button>
+      </div>
+
+      <!-- Flash key config popover -->
+      <div id="flashKeyPopover" class="flash-key-popover hidden" aria-hidden="true">
+        <div class="flash-key-popover-inner">
+          <div class="flash-key-popover-head">
+            <strong>Cài đặt nút</strong>
+            <button type="button" id="flashKeyPopoverClose" class="secondary">✕</button>
+          </div>
+          <label class="flash-key-popover-label">
+            Tên nút
+            <input id="flashKeyPopoverName" class="input" maxlength="12" placeholder="Để trống = tên phím" />
+          </label>
+          <div class="flash-key-popover-current">
+            Phím đang chọn: <strong id="flashKeyPopoverSelectedLabel">—</strong>
+          </div>
+          <div class="flash-key-popover-grid-wrap">
+            <div class="flash-key-popover-group-label">Mũi tên</div>
+            <div class="flash-key-popover-grid" id="flashKeyGrid-arrows"></div>
+            <div class="flash-key-popover-group-label">Phổ biến</div>
+            <div class="flash-key-popover-grid" id="flashKeyGrid-common"></div>
+            <div class="flash-key-popover-group-label">WASD / Chữ cái</div>
+            <div class="flash-key-popover-grid" id="flashKeyGrid-letters"></div>
+            <div class="flash-key-popover-group-label">Số</div>
+            <div class="flash-key-popover-grid" id="flashKeyGrid-digits"></div>
+            <div class="flash-key-popover-group-label">Hàm / Khác</div>
+            <div class="flash-key-popover-grid" id="flashKeyGrid-fn"></div>
+          </div>
+          <div class="flash-key-popover-hint">Hoặc bấm phím vật lý trên bàn phím</div>
+          <div class="flash-key-popover-actions">
+            <button type="button" id="flashKeyPopoverCancel" class="secondary">Hủy</button>
+            <button type="button" id="flashKeyPopoverSave" class="primary">Lưu</button>
+          </div>
+        </div>
       </div>
 
       <div id="customControlModal" class="custom-control-modal hidden" aria-hidden="true">
@@ -2572,9 +2610,9 @@ function setControlState(running) {
     if (addCustomControlBtn && controlsBar && addCustomControlBtn.parentElement !== controlsBar) {
       restoreControlsBtn?.after(addCustomControlBtn);
     }
-    if (exitBtn && controlsBar && exitBtn.parentElement !== controlsBar) {
-      controlsBar.appendChild(exitBtn);
-    }
+    // Keep flash controls group after exit-actions
+    const flashBarGroup = controlsBar?.querySelector('.flash-controls-bar-group');
+    if (flashBarGroup) controlsBar.appendChild(flashBarGroup);
     applySavedControlLayout();
   } else {
     userPausedGame = false;
@@ -2583,6 +2621,7 @@ function setControlState(running) {
     document.body.classList.remove('flash-mode');
     document.body.classList.remove('flash-no-buttons');
     setControlEditMode(false);
+    if (flashEditMode) setFlashEditMode(false);
     if (settingsBtn && headerControls && settingsBtn.parentElement !== headerControls) {
       headerControls.appendChild(settingsBtn);
     }
@@ -2591,10 +2630,6 @@ function setControlState(running) {
     }
     if (addCustomControlBtn && controlsBar && addCustomControlBtn.parentElement !== controlsBar) {
       controlsBar.insertBefore(addCustomControlBtn, document.querySelector('.exit-actions'));
-    }
-    const exitActions = document.querySelector('.exit-actions');
-    if (exitBtn && exitActions && exitBtn.parentElement !== exitActions) {
-      exitActions.insertBefore(exitBtn, exitActions.firstElementChild);
     }
     clearControlLayoutStyles(true);
     restoreControlParents();
@@ -2606,6 +2641,7 @@ async function destroyRunningGame() {
   stopContinueCountdown();
 
   if (!emulator) {
+    if (flashEditMode) setFlashEditMode(false);
     screenShellEl.innerHTML = `
         <!-- Continue Overlay -->
         <div id="continueOverlay" class="continue-overlay hidden">
@@ -2664,8 +2700,8 @@ async function destroyRunningGame() {
     destroyRunningGame();
   });
 
-  activeFlashGameId = null;
   if (flashEditMode) setFlashEditMode(false);
+  activeFlashGameId = null;
   resetFlashButtonLayout();
   setControlState(false);
   setStatus('Đang chờ...');
@@ -4021,199 +4057,398 @@ customizeControlsBtn?.addEventListener('click', () => {
 });
 
 const flashToggleBtn = document.querySelector('#flashToggleBtn');
+const flashHideAllToggle = document.querySelector('#flashHideAllToggle');
+
 function updateFlashToggleBtn() {
-  if (!flashToggleBtn) return;
-  flashToggleBtn.textContent = flashButtonsHidden ? 'Hiện nút' : 'Ẩn nút';
+  if (flashToggleBtn) flashToggleBtn.textContent = flashButtonsHidden ? 'Hiện nút' : 'Ẩn nút';
+  if (flashHideAllToggle) flashHideAllToggle.checked = flashButtonsHidden;
 }
-flashToggleBtn?.addEventListener('click', () => {
-  flashButtonsHidden = !flashButtonsHidden;
+
+function setFlashButtonsHidden(hidden) {
+  flashButtonsHidden = hidden;
   localStorage.setItem('flash_buttons_hidden', flashButtonsHidden);
   document.body.classList.toggle('flash-no-buttons', flashButtonsHidden);
   updateFlashToggleBtn();
-});
+}
+
+flashToggleBtn?.addEventListener('click', () => setFlashButtonsHidden(!flashButtonsHidden));
+flashHideAllToggle?.addEventListener('change', () => setFlashButtonsHidden(flashHideAllToggle.checked));
 updateFlashToggleBtn();
 
-// --- FLASH KEY CONFIG SYSTEM ---
-const FlashKeyConfig = {
-  BUTTONS: [
-    { id: 'up',       selector: '.flash-btn-up',       defaultKey: 'ArrowUp',    defaultCode: 'ArrowUp',    label: '⬆️ Lên' },
-    { id: 'down',     selector: '.flash-btn-down',      defaultKey: 'ArrowDown',  defaultCode: 'ArrowDown',  label: '⬇️ Xuống' },
-    { id: 'left',     selector: '.flash-btn-left',      defaultKey: 'ArrowLeft',  defaultCode: 'ArrowLeft',  label: '⬅️ Trái' },
-    { id: 'right',    selector: '.flash-btn-right',     defaultKey: 'ArrowRight', defaultCode: 'ArrowRight', label: '➡️ Phải' },
-    { id: 'jump',     selector: '.flash-btn-jump',      defaultKey: ' ',          defaultCode: 'Space',      label: '😊 Hành động' },
-    { id: 'continue', selector: '.flash-btn-continue',  defaultKey: 'Enter',      defaultCode: 'Enter',      label: '▶ Bắt đầu/Qua ải' },
-  ],
-
-  storageKey(gameId) {
-    return `flash_key_cfg_${gameId}`;
-  },
-
-  getConfig(gameId) {
-    if (!gameId) return null;
-    try {
-      const raw = localStorage.getItem(this.storageKey(gameId));
-      return raw ? JSON.parse(raw) : null;
-    } catch { return null; }
-  },
-
-  saveConfig(gameId, config) {
-    if (!gameId) return;
-    localStorage.setItem(this.storageKey(gameId), JSON.stringify(config));
-  },
-
-  applyConfig(config) {
-    this.BUTTONS.forEach(({ id, selector, defaultKey, defaultCode }) => {
-      const btn = document.querySelector(selector);
-      if (!btn) return;
-      const mapping = config && config[id];
-      btn.dataset.flashKey = mapping ? mapping.key : defaultKey;
-      btn.dataset.flashCode = mapping ? mapping.code : defaultCode;
-    });
-  },
-
-  loadAndApply(gameId) {
-    const config = this.getConfig(gameId);
-    this.applyConfig(config);
-  },
+// --- FLASH BUTTON DRAGGABLE SYSTEM ---
+const FLASH_BTN_DEFAULTS = {
+  'flash-up': { x: 13, y: 73, scale: 1, key: 'ArrowUp', code: 'ArrowUp', name: '↑' },
+  'flash-left': { x: 5, y: 83, scale: 1, key: 'ArrowLeft', code: 'ArrowLeft', name: '←' },
+  'flash-right': { x: 21, y: 83, scale: 1, key: 'ArrowRight', code: 'ArrowRight', name: '→' },
+  'flash-down': { x: 13, y: 91, scale: 1, key: 'ArrowDown', code: 'ArrowDown', name: '↓' },
+  'flash-jump': { x: 87, y: 78, scale: 1, key: ' ', code: 'Space', name: '😊' },
+  'flash-continue': { x: 87, y: 91, scale: 1, key: 'Enter', code: 'Enter', name: '▶' },
 };
 
-// Pending key config edits (not yet saved)
-let flashKeyConfigDraft = {};
-let flashKeyCaptureTarget = null; // which button id is capturing
+const flashBtnElements = Array.from(document.querySelectorAll('[data-flash-control-id]'));
+let flashEditMode = false;
+let isDraggingFlashBtn = false;
 
-function openFlashKeyConfigModal() {
-  const modal = document.getElementById('flashKeyConfigModal');
-  if (!modal) return;
+function flashLayoutStorageKey(gameId) {
+  return `flash_btn_layout_${gameId}`;
+}
 
-  const savedConfig = activeFlashGameId ? FlashKeyConfig.getConfig(activeFlashGameId) : null;
+function readFlashLayout(gameId) {
+  if (!gameId) return null;
+  try {
+    const raw = localStorage.getItem(flashLayoutStorageKey(gameId));
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
 
-  flashKeyConfigDraft = {};
-  FlashKeyConfig.BUTTONS.forEach(({ id, defaultKey, defaultCode }) => {
-    const saved = savedConfig && savedConfig[id];
-    flashKeyConfigDraft[id] = {
-      key: saved ? saved.key : defaultKey,
-      code: saved ? saved.code : defaultCode,
+function writeFlashLayout(gameId, layout) {
+  if (!gameId) return;
+  localStorage.setItem(flashLayoutStorageKey(gameId), JSON.stringify(layout));
+}
+
+function formatKeyLabel(key) {
+  if (key === ' ') return 'Space';
+  if (key === 'ArrowUp') return '↑';
+  if (key === 'ArrowDown') return '↓';
+  if (key === 'ArrowLeft') return '←';
+  if (key === 'ArrowRight') return '→';
+  if (key === 'Enter') return 'Enter';
+  if (key === 'Escape') return 'Esc';
+  if (key === 'Backspace') return '⌫';
+  if (key === 'Tab') return 'Tab';
+  if (key === 'Shift') return 'Shift';
+  if (key === 'Control') return 'Ctrl';
+  if (key === 'Alt') return 'Alt';
+  if (key.length === 1) return key.toUpperCase();
+  return key;
+}
+
+function applyFlashBtnConfig(el, config) {
+  el.style.left = `${config.x}%`;
+  el.style.top = `${config.y}%`;
+  el.style.setProperty('--flash-btn-scale', config.scale || 1);
+  el.classList.toggle('flash-btn-hidden', Boolean(config.hidden));
+  el.dataset.flashKey = config.key;
+  el.dataset.flashCode = config.code;
+  el.dataset.flashName = config.name || '';
+  const iconEl = el.querySelector('.flash-btn-icon');
+  if (iconEl) iconEl.textContent = config.name || formatKeyLabel(config.key);
+  const keyLabelEl = el.querySelector('.flash-btn-keylabel');
+  if (keyLabelEl) keyLabelEl.textContent = formatKeyLabel(config.key);
+}
+
+function buildCurrentFlashLayout() {
+  const layout = {};
+  flashBtnElements.forEach(el => {
+    const id = el.dataset.flashControlId;
+    const rect = el.getBoundingClientRect();
+    const defaults = FLASH_BTN_DEFAULTS[id] || {};
+    layout[id] = {
+      x: ((rect.left + rect.width / 2) / window.innerWidth) * 100,
+      y: ((rect.top + rect.height / 2) / window.innerHeight) * 100,
+      scale: Number(el.style.getPropertyValue('--flash-btn-scale')) || 1,
+      hidden: el.classList.contains('flash-btn-hidden'),
+      key: el.dataset.flashKey || defaults.key,
+      code: el.dataset.flashCode || defaults.code,
+      name: el.dataset.flashName || '',
     };
   });
-
-  renderFlashKeyConfigList();
-  modal.classList.remove('hidden');
-  modal.setAttribute('aria-hidden', 'false');
-  flashKeyCaptureTarget = null;
+  return layout;
 }
 
-function closeFlashKeyConfigModal() {
-  const modal = document.getElementById('flashKeyConfigModal');
-  if (modal) {
-    modal.classList.add('hidden');
-    modal.setAttribute('aria-hidden', 'true');
-  }
-  flashKeyCaptureTarget = null;
-  stopFlashKeyCapture();
-}
-
-function renderFlashKeyConfigList() {
-  const list = document.getElementById('flashKeyConfigList');
-  if (!list) return;
-
-  list.innerHTML = FlashKeyConfig.BUTTONS.map(({ id, label }) => {
-    const mapping = flashKeyConfigDraft[id] || {};
-    const displayKey = mapping.key === ' ' ? 'Space' : (mapping.key || '?');
-    return `
-      <div class="flash-key-row" data-btn-id="${id}">
-        <span class="flash-key-label">${label}</span>
-        <span class="flash-key-display" id="flash-key-display-${id}">${displayKey}</span>
-        <button type="button" class="flash-key-capture-btn secondary" data-capture-id="${id}">Ghi phím</button>
-      </div>
-    `;
-  }).join('');
-
-  list.querySelectorAll('.flash-key-capture-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const captureId = btn.dataset.captureId;
-      if (flashKeyCaptureTarget === captureId) {
-        stopFlashKeyCapture();
-      } else {
-        startFlashKeyCapture(captureId);
-      }
-    });
+function loadAndApplyFlashLayout(gameId) {
+  const saved = readFlashLayout(gameId);
+  flashBtnElements.forEach(el => {
+    const id = el.dataset.flashControlId;
+    const config = (saved && saved[id]) ? saved[id] : (FLASH_BTN_DEFAULTS[id] || { x: 50, y: 50, scale: 1, key: '', code: '' });
+    applyFlashBtnConfig(el, config);
   });
 }
 
-function startFlashKeyCapture(btnId) {
-  flashKeyCaptureTarget = btnId;
-  const display = document.getElementById(`flash-key-display-${btnId}`);
-  if (display) {
-    display.textContent = '⏳ Bấm phím...';
-    display.classList.add('capturing');
-  }
-  document.querySelectorAll('.flash-key-capture-btn').forEach(b => {
-    b.disabled = b.dataset.captureId !== btnId;
-    if (b.dataset.captureId === btnId) b.textContent = 'Hủy';
+function resetFlashButtonLayout() {
+  flashBtnElements.forEach(el => {
+    const id = el.dataset.flashControlId;
+    const defaults = FLASH_BTN_DEFAULTS[id] || { x: 50, y: 50, scale: 1, key: '', code: '' };
+    applyFlashBtnConfig(el, defaults);
   });
 }
 
-function stopFlashKeyCapture() {
-  flashKeyCaptureTarget = null;
-  document.querySelectorAll('.flash-key-capture-btn').forEach(b => {
-    b.disabled = false;
-    b.textContent = 'Ghi phím';
-  });
-  document.querySelectorAll('.flash-key-display').forEach(d => d.classList.remove('capturing'));
-}
-
-function handleFlashKeyCapture(e) {
-  if (!flashKeyCaptureTarget) return;
-  const modal = document.getElementById('flashKeyConfigModal');
-  if (!modal || modal.classList.contains('hidden')) return;
-
+function startFlashBtnDrag(e, el) {
+  if (!flashEditMode || isDraggingFlashBtn || flashKeyPopoverTarget) return;
+  if (e.target.closest('.flash-edit-handle')) return;
   e.preventDefault();
   e.stopPropagation();
+  isDraggingFlashBtn = true;
+  const rect = el.getBoundingClientRect();
+  const shiftX = e.clientX - rect.left;
+  const shiftY = e.clientY - rect.top;
+  el.classList.add('is-dragging-flash');
+  el.setPointerCapture?.(e.pointerId);
 
-  const id = flashKeyCaptureTarget;
-  flashKeyConfigDraft[id] = { key: e.key, code: e.code };
+  const onMove = (me) => {
+    me.preventDefault();
+    const rawX = ((me.clientX - shiftX + rect.width / 2) / window.innerWidth) * 100;
+    const rawY = ((me.clientY - shiftY + rect.height / 2) / window.innerHeight) * 100;
+    el.style.left = `${Math.min(96, Math.max(2, rawX))}%`;
+    el.style.top = `${Math.min(95, Math.max(2, rawY))}%`;
+  };
 
-  const display = document.getElementById(`flash-key-display-${id}`);
-  if (display) {
-    display.textContent = e.key === ' ' ? 'Space' : e.key;
-    display.classList.remove('capturing');
-  }
+  const onUp = (ue) => {
+    ue.preventDefault();
+    el.classList.remove('is-dragging-flash');
+    el.releasePointerCapture?.(e.pointerId);
+    el.removeEventListener('pointermove', onMove);
+    el.removeEventListener('pointerup', onUp);
+    el.removeEventListener('pointercancel', onUp);
+    setTimeout(() => { isDraggingFlashBtn = false; }, 0);
+  };
 
-  stopFlashKeyCapture();
+  el.addEventListener('pointermove', onMove);
+  el.addEventListener('pointerup', onUp);
+  el.addEventListener('pointercancel', onUp);
 }
 
-document.addEventListener('keydown', handleFlashKeyCapture, { capture: true });
+const FLASH_KEY_GROUPS = [
+  {
+    id: 'arrows', label: 'Mũi tên', keys: [
+      { key: 'ArrowUp', code: 'ArrowUp', label: '↑' },
+      { key: 'ArrowDown', code: 'ArrowDown', label: '↓' },
+      { key: 'ArrowLeft', code: 'ArrowLeft', label: '←' },
+      { key: 'ArrowRight', code: 'ArrowRight', label: '→' },
+    ]
+  },
+  {
+    id: 'common', label: 'Phổ biến', keys: [
+      { key: ' ', code: 'Space', label: 'Space' },
+      { key: 'Enter', code: 'Enter', label: 'Enter' },
+      { key: 'Escape', code: 'Escape', label: 'Esc' },
+      { key: 'Backspace', code: 'Backspace', label: '⌫' },
+      { key: 'Tab', code: 'Tab', label: 'Tab' },
+      { key: 'Shift', code: 'ShiftLeft', label: 'Shift' },
+      { key: 'Control', code: 'ControlLeft', label: 'Ctrl' },
+      { key: 'Alt', code: 'AltLeft', label: 'Alt' },
+    ]
+  },
+  {
+    id: 'letters', label: 'WASD / Chữ cái', keys:
+      ['W', 'A', 'S', 'D', 'X', 'Z', 'C', 'V', 'Q', 'E', 'R', 'F', 'G', 'H', 'J', 'K', 'L', 'B', 'N', 'M', 'Y', 'U', 'I', 'O', 'P', 'T']
+        .map(l => ({ key: l.toLowerCase(), code: `Key${l}`, label: l }))
+  },
+  {
+    id: 'digits', label: 'Số', keys:
+      ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+        .map(n => ({ key: n, code: `Digit${n}`, label: n }))
+  },
+  {
+    id: 'fn', label: 'Hàm / Khác', keys: [
+      { key: 'F1', code: 'F1', label: 'F1' },
+      { key: 'F2', code: 'F2', label: 'F2' },
+      { key: 'F3', code: 'F3', label: 'F3' },
+      { key: 'F4', code: 'F4', label: 'F4' },
+      { key: 'F5', code: 'F5', label: 'F5' },
+      { key: 'F6', code: 'F6', label: 'F6' },
+      { key: 'Insert', code: 'Insert', label: 'Ins' },
+      { key: 'Delete', code: 'Delete', label: 'Del' },
+      { key: 'Home', code: 'Home', label: 'Home' },
+      { key: 'End', code: 'End', label: 'End' },
+      { key: 'PageUp', code: 'PageUp', label: 'PgUp' },
+      { key: 'PageDown', code: 'PageDown', label: 'PgDn' },
+    ]
+  },
+];
 
-document.getElementById('closeFlashKeyConfigBtn')?.addEventListener('click', closeFlashKeyConfigModal);
+let flashKeyPopoverTarget = null;
+let flashKeyPopoverSelectedKey = null;
+let flashKeyPopoverSelectedCode = null;
 
-document.getElementById('saveFlashKeyConfigBtn')?.addEventListener('click', () => {
-  if (activeFlashGameId) {
-    FlashKeyConfig.saveConfig(activeFlashGameId, flashKeyConfigDraft);
-    FlashKeyConfig.applyConfig(flashKeyConfigDraft);
-    showToast('Đã lưu cài đặt phím cho game này!', 'success');
-  } else {
-    FlashKeyConfig.applyConfig(flashKeyConfigDraft);
-    showToast('Đã áp dụng (chưa có game đang chạy, sẽ không lưu lâu dài)', 'success');
-  }
-  closeFlashKeyConfigModal();
-});
+function openFlashKeyPopover(el) {
+  flashKeyPopoverTarget = el;
+  flashKeyPopoverSelectedKey = el.dataset.flashKey || '';
+  flashKeyPopoverSelectedCode = el.dataset.flashCode || '';
 
-document.getElementById('resetFlashKeyConfigBtn')?.addEventListener('click', () => {
-  if (activeFlashGameId) {
-    localStorage.removeItem(FlashKeyConfig.storageKey(activeFlashGameId));
-  }
-  FlashKeyConfig.applyConfig(null);
-  FlashKeyConfig.BUTTONS.forEach(({ id, defaultKey, defaultCode }) => {
-    flashKeyConfigDraft[id] = { key: defaultKey, code: defaultCode };
+  const popover = document.getElementById('flashKeyPopover');
+  const nameInput = document.getElementById('flashKeyPopoverName');
+  const selectedLabel = document.getElementById('flashKeyPopoverSelectedLabel');
+  if (!popover || !nameInput || !selectedLabel) return;
+
+  nameInput.value = el.dataset.flashName || '';
+  selectedLabel.textContent = formatKeyLabel(flashKeyPopoverSelectedKey);
+
+  FLASH_KEY_GROUPS.forEach(group => {
+    const grid = document.getElementById(`flashKeyGrid-${group.id}`);
+    if (!grid) return;
+    grid.innerHTML = '';
+    group.keys.forEach(({ key, code, label }) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'flash-key-btn';
+      btn.textContent = label;
+      if (key === flashKeyPopoverSelectedKey) btn.classList.add('selected');
+      btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        grid.querySelectorAll('.flash-key-btn').forEach(b => b.classList.remove('selected'));
+        document.querySelectorAll('.flash-key-btn.selected').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        flashKeyPopoverSelectedKey = key;
+        flashKeyPopoverSelectedCode = code;
+        selectedLabel.textContent = label;
+      });
+      grid.appendChild(btn);
+    });
   });
-  renderFlashKeyConfigList();
-  showToast('Đã khôi phục phím mặc định!', 'success');
+
+  popover.classList.remove('hidden');
+  popover.setAttribute('aria-hidden', 'false');
+  try { document.activeElement?.blur(); } catch (_) { }
+}
+
+function closeFlashKeyPopover(save) {
+  const popover = document.getElementById('flashKeyPopover');
+  if (popover) {
+    popover.classList.add('hidden');
+    popover.setAttribute('aria-hidden', 'true');
+  }
+  if (save && flashKeyPopoverTarget) {
+    const el = flashKeyPopoverTarget;
+    const nameInput = document.getElementById('flashKeyPopoverName');
+    const customName = nameInput ? nameInput.value.trim() : '';
+    el.dataset.flashKey = flashKeyPopoverSelectedKey;
+    el.dataset.flashCode = flashKeyPopoverSelectedCode;
+    el.dataset.flashName = customName;
+    const iconEl = el.querySelector('.flash-btn-icon');
+    if (iconEl) iconEl.textContent = customName || formatKeyLabel(flashKeyPopoverSelectedKey);
+    const keyLabelEl = el.querySelector('.flash-btn-keylabel');
+    if (keyLabelEl) keyLabelEl.textContent = formatKeyLabel(flashKeyPopoverSelectedKey);
+  }
+  flashKeyPopoverTarget = null;
+}
+
+function cancelFlashKeyCapture() {
+  closeFlashKeyPopover(false);
+}
+
+function onFlashKeyCapture(e) {
+  const popover = document.getElementById('flashKeyPopover');
+  if (!popover || popover.classList.contains('hidden')) return;
+  if (!flashKeyPopoverTarget) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const selectedLabel = document.getElementById('flashKeyPopoverSelectedLabel');
+  flashKeyPopoverSelectedKey = e.key;
+  flashKeyPopoverSelectedCode = e.code;
+  if (selectedLabel) selectedLabel.textContent = formatKeyLabel(e.key);
+  document.querySelectorAll('.flash-key-btn').forEach(b => {
+    b.classList.toggle('selected', b.textContent === formatKeyLabel(e.key));
+  });
+}
+
+document.addEventListener('keydown', onFlashKeyCapture, { capture: true });
+
+document.getElementById('flashKeyPopoverSave')?.addEventListener('click', () => closeFlashKeyPopover(true));
+document.getElementById('flashKeyPopoverCancel')?.addEventListener('click', () => closeFlashKeyPopover(false));
+document.getElementById('flashKeyPopoverClose')?.addEventListener('click', () => closeFlashKeyPopover(false));
+
+function attachFlashEditHandles() {
+  flashBtnElements.forEach(el => {
+    if (el.querySelector('.flash-edit-handle-key')) return;
+
+    const keyHandle = document.createElement('span');
+    keyHandle.className = 'flash-edit-handle flash-edit-handle-key';
+    keyHandle.textContent = '⌨';
+    keyHandle.title = 'Gán phím';
+    keyHandle.addEventListener('pointerdown', (e) => {
+      if (!flashEditMode) return;
+      e.preventDefault();
+      e.stopPropagation();
+      openFlashKeyPopover(el);
+    });
+    el.appendChild(keyHandle);
+
+    const scaleHandle = document.createElement('span');
+    scaleHandle.className = 'flash-edit-handle flash-edit-handle-scale';
+    scaleHandle.textContent = '↘';
+    scaleHandle.title = 'Phóng to/thu nhỏ';
+    scaleHandle.addEventListener('pointerdown', (e) => {
+      if (!flashEditMode) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const startDist = Math.max(12, Math.hypot(e.clientX - cx, e.clientY - cy));
+      const startScale = Number(el.style.getPropertyValue('--flash-btn-scale')) || 1;
+      scaleHandle.setPointerCapture?.(e.pointerId);
+      const onScale = (me) => {
+        me.preventDefault();
+        const d = Math.max(12, Math.hypot(me.clientX - cx, me.clientY - cy));
+        const newScale = Math.min(2.5, Math.max(0.4, startScale * (d / startDist)));
+        el.style.setProperty('--flash-btn-scale', newScale);
+      };
+      const offScale = (ue) => {
+        ue.preventDefault();
+        scaleHandle.releasePointerCapture?.(e.pointerId);
+        scaleHandle.removeEventListener('pointermove', onScale);
+        scaleHandle.removeEventListener('pointerup', offScale);
+        scaleHandle.removeEventListener('pointercancel', offScale);
+      };
+      scaleHandle.addEventListener('pointermove', onScale);
+      scaleHandle.addEventListener('pointerup', offScale);
+      scaleHandle.addEventListener('pointercancel', offScale);
+    });
+    el.appendChild(scaleHandle);
+
+    const hideHandle = document.createElement('span');
+    hideHandle.className = 'flash-edit-handle flash-edit-handle-hide';
+    hideHandle.textContent = '×';
+    hideHandle.title = 'Ẩn nút';
+    hideHandle.addEventListener('pointerdown', (e) => {
+      if (!flashEditMode) return;
+      e.preventDefault();
+      e.stopPropagation();
+      el.classList.add('flash-btn-hidden');
+    });
+    el.appendChild(hideHandle);
+  });
+}
+
+function setFlashEditMode(enabled) {
+  flashEditMode = enabled;
+  document.body.classList.toggle('flash-control-editing', enabled);
+  const btn = document.getElementById('flashKeyConfigBtn');
+  if (btn) {
+    btn.textContent = enabled ? '💾' : '⚙️';
+    btn.classList.toggle('primary', enabled);
+    btn.classList.toggle('secondary', !enabled);
+  }
+  if (enabled) {
+    attachFlashEditHandles();
+    if (emulator) emulator.pause().catch(() => { });
+    const rufflePlayer = document.querySelector('ruffle-player');
+    if (rufflePlayer) rufflePlayer.style.pointerEvents = 'none';
+  } else {
+    cancelFlashKeyCapture();
+    if (activeFlashGameId) {
+      writeFlashLayout(activeFlashGameId, buildCurrentFlashLayout());
+      showToast('Đã lưu bố cục phím Flash!', 'success');
+    }
+    if (emulator) emulator.resume().catch(() => { });
+    const rufflePlayer = document.querySelector('ruffle-player');
+    if (rufflePlayer) rufflePlayer.style.pointerEvents = '';
+  }
+}
+
+document.getElementById('flashKeyConfigBtn')?.addEventListener('click', () => {
+  if (!activeFlashGameId) {
+    showToast('Cần chạy game Flash trước để cài phím!', 'warning');
+    return;
+  }
+  setFlashEditMode(!flashEditMode);
 });
 
-document.getElementById('flashKeyConfigModal')?.querySelector('.flash-key-config-backdrop')
-  ?.addEventListener('click', closeFlashKeyConfigModal);
+flashBtnElements.forEach(el => {
+  el.addEventListener('pointerdown', (e) => startFlashBtnDrag(e, el));
+});
 
-document.getElementById('flashKeyConfigBtn')?.addEventListener('click', openFlashKeyConfigModal);
 
 settingsBtn?.addEventListener('click', () => {
   setControlEditMode(!controlEditMode);
@@ -4644,8 +4879,9 @@ function dispatchFlashKey(key, code, type) {
 
 const activeFlashKeys = new Set();
 
-document.querySelectorAll('.flash-dir-btn, .flash-action-btn').forEach(btn => {
+document.querySelectorAll('.flash-btn').forEach(btn => {
   const pressDown = (e) => {
+    if (flashEditMode || isDraggingFlashBtn) return;
     e.preventDefault();
     e.stopPropagation();
     const key = btn.dataset.flashKey;
@@ -4657,6 +4893,7 @@ document.querySelectorAll('.flash-dir-btn, .flash-action-btn').forEach(btn => {
   };
 
   const pressUp = (e) => {
+    if (flashEditMode || isDraggingFlashBtn) return;
     e.preventDefault();
     e.stopPropagation();
     const key = btn.dataset.flashKey;

@@ -1080,10 +1080,11 @@ body.playing .controls-bar {
   padding: 0;
   width: auto;
   gap: 4px;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: stretch;
 }
 
-body.playing .controls-bar button:not(#settingsBtn):not(#restoreControlsBtn):not(#addCustomControlBtn):not(#exitBtn):not(#saveBtn):not(#loadBtn) {
+body.playing .controls-bar button:not(#settingsBtn):not(#restoreControlsBtn):not(#addCustomControlBtn):not(#exitBtn):not(#saveBtn):not(#loadBtn):not(#flashKeyConfigBtn) {
   display: none;
 }
 
@@ -1091,40 +1092,128 @@ body.playing .controls-bar #customizeControlsBtn {
   display: none;
 }
 
-body.playing .controls-bar #settingsBtn {
-  display: inline-block !important;
-  position: static !important;
+body.playing:not(.flash-mode) .controls-bar #flashKeyConfigBtn {
+  display: none;
 }
 
-body.playing .controls-bar #restoreControlsBtn {
-  display: inline-block !important;
-  position: static !important;
-}
-
+body.playing .controls-bar #settingsBtn,
+body.playing .controls-bar #restoreControlsBtn,
 body.playing .controls-bar #addCustomControlBtn {
-  display: inline-block !important;
+  display: inline-flex !important;
   position: static !important;
-}
-
-body.playing.flash-mode .controls-bar #flashKeyConfigBtn {
-  display: inline-block !important;
-  position: static !important;
-}
-
-body.playing #exitBtn,
-body.playing #saveBtn,
-body.playing #loadBtn {
-  font-size: 11px;
-  padding: 6px 9px;
-  opacity: 0.8;
-  background: rgba(0, 0, 0, 0.6);
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  padding: 5px 7px;
+  min-width: 0;
+  opacity: 0.85;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
   font-weight: bold;
-  border: 1px solid var(--accent);
+  text-transform: none;
+}
+
+/* Flash controls bar group — only visible during flash gameplay */
+.flash-controls-bar-group {
+  display: none;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+body.playing.flash-mode .controls-bar .flash-controls-bar-group {
+  display: flex !important;
+}
+
+/* Small icon-only button for flash config */
+.flash-icon-btn {
+  background: rgba(0,255,204,0.1);
+  border: 1px solid rgba(0,255,204,0.35);
+  color: #00ffcc;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  min-width: 0;
+  padding: 0;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.flash-icon-btn:active {
+  background: rgba(0,255,204,0.25);
+}
+
+/* Toggle switch */
+.flash-toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.flash-toggle-switch input {
+  display: none;
+}
+
+.flash-toggle-track {
+  width: 34px;
+  height: 20px;
+  background: #444;
+  border-radius: 10px;
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.flash-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  transition: left 0.2s;
+}
+
+.flash-toggle-switch input:checked + .flash-toggle-track {
+  background: #00ffcc;
+}
+
+.flash-toggle-switch input:checked + .flash-toggle-track .flash-toggle-thumb {
+  left: 17px;
+}
+
+.flash-toggle-label {
+  font-size: 11px;
+  color: #aaa;
+  white-space: nowrap;
 }
 
 body.playing .controls-bar .exit-actions {
+  display: flex !important;
   flex-direction: row !important;
-  gap: 4px !important;
+  gap: 3px !important;
+  padding: 0;
+}
+
+body.playing .controls-bar .exit-actions button {
+  font-size: 10px;
+  padding: 5px 7px;
+  min-width: 0;
+  opacity: 0.85;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  font-weight: bold;
+  white-space: nowrap;
+  text-transform: none;
 }
 
 body.playing .virtual-gamepad {
@@ -2392,9 +2481,7 @@ body.playing .timer-hud {
 }
 
 /* --- FLASH CONTROLS (Ruffle / .swf mode) --- */
-.flash-toggle-row,
-.flash-dirs,
-.flash-action-panel {
+.flash-toggle-row {
   display: none;
 }
 
@@ -2442,7 +2529,7 @@ body.playing.flash-mode .virtual-gamepad {
   pointer-events: none;
 }
 
-body.playing.flash-mode .virtual-gamepad > *:not(.flash-dirs):not(.flash-action-panel) {
+body.playing.flash-mode .virtual-gamepad > *:not([data-flash-control-id]):not(.flash-toggle-row) {
   display: none !important;
   pointer-events: none !important;
 }
@@ -2459,229 +2546,321 @@ body.playing.flash-mode #exitBtn {
   display: inline-block !important;
 }
 
-/* 4-direction grid cross */
-body.playing.flash-mode .flash-dirs {
-  display: grid;
-  grid-template-areas:
-    ".    up   ."
-    "left .    right"
-    ".    down .";
-  grid-template-columns: 54px 54px 54px;
-  grid-template-rows: 54px 54px 54px;
-  gap: 6px;
+/* Flash buttons: free-positioned within virtual-gamepad overlay */
+.flash-btn {
+  display: none;
   position: absolute;
-  bottom: 24px;
-  left: 16px;
-  pointer-events: none;
-}
-
-body.playing.flash-mode .flash-action-panel {
-  display: flex;
+  transform: translate(-50%, -50%) scale(var(--flash-btn-scale, 1));
+  transform-origin: center center;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  pointer-events: auto;
   flex-direction: column;
-  gap: 10px;
-  position: absolute;
-  bottom: 24px;
-  right: 16px;
-  pointer-events: none;
-}
-
-body.playing.flash-no-buttons .flash-dirs,
-body.playing.flash-no-buttons .flash-action-panel {
-  display: none !important;
-}
-
-.flash-btn-up    { grid-area: up; }
-.flash-btn-left  { grid-area: left; }
-.flash-btn-right { grid-area: right; }
-.flash-btn-down  { grid-area: down; }
-
-.flash-dir-btn {
-  width: 54px;
-  height: 54px;
-  padding: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  cursor: pointer;
+  font-family: inherit;
   border-radius: 10px;
+  padding: 4px 6px;
+  min-width: 54px;
+  min-height: 54px;
+  border: 2px solid rgba(0, 255, 204, 0.5);
   background: rgba(0, 255, 204, 0.12);
-  border: 2px solid rgba(0, 255, 204, 0.4);
   color: #00ffcc;
-  font-size: 12px;
+  transition: background 0.1s;
+}
+
+.flash-btn-icon {
+  font-size: 14px;
+  line-height: 1.2;
+  pointer-events: none;
+  text-align: center;
+  word-break: break-all;
+  max-width: 52px;
+}
+
+.flash-btn-keylabel {
+  font-size: 8px;
   font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  user-select: none;
-  touch-action: none;
-  -webkit-tap-highlight-color: transparent;
-  font-family: inherit;
-  transition: background 0.1s, transform 0.08s;
-  pointer-events: auto;
-}
-
-.flash-dir-btn:active,
-.flash-dir-btn.active {
-  background: rgba(0, 255, 204, 0.38);
-  transform: scale(0.88);
-}
-
-.flash-action-btn {
-  width: 72px;
-  height: 72px;
-  padding: 0;
-  border-radius: 50%;
-  background: rgba(255, 200, 0, 0.15);
-  border: 2px solid rgba(255, 200, 0, 0.5);
-  font-size: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  user-select: none;
-  touch-action: none;
-  -webkit-tap-highlight-color: transparent;
-  font-family: inherit;
-  transition: background 0.1s, transform 0.08s;
-  pointer-events: auto;
-}
-
-.flash-action-btn:active,
-.flash-action-btn.active {
-  background: rgba(255, 200, 0, 0.4);
-  transform: scale(0.88);
-}
-
-.flash-btn-continue {
-  width: auto;
-  height: auto;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 8px 10px;
+  opacity: 0.6;
+  letter-spacing: 0.5px;
+  pointer-events: none;
   white-space: nowrap;
-  background: rgba(0, 200, 255, 0.25);
-  border: 2px solid #00c8ff;
-  color: #fff;
-  text-shadow: 0 0 6px rgba(0, 200, 255, 0.9);
-}
-
-.flash-btn-continue:active,
-.flash-btn-continue.active {
-  background: rgba(0, 200, 255, 0.4);
-}
-
-/* --- FLASH KEY CONFIG MODAL --- */
-.flash-key-config-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 5000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.flash-key-config-modal.hidden {
   display: none;
 }
 
-.flash-key-config-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(4px);
+body.flash-control-editing .flash-btn-keylabel {
+  display: block;
 }
 
-.flash-key-config-box {
-  position: relative;
-  z-index: 1;
-  background: var(--panel-bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  width: min(420px, 96vw);
-  max-height: 90vh;
-  overflow-y: auto;
+body.playing.flash-mode .flash-btn {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
-  box-shadow: 0 0 30px rgba(0, 255, 204, 0.15);
 }
 
-.flash-key-config-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+/* Explicitly hide flash buttons during arcade (non-flash) gameplay */
+body.playing:not(.flash-mode) .flash-btn {
+  display: none !important;
 }
 
-.flash-key-config-head strong {
-  font-size: 14px;
-  color: #00ffcc;
+body.playing.flash-no-buttons .flash-btn {
+  display: none !important;
 }
 
-.flash-key-config-hint {
-  font-size: 11px;
-  color: #aaa;
-  margin: 0;
+.flash-btn.flash-btn-hidden {
+  display: none !important;
 }
 
-.flash-key-config-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+body.flash-control-editing .flash-btn.flash-btn-hidden {
+  display: flex !important;
+  opacity: 0.4;
 }
 
-.flash-key-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 8px;
-  padding: 8px 10px;
-}
-
-.flash-key-label {
-  flex: 1;
-  font-size: 12px;
-  color: #ccc;
-  min-width: 120px;
-}
-
-.flash-key-display {
-  font-size: 11px;
-  font-weight: bold;
-  background: rgba(0,0,0,0.4);
-  border: 1px solid #444;
-  border-radius: 6px;
-  padding: 4px 10px;
+.flash-btn.flash-action-btn {
+  border-radius: 50%;
+  width: 72px;
+  height: 72px;
   min-width: 72px;
-  text-align: center;
-  color: #00ffcc;
-  transition: background 0.15s, color 0.15s;
-}
-
-.flash-key-display.capturing {
-  background: rgba(255, 200, 0, 0.2);
-  border-color: #ffcc00;
+  min-height: 72px;
+  border-color: rgba(255, 200, 0, 0.5);
+  background: rgba(255, 200, 0, 0.15);
   color: #ffcc00;
-  animation: pulse-border 0.8s ease-in-out infinite alternate;
 }
 
-@keyframes pulse-border {
-  from { box-shadow: 0 0 4px rgba(255,200,0,0.4); }
-  to   { box-shadow: 0 0 10px rgba(255,200,0,0.9); }
+.flash-btn.flash-btn-continue {
+  border-radius: 10px;
+  width: auto;
+  min-width: 72px;
+  height: auto;
+  min-height: 44px;
+  border-color: #00c8ff;
+  background: rgba(0, 200, 255, 0.2);
+  color: #fff;
 }
 
-.flash-key-capture-btn {
+.flash-btn:active,
+.flash-btn.active {
+  background: rgba(0, 255, 204, 0.38);
+  transform: translate(-50%, -50%) scale(calc(var(--flash-btn-scale, 1) * 0.88));
+}
+
+.flash-btn.flash-action-btn:active,
+.flash-btn.flash-action-btn.active {
+  background: rgba(255, 200, 0, 0.4);
+  transform: translate(-50%, -50%) scale(calc(var(--flash-btn-scale, 1) * 0.88));
+}
+
+body.flash-control-editing .flash-btn {
+  display: flex;
+  cursor: grab;
+  border-style: dashed;
+  border-color: #00ffcc;
+  box-shadow: 0 0 8px rgba(0, 255, 204, 0.4);
+}
+
+/* But don't show flash buttons during non-flash gameplay even in edit mode */
+body.playing:not(.flash-mode).flash-control-editing .flash-btn {
+  display: none !important;
+}
+
+body.flash-control-editing .flash-btn.is-dragging-flash {
+  cursor: grabbing;
+  opacity: 0.85;
+  box-shadow: 0 0 18px rgba(0, 255, 204, 0.7);
+  z-index: 10;
+}
+
+body.flash-control-editing .flash-btn.flash-key-capturing {
+  border-color: #ffcc00;
+  box-shadow: 0 0 12px rgba(255, 200, 0, 0.8);
+  animation: flash-capture-pulse 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes flash-capture-pulse {
+  from { box-shadow: 0 0 6px rgba(255, 200, 0, 0.5); }
+  to   { box-shadow: 0 0 16px rgba(255, 200, 0, 1); }
+}
+
+.flash-btn-keylabel.flash-key-capturing {
+  color: #ffcc00;
+  opacity: 1;
+}
+
+.flash-edit-handle {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  border-radius: 4px;
+  font-size: 10px;
+  padding: 1px 4px;
+  line-height: 1.4;
+  cursor: pointer;
+  display: none;
+  z-index: 5;
+  touch-action: none;
+  user-select: none;
+}
+
+body.flash-control-editing .flash-edit-handle {
+  display: block;
+}
+
+.flash-edit-handle-key {
+  top: -2px;
+  left: -2px;
+  background: rgba(0, 180, 255, 0.9);
+}
+
+.flash-edit-handle-scale {
+  bottom: -2px;
+  right: -2px;
+  background: rgba(100, 100, 100, 0.9);
+  cursor: se-resize;
+}
+
+.flash-edit-handle-hide {
+  top: -2px;
+  right: -2px;
+  background: rgba(200, 0, 0, 0.9);
+}
+
+/* Flash key config popover */
+.flash-key-popover {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.flash-key-popover.hidden {
+  display: none;
+}
+
+.flash-key-popover-inner {
+  background: #1a1a2e;
+  border: 1px solid #00ffcc44;
+  border-radius: 16px 16px 0 0;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flash-key-popover-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #00ffcc;
+  font-size: 15px;
+}
+
+.flash-key-popover-head button {
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+.flash-key-popover-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: #ccc;
+}
+
+.flash-key-popover-label .input {
+  background: #111;
+  border: 1px solid #00ffcc55;
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 14px;
+}
+
+.flash-key-popover-current {
+  font-size: 13px;
+  color: #aaa;
+  text-align: center;
+}
+
+.flash-key-popover-current strong {
+  color: #ffcc00;
+  font-size: 15px;
+}
+
+.flash-key-popover-grid-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.flash-key-popover-group-label {
+  font-size: 10px;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.flash-key-popover-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.flash-key-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 6px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #222;
+  color: #ccc;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+}
+
+.flash-key-btn.selected {
+  background: #00ffcc22;
+  border-color: #00ffcc;
+  color: #00ffcc;
+  font-weight: bold;
+}
+
+.flash-key-popover-hint {
   font-size: 11px;
-  padding: 4px 10px;
-  white-space: nowrap;
+  color: #555;
+  text-align: center;
+  font-style: italic;
 }
 
-.flash-key-config-actions {
+.flash-key-popover-actions {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
-  margin-top: 4px;
 }
+
+.flash-key-popover-actions button {
+  flex: 1;
+  padding: 10px;
+  font-size: 14px;
+}
+
 
 .card-info-bottom {
   display: flex;
