@@ -1751,6 +1751,12 @@ function initGameLibraryGrid() {
       core: 'ruffle',
     },
     {
+      title: 'Age of War',
+      rom: 'age-of-war',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/age-of-war.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+    },
+    {
       title: 'Age of War 2',
       rom: 'age-of-war-2-5933',
       url: '/ruffle/age-of-war-2-5933.swf',
@@ -1767,57 +1773,9 @@ function initGameLibraryGrid() {
       core: 'ruffle',
     },
     {
-      title: 'Flash Game 34027',
-      rom: '34027-flash-game',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/34027-flash-game.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Toxic',
-      rom: 'Toxic',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/Toxic.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Achievement Unlocked',
-      rom: 'achievement-unlocked',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/achievement-unlocked.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
       title: 'Age of Defense 8',
       rom: 'age-of-defense-8',
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/age-of-defense-8.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Age of War',
-      rom: 'age-of-war',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/age-of-war.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Animator 2',
-      rom: 'animator-2',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/animator-2.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Animator',
-      rom: 'animator',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/animator.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Bad Ice Cream 3',
-      rom: 'bad-ice-cream-3-www-boysplaygame-com',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/bad-ice-cream-3-www-boysplaygame-com.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Bloons Super Monkey',
-      rom: 'bloons-super-monkey',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/bloons-super-monkey.swf',
       system: 'flash', thumbnail: '', core: 'ruffle',
     },
     {
@@ -1873,12 +1831,7 @@ function initGameLibraryGrid() {
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/commando-2-by-miniclip.swf',
       system: 'flash', thumbnail: '', core: 'ruffle',
     },
-    {
-      title: 'Commando 2',
-      rom: 'commando-2',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/commando-2.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
+
     {
       title: 'Commando',
       rom: 'commando',
@@ -1891,76 +1844,25 @@ function initGameLibraryGrid() {
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/dad-n-me.swf',
       system: 'flash', thumbnail: '', core: 'ruffle',
     },
-    {
-      title: "Don't Escape 2",
-      rom: 'dont-escape-2',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/dont-escape-2.swf',
-    },
-    {
-      title: "Don't Escape 3",
-      rom: 'dont-escape-3',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/dont-escape-3.swf',
-    },
+
     {
       title: "Don't Escape",
       rom: 'dont-escape',
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/dont-escape.swf',
-    },
-    {
-      title: "Don't Shoot the Puppy",
-      rom: 'dont-shoot-the-puppy',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/dont-shoot-the-puppy.swf',
-    },
-    {
-      title: 'Doom',
-      rom: 'doom',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/doom.swf',
       system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Duck Life',
-      rom: 'duck-life-1',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/duck-life-1.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Duck Life 2: World Champion',
-      rom: 'duck-life-2-world-champion',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/duck-life-2-world-champion.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Duck Life 3: Evolution',
-      rom: 'duck-life-3--evolution',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/duck-life-3--evolution.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Duck Life 4',
-      rom: 'duck-life-4',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/duck-life-4.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Empires of Arkeia',
-      rom: 'empires-of-arkeia',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/empires-of-arkeia.swf',
-    },
-    {
-      title: 'Extreme Pamplona',
-      rom: 'extreme-pamplona',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/extreme-pamplona.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
+
     },
     {
       title: 'Fish Tales 2',
       rom: 'fish-tales-2',
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/fish-tales-2.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
     },
     {
       title: 'Fish Tales Deluxe Edition',
       rom: 'fish-tales-deluxe-edition',
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/fish-tales-deluxe-edition.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
     },
     {
       title: 'Flash Sonic',
@@ -1974,60 +1876,11 @@ function initGameLibraryGrid() {
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/gotham-city-rush.swf',
       system: 'flash', thumbnail: '', core: 'ruffle',
     },
-    {
-      title: 'Henry Stickmin: Breaking the Bank',
-      rom: 'henry-stickmin-breaking-the-bank',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/henry-stickmin-breaking-the-bank.swf',
-    },
-    {
-      title: 'Henry Stickmin: Escaping the Prison',
-      rom: 'henry-stickmin-escaping-the-prison',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/henry-stickmin-escaping-the-prison.swf',
-    },
-    {
-      title: 'Henry Stickmin: Stealing the Diamond',
-      rom: 'henry-stickmin-stealing-the-diamond',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/henry-stickmin-stealing-the-diamond.swf',
-    },
-    {
-      title: 'Interactive Buddy',
-      rom: 'interactive-buddy',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/interactive-buddy.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Learn 2 Fly',
-      rom: 'learn-2-fly',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/learn-2-fly.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Learn to Fly',
-      rom: 'learn-to-fly',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/learn-to-fly.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
+
     {
       title: 'Mad Arrow',
       rom: 'mad-arrow',
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/mad-arrow.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Minesweeper',
-      rom: 'minesweeper',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/minesweeper.swf',
-    },
-    {
-      title: 'Motherload',
-      rom: 'motherload',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/motherload.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'N',
-      rom: 'n',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/n.swf',
       system: 'flash', thumbnail: '', core: 'ruffle',
     },
     {
@@ -2040,6 +1893,8 @@ function initGameLibraryGrid() {
       title: "Papa's Pizzeria",
       rom: 'papas-pizzeria',
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/papas-pizzeria.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+
     },
     {
       title: 'PC Breakdown',
@@ -2047,15 +1902,13 @@ function initGameLibraryGrid() {
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/pc-breakdown.swf',
       system: 'flash', thumbnail: '', core: 'ruffle',
     },
-    {
-      title: 'Penguin Diner 2',
-      rom: 'penguin-diner-2',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/penguin-diner-2.swf',
-    },
+
     {
       title: 'Penguin Diner',
       rom: 'penguin-diner',
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/penguin-diner.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+
     },
     {
       title: 'Pipe Riders',
@@ -2081,35 +1934,18 @@ function initGameLibraryGrid() {
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/portal-flash.swf',
       system: 'flash', thumbnail: '', core: 'ruffle',
     },
-    {
-      title: 'Riddle School 3',
-      rom: 'riddle-school-3',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/riddle-school-3.swf',
-    },
-    {
-      title: 'Riddle School 4',
-      rom: 'riddle-school-4',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/riddle-school-4.swf',
-    },
-    {
-      title: 'Riddle School: Transfer',
-      rom: 'riddle-school-transfer',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/riddle-school-transfer.swf',
-    },
-    {
-      title: 'Riddle School',
-      rom: 'riddle-school',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/riddle-school.swf',
-    },
+
     {
       title: 'Rollercoaster Creator',
       rom: 'rollercoaster-creator',
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/rollercoaster-creator.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
     },
     {
       title: "Rubik's Cube",
       rom: 'rubiks-cube',
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/rubiks-cube.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
     },
     {
       title: 'Scrap Metal Heroes',
@@ -2124,35 +1960,12 @@ function initGameLibraryGrid() {
       system: 'flash', thumbnail: '', core: 'ruffle',
     },
     {
-      title: 'Showdown',
-      rom: 'showdown',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/showdown.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Snake (Flash)',
-      rom: 'snake-flash',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/snake.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
       title: 'Stick RPG',
       rom: 'stick-rpg',
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/stick-rpg.swf',
       system: 'flash', thumbnail: '', core: 'ruffle',
     },
-    {
-      title: 'Storm the House 2',
-      rom: 'storm-the-house-2',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/storm-the-house-2.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Storm the House',
-      rom: 'storm-the-house',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/storm-the-house.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
+
     {
       title: 'Strikeforce Kitty 2',
       rom: 'strikeforce-kitty-2',
@@ -2180,15 +1993,10 @@ function initGameLibraryGrid() {
     {
       title: 'Super Mario Flash (SMFCreator)',
       rom: 'super-mario-flash-by-smfcreator',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/super-mario-flash-by-smfcreator.swf',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/super-mario-flash-by-smf_creator.swf',
       system: 'flash', thumbnail: '', core: 'ruffle',
     },
-    {
-      title: 'Super Smash Flash',
-      rom: 'super-smash-flash',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/super-smash-flash.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
+
     {
       title: 'The Fancy Pants Adventure 1',
       rom: 'the-fancy-pants-adventure-1',
@@ -2202,14 +2010,9 @@ function initGameLibraryGrid() {
       system: 'flash', thumbnail: '', core: 'ruffle',
     },
     {
-      title: 'The Impossible Quiz',
-      rom: 'the-impossible-quiz',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/the-impossible-quiz.swf',
-    },
-    {
       title: "The World's Hardest Game",
       rom: 'the-worlds-hardest-game',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/the-worlds-hardest-game.swf',
+      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/the-world\'s-hardest-game.swf',
       system: 'flash', thumbnail: '', core: 'ruffle',
     },
     {
@@ -2248,12 +2051,7 @@ function initGameLibraryGrid() {
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/truck-loader.swf',
       system: 'flash', thumbnail: '', core: 'ruffle',
     },
-    {
-      title: 'Turtle',
-      rom: 'turtle',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/turtle.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
+
     {
       title: 'Super Mario Flash 4',
       rom: 'super-mario-flash-4',
@@ -2261,37 +2059,25 @@ function initGameLibraryGrid() {
       system: 'flash', thumbnail: '', core: 'ruffle',
     },
     {
-      title: 'Super Mario 63',
-      rom: 'super-mario-63',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/super-mario-63.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Super Mario Bros Crossover 3',
-      rom: 'super-mario-bros-crossover-3',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/super-mario-bros-crossover-3.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
-      title: 'Super Mario Flash 2',
-      rom: 'super-mario-flash-2',
-      url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/super-mario-flash-2.swf',
-      system: 'flash', thumbnail: '', core: 'ruffle',
-    },
-    {
       title: 'Sugar Sugar 2',
       rom: 'sugar-sugar-2',
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/sugar-sugar-2.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+
     },
     {
       title: 'Sugar Sugar 3',
       rom: 'sugar-sugar-3',
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/sugar-sugar-3.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+
     },
     {
       title: 'Sugar Sugar',
       rom: 'sugar-sugar',
       url: 'https://raw.githubusercontent.com/AmmarSAA/Flash-Games-Directory/main/sugar-sugar.swf',
+      system: 'flash', thumbnail: '', core: 'ruffle',
+
     },
   ];
 
