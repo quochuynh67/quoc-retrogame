@@ -110,11 +110,19 @@ app.innerHTML = `
         <button id="customizeControlsBtn" class="secondary" type="button">Cài đặt nút</button>
         <button id="addCustomControlBtn" class="secondary" type="button" title="Thêm nút combo">＋ Nút</button>
         <div class="flash-controls-bar-group">
-          <button id="flashKeyConfigBtn" class="flash-icon-btn" type="button" title="Cài đặt phím Flash / Lưu">⚙️</button>
-          <label class="flash-toggle-switch" title="Ẩn / Hiện nút Flash">
-            <input type="checkbox" id="flashHideAllToggle" />
+          <div class="flash-controls-bar-row">
+            <button id="flashKeyConfigBtn" class="flash-icon-btn" type="button" title="Cài đặt phím Flash / Lưu">⚙️</button>
+            <label class="flash-toggle-switch" title="Ẩn / Hiện nút Flash">
+              <input type="checkbox" id="flashHideAllToggle" />
+              <span class="flash-toggle-track"><span class="flash-toggle-thumb"></span></span>
+              <span class="flash-toggle-label">Ẩn nút</span>
+            </label>
+            <button id="addFlashBtn" class="flash-icon-btn" type="button" title="Thêm nút mới vào giữa màn hình">＋</button>
+          </div>
+          <label class="flash-toggle-switch" title="Bật / Tắt chuột ảo 8 hướng">
+            <input type="checkbox" id="vmouseToggle" />
             <span class="flash-toggle-track"><span class="flash-toggle-thumb"></span></span>
-            <span class="flash-toggle-label">Ẩn nút</span>
+            <span class="flash-toggle-label">VMouse</span>
           </label>
         </div>
         <div class="exit-actions" style="display: flex; flex-direction: column; gap: 10px;">
@@ -162,7 +170,33 @@ app.innerHTML = `
           <div class="action-btn btn-combo-yab" data-key="combo-axz" data-control-id="combo-yab">Y+A+B</div>
         </div>
 
-        
+        <!-- Virtual mouse pad (flash mouse-mode): Joystick / D-Pad -->
+        <div id="vmousePad" class="vmouse-pad">
+          <div class="vmouse-mode-tabs">
+            <button class="vmouse-tab active" data-mode="joystick">Joystick</button>
+            <button class="vmouse-tab" data-mode="dpad">D-Pad</button>
+          </div>
+          <!-- Joystick mode (default) -->
+          <div id="vmouseJoystickWrap" class="vmouse-section">
+            <div class="vmouse-base" id="vmouseBase">
+              <div class="vmouse-knob" id="vmouseKnob">🖱</div>
+              <div class="vmouse-ring"></div>
+            </div>
+          </div>
+          <!-- D-Pad mode -->
+          <div id="vmouseDpadGrid" class="vmouse-section vmouse-dpad-grid" style="display:none">
+            <button class="vmouse-btn" data-dx="-0.707" data-dy="-0.707">↖</button>
+            <button class="vmouse-btn" data-dx="0"      data-dy="-1"    >↑</button>
+            <button class="vmouse-btn" data-dx="0.707"  data-dy="-0.707">↗</button>
+            <button class="vmouse-btn" data-dx="-1"     data-dy="0"     >←</button>
+            <button class="vmouse-btn vmouse-center" data-dx="0" data-dy="0">⊕</button>
+            <button class="vmouse-btn" data-dx="1"      data-dy="0"     >→</button>
+            <button class="vmouse-btn" data-dx="-0.707" data-dy="0.707" >↙</button>
+            <button class="vmouse-btn" data-dx="0"      data-dy="1"     >↓</button>
+            <button class="vmouse-btn" data-dx="0.707"  data-dy="0.707" >↘</button>
+          </div>
+        </div>
+
         <button class="flash-btn flash-dir-btn flash-btn-up"
                 data-flash-key="w" data-flash-code="KeyW"
                 data-flash-control-id="flash-up">
@@ -198,6 +232,11 @@ app.innerHTML = `
                 data-flash-control-id="flash-continue">
           <span class="flash-btn-icon">▶START</span>
           <span class="flash-btn-keylabel">Enter</span>
+        </button>
+
+        <!-- Add-flash-button overlay (visible only in edit mode) -->
+        <button id="addFlashBtnOverlay" class="flash-add-overlay-btn" type="button">
+          ＋ Thêm nút
         </button>
       </div>
 
@@ -2406,6 +2445,9 @@ function setControlState(running) {
     document.body.classList.remove('playing');
     document.body.classList.remove('flash-mode');
     document.body.classList.remove('flash-no-buttons');
+    document.body.classList.remove('mouse-mode');
+    const vmouseToggle = document.getElementById('vmouseToggle');
+    if (vmouseToggle) vmouseToggle.checked = false;
     setControlEditMode(false);
     if (flashEditMode) setFlashEditMode(false);
     if (settingsBtn && headerControls && settingsBtn.parentElement !== headerControls) {
@@ -3867,8 +3909,8 @@ const FLASH_BTN_DEFAULTS = {
   'flash-left': { x: 5, y: 73, scale: 1.25, key: 'a', code: 'KeyA', name: '←' },
   'flash-right': { x: 21, y: 73, scale: 1.25, key: 'd', code: 'KeyD', name: '→' },
   'flash-down': { x: 13, y: 81, scale: 1.25, key: 's', code: 'KeyS', name: '↓' },
-  'flash-jump': { x: 82, y: 65, scale: 1.25, key: ' ', code: 'Space', name: '😊' },
-  'flash-continue': { x: 93, y: 78, scale: 1.25, key: 'Enter', code: 'Enter', name: '▶' },
+  'flash-jump': { x: 50, y: 50, scale: 1.25, key: ' ', code: 'Space', name: '😊', hidden: true },
+  'flash-continue': { x: 50, y: 50, scale: 1.25, key: 'Enter', code: 'Enter', name: '▶', hidden: true },
 };
 
 const flashBtnElements = Array.from(document.querySelectorAll('[data-flash-control-id]'));
@@ -4046,18 +4088,25 @@ const FLASH_KEY_GROUPS = [
 let flashKeyPopoverTarget = null;
 let flashKeyPopoverSelectedKey = null;
 let flashKeyPopoverSelectedCode = null;
+let flashKeyPopoverIsNew = false; // true when adding a brand-new (hidden) button
 
-function openFlashKeyPopover(el) {
+function openFlashKeyPopover(el, isNew = false) {
   flashKeyPopoverTarget = el;
+  flashKeyPopoverIsNew = isNew;
   flashKeyPopoverSelectedKey = el.dataset.flashKey || '';
   flashKeyPopoverSelectedCode = el.dataset.flashCode || '';
 
   const popover = document.getElementById('flashKeyPopover');
   const nameInput = document.getElementById('flashKeyPopoverName');
   const selectedLabel = document.getElementById('flashKeyPopoverSelectedLabel');
+  const headTitle = popover?.querySelector('.flash-key-popover-head strong');
+  const saveBtn = document.getElementById('flashKeyPopoverSave');
   if (!popover || !nameInput || !selectedLabel) return;
 
-  nameInput.value = el.dataset.flashName || '';
+  if (headTitle) headTitle.textContent = isNew ? 'Thêm nút mới' : 'Cài đặt nút';
+  if (saveBtn) saveBtn.textContent = isNew ? 'Thêm' : 'Lưu';
+
+  nameInput.value = isNew ? '' : (el.dataset.flashName || '');
   selectedLabel.textContent = formatKeyLabel(flashKeyPopoverSelectedKey);
 
   FLASH_KEY_GROUPS.forEach(group => {
@@ -4094,6 +4143,11 @@ function closeFlashKeyPopover(save) {
     popover.classList.add('hidden');
     popover.setAttribute('aria-hidden', 'true');
   }
+  const headTitle = popover?.querySelector('.flash-key-popover-head strong');
+  const saveBtn = document.getElementById('flashKeyPopoverSave');
+  if (headTitle) headTitle.textContent = 'Cài đặt nút';
+  if (saveBtn) saveBtn.textContent = 'Lưu';
+
   if (save && flashKeyPopoverTarget) {
     const el = flashKeyPopoverTarget;
     const nameInput = document.getElementById('flashKeyPopoverName');
@@ -4105,8 +4159,22 @@ function closeFlashKeyPopover(save) {
     if (iconEl) iconEl.textContent = customName || formatKeyLabel(flashKeyPopoverSelectedKey);
     const keyLabelEl = el.querySelector('.flash-btn-keylabel');
     if (keyLabelEl) keyLabelEl.textContent = formatKeyLabel(flashKeyPopoverSelectedKey);
+
+    if (flashKeyPopoverIsNew) {
+      // Un-hide and center the new button
+      applyFlashBtnConfig(el, {
+        x: 50, y: 50,
+        scale: Number(el.style.getPropertyValue('--flash-btn-scale')) || 1.25,
+        key: flashKeyPopoverSelectedKey,
+        code: flashKeyPopoverSelectedCode,
+        name: customName || formatKeyLabel(flashKeyPopoverSelectedKey),
+        hidden: false,
+      });
+      showToast('Đã thêm nút — kéo để đặt vị trí!', 'success');
+    }
   }
   flashKeyPopoverTarget = null;
+  flashKeyPopoverIsNew = false;
 }
 
 function cancelFlashKeyCapture() {
@@ -4229,6 +4297,45 @@ document.getElementById('flashKeyConfigBtn')?.addEventListener('click', () => {
     return;
   }
   setFlashEditMode(!flashEditMode);
+});
+
+document.getElementById('addFlashBtn')?.addEventListener('click', () => {
+  if (!activeFlashGameId) {
+    showToast('Cần chạy game Flash trước!', 'warning');
+    return;
+  }
+  // Find next hidden flash button and place it at screen center
+  const hiddenBtn = flashBtnElements.find(el => el.classList.contains('flash-btn-hidden'));
+  if (!hiddenBtn) {
+    showToast('Tất cả nút đã được hiện. Dùng ⚙️ để ẩn bớt.', 'warning');
+    return;
+  }
+  const id = hiddenBtn.dataset.flashControlId;
+  const defaults = FLASH_BTN_DEFAULTS[id] || {};
+  applyFlashBtnConfig(hiddenBtn, { ...defaults, hidden: false, x: 50, y: 50 });
+  if (!flashEditMode) setFlashEditMode(true);
+  showToast('Đã thêm nút — kéo để đặt vị trí!', 'success');
+});
+
+document.getElementById('addFlashBtnOverlay')?.addEventListener('click', () => {
+  if (!activeFlashGameId) {
+    showToast('Cần chạy game Flash trước!', 'warning');
+    return;
+  }
+  const hiddenBtn = flashBtnElements.find(el => el.classList.contains('flash-btn-hidden'));
+  if (!hiddenBtn) {
+    showToast('Tất cả nút đã được hiện. Dùng ⚙️ để ẩn bớt.', 'warning');
+    return;
+  }
+  // Pre-fill element with defaults so the popover has something to show
+  const id = hiddenBtn.dataset.flashControlId;
+  const defaults = FLASH_BTN_DEFAULTS[id] || {};
+  if (defaults.key) {
+    hiddenBtn.dataset.flashKey = defaults.key;
+    hiddenBtn.dataset.flashCode = defaults.code || defaults.key;
+  }
+  hiddenBtn.dataset.flashName = '';
+  openFlashKeyPopover(hiddenBtn, true);
 });
 
 flashBtnElements.forEach(el => {
@@ -4697,6 +4804,191 @@ document.querySelectorAll('.flash-btn').forEach(btn => {
   btn.addEventListener('mouseup', pressUp);
   btn.addEventListener('mouseleave', pressUp);
 });
+
+// ---- VIRTUAL MOUSE JOYSTICK ----
+(function initVMouseJoystick() {
+  const base = document.getElementById('vmouseBase');
+  const knob = document.getElementById('vmouseKnob');
+  if (!base || !knob) return;
+
+  const MAX_TRAVEL = 38;
+  let pressing = false;
+  let baseRect = null;
+  let lastPos = null;
+
+  // Pierce Ruffle's shadow DOM to get the actual canvas it listens on
+  function getRuffleCanvas() {
+    const player = document.querySelector('ruffle-player');
+    if (player?.shadowRoot) {
+      const canvas = player.shadowRoot.querySelector('canvas');
+      if (canvas) return canvas;
+    }
+    return player || document.querySelector('#game');
+  }
+
+  function getGameRect() {
+    return getRuffleCanvas()?.getBoundingClientRect() ?? null;
+  }
+
+  function fireEvent(target, type, x, y, buttons) {
+    const isUp = type.includes('up') || type.includes('leave');
+    const btns = buttons !== undefined ? buttons : (isUp ? 0 : 1);
+    const base = {
+      bubbles: true, cancelable: true, composed: true,
+      view: window,
+      clientX: x, clientY: y,
+      screenX: x + window.screenX, screenY: y + window.screenY,
+      button: 0, buttons: btns,
+      movementX: 0, movementY: 0,
+    };
+    // PointerEvent first — this is what Ruffle's canvas actually handles
+    try {
+      target.dispatchEvent(new PointerEvent(type.replace('mouse', 'pointer'), {
+        ...base,
+        pointerId: 1, pointerType: 'mouse',
+        isPrimary: true,
+        pressure: btns ? 0.5 : 0,
+        width: 1, height: 1,
+        tiltX: 0, tiltY: 0, twist: 0,
+      }));
+    } catch (_) { }
+    // MouseEvent fallback
+    try { target.dispatchEvent(new MouseEvent(type, base)); } catch (_) { }
+  }
+
+  function getGamePos(ndx, ndy) {
+    const rect = getGameRect();
+    if (!rect) return null;
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const r = Math.min(rect.width, rect.height) * 0.4;
+    return { x: cx + ndx * r, y: cy + ndy * r };
+  }
+
+  function moveKnob(clientX, clientY) {
+    const cx = baseRect.left + baseRect.width / 2;
+    const cy = baseRect.top + baseRect.height / 2;
+    const dx = clientX - cx;
+    const dy = clientY - cy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const clamped = Math.min(dist, MAX_TRAVEL);
+    const ndx = dist > 1 ? dx / dist : 0;
+    const ndy = dist > 1 ? dy / dist : 0;
+    knob.style.transform = `translate(calc(-50% + ${ndx * clamped}px), calc(-50% + ${ndy * clamped}px))`;
+    return { ndx, ndy };
+  }
+
+  base.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    pressing = true;
+    baseRect = base.getBoundingClientRect();
+    base.setPointerCapture(e.pointerId);
+    base.classList.add('active');
+
+    const { ndx, ndy } = moveKnob(e.clientX, e.clientY);
+    const pos = getGamePos(ndx, ndy);
+    if (!pos) return;
+    lastPos = pos;
+    const canvas = getRuffleCanvas();
+    if (!canvas) return;
+    fireEvent(canvas, 'mousemove', pos.x, pos.y, 0);
+    fireEvent(canvas, 'mousedown', pos.x, pos.y, 1);
+  });
+
+  base.addEventListener('pointermove', (e) => {
+    if (!pressing) return;
+    e.preventDefault();
+    const { ndx, ndy } = moveKnob(e.clientX, e.clientY);
+    const pos = getGamePos(ndx, ndy);
+    if (!pos) return;
+    lastPos = pos;
+    const canvas = getRuffleCanvas();
+    if (canvas) fireEvent(canvas, 'mousemove', pos.x, pos.y, 1); // buttons:1 = left held = drag
+  });
+
+  function release(e) {
+    if (!pressing) return;
+    pressing = false;
+    e.preventDefault();
+    knob.style.transform = 'translate(-50%, -50%)';
+    base.classList.remove('active');
+    const canvas = getRuffleCanvas();
+    if (canvas && lastPos) fireEvent(canvas, 'mouseup', lastPos.x, lastPos.y, 0);
+    lastPos = null;
+  }
+
+  base.addEventListener('pointerup', release);
+  base.addEventListener('pointercancel', release);
+
+  // ---- D-PAD mode ----
+  document.querySelectorAll('#vmouseDpadGrid .vmouse-btn').forEach(btn => {
+    const dx = parseFloat(btn.dataset.dx);
+    const dy = parseFloat(btn.dataset.dy);
+    let active = false;
+
+    const onDown = (e) => {
+      e.preventDefault(); e.stopPropagation();
+      active = true;
+      btn.classList.add('active');
+      const rect = getGameRect();
+      if (!rect) return;
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const r = Math.min(rect.width, rect.height) * 0.4;
+      const x = cx + dx * r, y = cy + dy * r;
+      const canvas = getRuffleCanvas();
+      if (!canvas) return;
+      fireEvent(canvas, 'mousemove', x, y, 0);
+      fireEvent(canvas, 'mousedown', x, y, 1);
+    };
+    const onUp = (e) => {
+      e.preventDefault(); e.stopPropagation();
+      if (!active) return;
+      active = false;
+      btn.classList.remove('active');
+      const rect = getGameRect();
+      if (!rect) return;
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const r = Math.min(rect.width, rect.height) * 0.4;
+      const x = cx + dx * r, y = cy + dy * r;
+      const canvas = getRuffleCanvas();
+      if (canvas) fireEvent(canvas, 'mouseup', x, y, 0);
+    };
+
+    btn.addEventListener('pointerdown', onDown);
+    btn.addEventListener('pointerup', onUp);
+    btn.addEventListener('pointercancel', onUp);
+    btn.addEventListener('pointerleave', onUp);
+  });
+
+  // ---- Mode tab switcher ----
+  const VMOUSE_MODE_KEY = 'vmouseMode';
+  const joystickWrap = document.getElementById('vmouseJoystickWrap');
+  const dpadGrid = document.getElementById('vmouseDpadGrid');
+
+  function setVMouseMode(mode) {
+    const isJoy = mode !== 'dpad';
+    joystickWrap.style.display = isJoy ? '' : 'none';
+    dpadGrid.style.display = isJoy ? 'none' : 'grid';
+    document.querySelectorAll('.vmouse-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.mode === (isJoy ? 'joystick' : 'dpad'));
+    });
+    localStorage.setItem(VMOUSE_MODE_KEY, isJoy ? 'joystick' : 'dpad');
+  }
+
+  document.querySelectorAll('.vmouse-tab').forEach(tab => {
+    tab.addEventListener('click', () => setVMouseMode(tab.dataset.mode));
+  });
+
+  // Restore saved mode (default: joystick)
+  setVMouseMode(localStorage.getItem(VMOUSE_MODE_KEY) || 'joystick');
+
+  // ---- Main toggle ----
+  document.getElementById('vmouseToggle')?.addEventListener('change', (e) => {
+    document.body.classList.toggle('mouse-mode', e.target.checked);
+  });
+})();
 
 // Auto-launch game from URL parameter if present
 (function autoLaunchFromUrl() {
