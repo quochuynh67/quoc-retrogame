@@ -164,28 +164,28 @@ app.innerHTML = `
 
         
         <button class="flash-btn flash-dir-btn flash-btn-up"
-                data-flash-key="ArrowUp" data-flash-code="ArrowUp"
+                data-flash-key="w" data-flash-code="KeyW"
                 data-flash-control-id="flash-up">
           <span class="flash-btn-icon">▲</span>
-          <span class="flash-btn-keylabel">↑</span>
+          <span class="flash-btn-keylabel">W</span>
         </button>
         <button class="flash-btn flash-dir-btn flash-btn-left"
-                data-flash-key="ArrowLeft" data-flash-code="ArrowLeft"
+                data-flash-key="a" data-flash-code="KeyA"
                 data-flash-control-id="flash-left">
           <span class="flash-btn-icon">◀</span>
-          <span class="flash-btn-keylabel">←</span>
+          <span class="flash-btn-keylabel">A</span>
         </button>
         <button class="flash-btn flash-dir-btn flash-btn-right"
-                data-flash-key="ArrowRight" data-flash-code="ArrowRight"
+                data-flash-key="d" data-flash-code="KeyD"
                 data-flash-control-id="flash-right">
           <span class="flash-btn-icon">▶</span>
-          <span class="flash-btn-keylabel">→</span>
+          <span class="flash-btn-keylabel">D</span>
         </button>
         <button class="flash-btn flash-dir-btn flash-btn-down"
-                data-flash-key="ArrowDown" data-flash-code="ArrowDown"
+                data-flash-key="s" data-flash-code="KeyS"
                 data-flash-control-id="flash-down">
           <span class="flash-btn-icon">▼</span>
-          <span class="flash-btn-keylabel">↓</span>
+          <span class="flash-btn-keylabel">S</span>
         </button>
         <button class="flash-btn flash-action-btn flash-btn-jump"
                 data-flash-key=" " data-flash-code="Space"
@@ -4077,12 +4077,12 @@ updateFlashToggleBtn();
 
 // --- FLASH BUTTON DRAGGABLE SYSTEM ---
 const FLASH_BTN_DEFAULTS = {
-  'flash-up': { x: 13, y: 73, scale: 1, key: 'ArrowUp', code: 'ArrowUp', name: '↑' },
-  'flash-left': { x: 5, y: 83, scale: 1, key: 'ArrowLeft', code: 'ArrowLeft', name: '←' },
-  'flash-right': { x: 21, y: 83, scale: 1, key: 'ArrowRight', code: 'ArrowRight', name: '→' },
-  'flash-down': { x: 13, y: 91, scale: 1, key: 'ArrowDown', code: 'ArrowDown', name: '↓' },
-  'flash-jump': { x: 87, y: 78, scale: 1, key: ' ', code: 'Space', name: '😊' },
-  'flash-continue': { x: 87, y: 91, scale: 1, key: 'Enter', code: 'Enter', name: '▶' },
+  'flash-up': { x: 13, y: 63, scale: 1.25, key: 'w', code: 'KeyW', name: '↑' },
+  'flash-left': { x: 5, y: 73, scale: 1.25, key: 'a', code: 'KeyA', name: '←' },
+  'flash-right': { x: 21, y: 73, scale: 1.25, key: 'd', code: 'KeyD', name: '→' },
+  'flash-down': { x: 13, y: 81, scale: 1.25, key: 's', code: 'KeyS', name: '↓' },
+  'flash-jump': { x: 82, y: 65, scale: 1.25, key: ' ', code: 'Space', name: '😊' },
+  'flash-continue': { x: 93, y: 78, scale: 1.25, key: 'Enter', code: 'Enter', name: '▶' },
 };
 
 const flashBtnElements = Array.from(document.querySelectorAll('[data-flash-control-id]'));
