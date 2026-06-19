@@ -129,6 +129,7 @@ app.innerHTML = `
           <button id="exitBtn" disabled title="Thoát game">✕ Thoát</button>
           <button id="saveBtn" disabled title="Lưu game">💾 Save</button>
           <button id="loadBtn" disabled title="Chơi tiếp">▶ Tiếp</button>
+          <button id="shareBtn" disabled title="Chia sẻ game này">🔗 Chia sẻ</button>
         </div>
       </div>
 
@@ -1741,15 +1742,10 @@ const RetroSynth = {
 window.handleImageError = function (img, title) {
   title = title || img.dataset.title || '';
   img.onerror = null;
-  const parent = img.parentNode;
-  if (parent) {
-    parent.innerHTML = `
-      <div class="card-fallback">
-        🎮
-        <div class="card-fallback-text">${title.slice(0, 12)}</div>
-      </div>
-    `;
-  }
+  const fallback = document.createElement('div');
+  fallback.className = 'card-fallback';
+  fallback.innerHTML = `⚡<div class="card-fallback-text">${title.slice(0, 12)}</div>`;
+  img.replaceWith(fallback);
 };
 
 function initGameLibraryGrid() {
@@ -2186,6 +2182,15 @@ function initGameLibraryGrid() {
     romUrlEl.dispatchEvent(new Event('change'));
     updateShowcase(game);
 
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('type', game.system);
+    urlParams.set('id', game.rom);
+    urlParams.delete('game');
+    history.replaceState(null, '', '?' + urlParams.toString());
+
+    window._currentGame = { type: game.system, id: game.rom, title: game.title, url: game.url };
+    ParentBridge.post('retro:gameSelected', { type: game.system, id: game.rom, title: game.title });
+
     const cards = gridContainer.querySelectorAll('.game-card');
     cards.forEach(card => {
       if (card.getAttribute('data-url') === game.url) {
@@ -2368,6 +2373,8 @@ function initGameLibraryGrid() {
       }
     }
   });
+
+  window._retroLib = { allGames, selectGame };
 }
 
 // Call state initializer on boot
@@ -2393,6 +2400,7 @@ const resumeBtn = document.querySelector('#resumeBtn');
 const exitBtn = document.querySelector('#exitBtn');
 const saveBtn = document.querySelector('#saveBtn');
 const loadBtn = document.querySelector('#loadBtn');
+const shareBtn = document.querySelector('#shareBtn');
 const settingsBtn = document.querySelector('#settingsBtn');
 const restoreControlsBtn = document.querySelector('#restoreControlsBtn');
 const addCustomControlBtn = document.querySelector('#addCustomControlBtn');
@@ -2422,6 +2430,7 @@ function setControlState(running) {
   pauseBtn.disabled = !running;
   resumeBtn.disabled = !running;
   exitBtn.disabled = !running;
+  if (shareBtn) shareBtn.disabled = !running;
   if (running) {
     userPausedGame = false;
     autoPausedForControls = false;
@@ -2811,6 +2820,7 @@ async function launchGame() {
 
       setStatus('Đang chạy');
       setLog(['Tải Flash thành công!', `ROM: ${romLogName}`, '', 'Ruffle đang chạy file .swf.'].join('\n'));
+      ParentBridge.post('retro:gameLaunched', window._currentGame || {});
       CoinSystem.consumeCoin();
       startPlayTimer();
       RecentSystem.add(swfUrl);
@@ -2988,6 +2998,7 @@ async function launchGame() {
 
     emulator = await Nostalgist.launch(launchOptions);
 
+    ParentBridge.post('retro:gameLaunched', window._currentGame || {});
     setControlState(true);
   } catch (error) {
     emulator = null;
@@ -3082,6 +3093,34 @@ loadBtn.addEventListener('click', () => {
   };
   input.click();
 });
+
+if (shareBtn) {
+  shareBtn.addEventListener('click', () => {
+    const game = window._currentGame;
+    if (!game) return;
+
+    const sharePayload = {
+      type: game.type,
+      id: game.id,
+      title: game.title,
+      url: game.url,
+      deeplink: `${window.location.origin}${window.location.pathname}?type=${encodeURIComponent(game.type)}&id=${encodeURIComponent(game.id)}`,
+    };
+
+    ParentBridge.post('retro:shareGame', sharePayload);
+
+    // Fallback khi không chạy trong iframe: copy deeplink vào clipboard
+    if (window.parent === window) {
+      navigator.clipboard?.writeText(sharePayload.deeplink).then(() => {
+        showToast('Đã copy link game vào clipboard!', 'success');
+      }).catch(() => {
+        showToast(`Link: ${sharePayload.deeplink}`, 'info');
+      });
+    } else {
+      showToast(`Đang chia sẻ: ${game.title}`, 'success');
+    }
+  });
+}
 
 // --- KEYBOARD CONTROLS LOGIC ---
 const keyboardMap = {
@@ -4990,33 +5029,115 @@ document.querySelectorAll('.flash-btn').forEach(btn => {
   });
 })();
 
+// ---- PARENT / ZALO MINI APP BRIDGE (postMessage) ----
+const ParentBridge = {
+  post(event, data = {}) {
+    if (window.parent === window) {
+      console.log('[ParentBridge] not in iframe, skip:', event, data);
+      return;
+    }
+    const payload = { source: 'retro-game', event, ...data };
+    console.log('[ParentBridge] →', event, payload);
+    try {
+      window.parent.postMessage(payload, '*');
+    } catch (err) {
+      console.error('[ParentBridge] postMessage failed:', err);
+    }
+  },
+
+  listen() {
+    window.addEventListener('message', (e) => {
+      const msg = e.data;
+      if (!msg || msg.source !== 'zalo-mini-app') return;
+
+      if (msg.event === 'retro:launch') {
+        const { type, id } = msg;
+        if (!id) return;
+        const lib = window._retroLib;
+        if (!lib) return;
+        const idLower = id.toLowerCase();
+        const typeLower = (type || '').toLowerCase();
+
+        let game = lib.allGames.find(g => {
+          if (typeLower && g.system !== typeLower) return false;
+          return g.rom.toLowerCase() === idLower || g.title.toLowerCase() === idLower;
+        });
+        if (!game) {
+          game = lib.allGames.find(g => {
+            if (typeLower && g.system !== typeLower) return false;
+            return g.rom.toLowerCase().includes(idLower);
+          });
+        }
+        if (game) {
+          lib.selectGame(game, false);
+          setTimeout(() => {
+            const btn = document.getElementById('launchBtn');
+            if (btn && !btn.disabled) btn.click();
+          }, 300);
+        }
+      }
+    });
+  }
+};
+ParentBridge.listen();
+
 // Auto-launch game from URL parameter if present
 (function autoLaunchFromUrl() {
   const params = new URLSearchParams(window.location.search);
-  const gameParam = params.get('game');
-  if (gameParam) {
-    const selectEl = document.getElementById('romUrl');
-    if (selectEl) {
-      const option = Array.from(selectEl.options).find(opt => {
-        const valLower = opt.value.toLowerCase();
-        const paramLower = gameParam.toLowerCase();
-        const filename = valLower.split('/').pop().replace('.zip', '');
-        return filename === paramLower;
-      }) || Array.from(selectEl.options).find(opt =>
-        opt.value.toLowerCase().includes(gameParam.toLowerCase())
-      );
-      if (option) {
-        selectEl.value = option.value;
-        selectEl.dispatchEvent(new Event('change'));
+  const typeParam = (params.get('type') || '').toLowerCase();   // 'arcade' | 'flash'
+  const idParam = params.get('id') || params.get('slug');        // rom name / slug
+  const gameParam = params.get('game');                          // legacy ?game=
 
-        // Wait for the UI grid/selection to register and automatically click start
+  if (!idParam && !gameParam) return;
+
+  // initGameLibraryGrid runs at 100ms; wait 1500ms for grid + UI to settle
+  setTimeout(() => {
+    if (idParam && window._retroLib) {
+      const { allGames, selectGame } = window._retroLib;
+      const idLower = idParam.toLowerCase();
+
+      let game = allGames.find(g => {
+        if (typeParam && g.system !== typeParam) return false;
+        return g.rom.toLowerCase() === idLower || g.title.toLowerCase() === idLower;
+      });
+
+      if (!game) {
+        game = allGames.find(g => {
+          if (typeParam && g.system !== typeParam) return false;
+          return g.rom.toLowerCase().includes(idLower) || idLower.includes(g.rom.toLowerCase());
+        });
+      }
+
+      if (game) {
+        selectGame(game, false);
         setTimeout(() => {
-          const launchBtn = document.getElementById('launchBtn');
-          if (launchBtn && !launchBtn.disabled) {
-            launchBtn.click();
-          }
-        }, 1500);
+          const btn = document.getElementById('launchBtn');
+          if (btn && !btn.disabled) btn.click();
+        }, 300);
+        return;
       }
     }
-  }
+
+    // Legacy: ?game=<slug> — arcade lookup via <select> element
+    const legacyId = gameParam || idParam;
+    if (legacyId) {
+      const selectEl = document.getElementById('romUrl');
+      if (selectEl) {
+        const option = Array.from(selectEl.options).find(opt => {
+          const filename = opt.value.toLowerCase().split('/').pop().replace('.zip', '');
+          return filename === legacyId.toLowerCase();
+        }) || Array.from(selectEl.options).find(opt =>
+          opt.value.toLowerCase().includes(legacyId.toLowerCase())
+        );
+        if (option) {
+          selectEl.value = option.value;
+          selectEl.dispatchEvent(new Event('change'));
+          setTimeout(() => {
+            const btn = document.getElementById('launchBtn');
+            if (btn && !btn.disabled) btn.click();
+          }, 300);
+        }
+      }
+    }
+  }, 1500);
 })();
