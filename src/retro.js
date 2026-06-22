@@ -146,19 +146,6 @@ app.innerHTML = `
           </div>
         </div>
         
-        <div class="skill-buttons">
-          <div class="skill-macro-row">
-            <div class="action-btn macro-btn macro-ud" data-key="macro-ud" data-control-id="macro-ud">⬇️⬆️</div>
-            <div class="action-btn macro-btn macro-du" data-key="macro-du" data-control-id="macro-du">⬆️⬇️</div>
-          </div>
-          <div class="skill-macro-row">
-            <div class="action-btn macro-btn macro-lr" data-key="macro-lr" data-control-id="macro-lr">⬅️➡️</div>
-            <div class="action-btn macro-btn macro-rl" data-key="macro-rl" data-control-id="macro-rl">➡️⬅️</div>
-          </div>
-          <div class="action-btn macro-btn macro-skill-l" data-key="macro-skill-l" data-control-id="macro-skill-l">➡️⬅️B</div>
-          <div class="action-btn macro-btn macro-skill-r" data-key="macro-skill-r" data-control-id="macro-skill-r">⬅️➡️B</div>
-          <div class="action-btn macro-btn macro-unti" data-key="macro-unti" data-control-id="macro-unti">⬇️⬆️B</div>
-        </div>
 
         <div class="system-buttons">
           <div class="sys-btn" data-key="Shift" data-control-id="select">Nhét xu</div>
