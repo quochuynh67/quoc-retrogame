@@ -1148,6 +1148,10 @@ body.playing .controls-bar #controlsToggleBtn {
   text-transform: none;
 }
 
+body.playing .controls-bar #controlsToggleBtn {
+  padding-right: 65px;
+}
+
 /* Flash controls bar group — only visible during flash gameplay */
 .flash-controls-bar-group {
   display: none;
