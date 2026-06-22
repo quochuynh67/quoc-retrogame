@@ -103,12 +103,14 @@ app.innerHTML = `
 
         <canvas id="game" style="width: 100%; height: 100%;"></canvas>
       </div>
-      <div class="controls-bar">
-        <button id="launchBtn" class="primary">Tải Game</button>
-        <button id="pauseBtn" disabled>Tạm Dừng</button>
-        <button id="resumeBtn" disabled>Tiếp Tục</button>
-        <button id="customizeControlsBtn" class="secondary" type="button">Cài đặt nút</button>
-        <button id="addCustomControlBtn" class="secondary" type="button" title="Thêm nút combo">＋ Nút</button>
+      <div class="controls-bar collapsed" id="controlsBar">
+        <button id="controlsToggleBtn" class="controls-toggle-btn secondary" title="Hiện menu điều khiển">⚙ Menu</button>
+        <div class="controls-bar-content" id="controlsBarContent">
+          <button id="launchBtn" class="primary">Tải Game</button>
+          <button id="pauseBtn" disabled>Tạm Dừng</button>
+          <button id="resumeBtn" disabled>Tiếp Tục</button>
+          <button id="customizeControlsBtn" class="secondary" type="button">Cài đặt nút</button>
+          <button id="addCustomControlBtn" class="secondary" type="button" title="Thêm nút combo">＋ Nút</button>
         <div class="flash-controls-bar-group">
           <div class="flash-controls-bar-row">
             <button id="flashKeyConfigBtn" class="flash-icon-btn" type="button" title="Cài đặt phím Flash / Lưu">⚙️</button>
@@ -125,11 +127,12 @@ app.innerHTML = `
             <span class="flash-toggle-label">VMouse</span>
           </label>
         </div>
-        <div class="exit-actions" style="display: flex; flex-direction: column; gap: 10px;">
-          <button id="exitBtn" disabled title="Thoát game">✕ Thoát</button>
-          <button id="saveBtn" disabled title="Lưu game">💾 Save</button>
-          <button id="loadBtn" disabled title="Chơi tiếp">▶ Tiếp</button>
-          <button id="shareBtn" disabled title="Chia sẻ game này">🔗 Chia sẻ</button>
+          <div class="exit-actions" style="display: flex; flex-direction: column; gap: 10px;">
+            <button id="exitBtn" disabled title="Thoát game">✕ Thoát</button>
+            <button id="saveBtn" disabled title="Lưu game">💾 Save</button>
+            <button id="loadBtn" disabled title="Chơi tiếp">▶ Tiếp</button>
+            <button id="shareBtn" disabled title="Chia sẻ game này">🔗 Chia sẻ</button>
+          </div>
         </div>
       </div>
 
@@ -2412,6 +2415,7 @@ const customActionList = document.querySelector('#customActionList');
 const addCustomActionRowBtn = document.querySelector('#addCustomActionRowBtn');
 const customizeControlsBtn = document.querySelector('#customizeControlsBtn');
 const controlsBar = document.querySelector('.controls-bar');
+const controlsBarContent = document.querySelector('#controlsBarContent');
 const headerControls = document.querySelector('.header-controls');
 const virtualGamepad = document.querySelector('.virtual-gamepad');
 
@@ -2435,18 +2439,18 @@ function setControlState(running) {
     userPausedGame = false;
     autoPausedForControls = false;
     document.body.classList.add('playing');
-    if (settingsBtn && controlsBar && settingsBtn.parentElement !== controlsBar) {
-      controlsBar.insertBefore(settingsBtn, controlsBar.firstElementChild);
+    if (settingsBtn && controlsBarContent && settingsBtn.parentElement !== controlsBarContent) {
+      controlsBarContent.insertBefore(settingsBtn, controlsBarContent.firstElementChild);
     }
-    if (restoreControlsBtn && controlsBar && restoreControlsBtn.parentElement !== controlsBar) {
+    if (restoreControlsBtn && controlsBarContent && restoreControlsBtn.parentElement !== controlsBarContent) {
       settingsBtn?.after(restoreControlsBtn);
     }
-    if (addCustomControlBtn && controlsBar && addCustomControlBtn.parentElement !== controlsBar) {
+    if (addCustomControlBtn && controlsBarContent && addCustomControlBtn.parentElement !== controlsBarContent) {
       restoreControlsBtn?.after(addCustomControlBtn);
     }
     // Keep flash controls group after exit-actions
-    const flashBarGroup = controlsBar?.querySelector('.flash-controls-bar-group');
-    if (flashBarGroup) controlsBar.appendChild(flashBarGroup);
+    const flashBarGroup = controlsBarContent?.querySelector('.flash-controls-bar-group');
+    if (flashBarGroup) controlsBarContent.appendChild(flashBarGroup);
     applySavedControlLayout();
   } else {
     userPausedGame = false;
@@ -2465,8 +2469,8 @@ function setControlState(running) {
     if (restoreControlsBtn && headerControls && restoreControlsBtn.parentElement !== headerControls) {
       headerControls.appendChild(restoreControlsBtn);
     }
-    if (addCustomControlBtn && controlsBar && addCustomControlBtn.parentElement !== controlsBar) {
-      controlsBar.insertBefore(addCustomControlBtn, document.querySelector('.exit-actions'));
+    if (addCustomControlBtn && controlsBarContent && addCustomControlBtn.parentElement !== controlsBarContent) {
+      controlsBarContent.insertBefore(addCustomControlBtn, document.querySelector('.exit-actions'));
     }
     clearControlLayoutStyles(true);
     restoreControlParents();
@@ -4389,6 +4393,15 @@ settingsBtn?.addEventListener('click', () => {
 restoreControlsBtn?.addEventListener('click', () => {
   restoreDefaultControls();
 });
+
+const controlsToggleBtn = document.getElementById('controlsToggleBtn');
+const controlsBarWrapper = document.getElementById('controlsBar');
+if (controlsToggleBtn && controlsBarWrapper) {
+  controlsToggleBtn.addEventListener('click', () => {
+    controlsBarWrapper.classList.toggle('collapsed');
+    controlsToggleBtn.textContent = controlsBarWrapper.classList.contains('collapsed') ? '⚙ Menu' : '✕ Đóng';
+  });
+}
 
 addCustomControlBtn?.addEventListener('click', () => {
   openCustomControlModal();
