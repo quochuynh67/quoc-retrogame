@@ -1171,6 +1171,10 @@ body.playing.flash-mode .controls-bar .flash-controls-bar-group {
   display: flex !important;
 }
 
+body.playing.flash-mode .controls-bar .flash-controls-bar-group button {
+  display: flex !important;
+}
+
 /* Small icon-only button for flash config */
 .flash-icon-btn {
   background: rgba(0, 255, 204, 0.1);

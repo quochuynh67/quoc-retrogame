@@ -126,6 +126,13 @@ app.innerHTML = `
             <span class="flash-toggle-track"><span class="flash-toggle-thumb"></span></span>
             <span class="flash-toggle-label">VMouse</span>
           </label>
+          <div class="flash-controls-bar-row">
+            <button id="exportFlashConfigBtn" class="flash-icon-btn" type="button" title="Xuất config ra file JSON">📤</button>
+            <button id="copyFlashConfigBtn" class="flash-icon-btn" type="button" title="Copy config vào clipboard">📋</button>
+            <button id="pasteFlashConfigBtn" class="flash-icon-btn" type="button" title="Paste config từ clipboard">📋↩</button>
+            <button id="importFlashConfigBtn" class="flash-icon-btn" type="button" title="Nhập config từ file JSON">📥</button>
+            <input type="file" id="importFlashConfigFile" accept=".json" style="display:none;" />
+          </div>
         </div>
           <div class="exit-actions" style="display: flex; flex-direction: column; gap: 10px;">
             <button id="exitBtn" disabled title="Thoát game">✕ Thoát</button>
@@ -1192,6 +1199,7 @@ let emulator = null;
 let isLaunching = false;
 let flashButtonsHidden = localStorage.getItem('flash_buttons_hidden') === 'true';
 let activeFlashGameId = null;
+let ALL_FLASH_GAMES = [];
 let continueTimer = null;
 let continueCountdownVal = 9;
 let timeLeft = 0;
@@ -2124,6 +2132,7 @@ function initGameLibraryGrid() {
     };
   });
 
+  ALL_FLASH_GAMES = flashGames;
   const allGames = [...arcadeGames, ...consoleGames, ...flashGames];
   let activeSystemFilter = 'all';
   let activeSearchQuery = '';
@@ -3695,6 +3704,7 @@ function closeCustomControlModal() {
   document.body.classList.remove('custom-control-modal-open');
   editingCustomControlId = null;
   resumeAfterControlEditing();
+  focusGame();
 }
 
 function pressVirtualAction(action, pressed) {
@@ -3907,6 +3917,7 @@ function setControlEditMode(enabled) {
   } else {
     setStatus(emulator ? 'Đang chạy' : 'Đang chờ...');
     resumeAfterControlEditing();
+    focusGame();
   }
 }
 
@@ -4167,6 +4178,20 @@ function openFlashKeyPopover(el, isNew = false) {
   try { document.activeElement?.blur(); } catch (_) { }
 }
 
+function focusGame() {
+  const canvas = document.getElementById('game');
+  const isTouchOnly = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  try { document.activeElement?.blur(); } catch (_) {}
+  if (canvas) {
+    if (!canvas.hasAttribute('tabindex')) canvas.setAttribute('tabindex', '-1');
+    if (!isTouchOnly) {
+      canvas.focus({ preventScroll: true });
+    } else {
+      showToast('Nhấn vào game để tiếp tục!', 'info');
+    }
+  }
+}
+
 function closeFlashKeyPopover(save) {
   const popover = document.getElementById('flashKeyPopover');
   if (popover) {
@@ -4177,6 +4202,8 @@ function closeFlashKeyPopover(save) {
   const saveBtn = document.getElementById('flashKeyPopoverSave');
   if (headTitle) headTitle.textContent = 'Cài đặt nút';
   if (saveBtn) saveBtn.textContent = 'Lưu';
+
+  focusGame();
 
   if (save && flashKeyPopoverTarget) {
     const el = flashKeyPopoverTarget;
@@ -4379,6 +4406,125 @@ settingsBtn?.addEventListener('click', () => {
 
 restoreControlsBtn?.addEventListener('click', () => {
   restoreDefaultControls();
+});
+
+// --- FLASH CONFIG EXPORT / IMPORT ---
+
+function buildFlashConfigPayload() {
+  const PREFIX = 'flash_btn_layout_';
+  const titleMap = {};
+  ALL_FLASH_GAMES.forEach(g => { titleMap[g.url] = g.title; });
+
+  const configs = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key.startsWith(PREFIX)) continue;
+    const gameId = key.slice(PREFIX.length);
+    try {
+      const layout = JSON.parse(localStorage.getItem(key));
+      configs.push({ gameId, title: titleMap[gameId] || gameId, layout });
+    } catch { /* skip corrupted */ }
+  }
+  return configs;
+}
+
+function applyFlashConfigPayload(jsonText) {
+  const data = JSON.parse(jsonText);
+  const configs = Array.isArray(data.configs) ? data.configs : (Array.isArray(data) ? data : null);
+  if (!configs) throw new Error('Định dạng không hợp lệ');
+  let count = 0;
+  configs.forEach(({ gameId, layout }) => {
+    if (!gameId || !layout) return;
+    writeFlashLayout(gameId, layout);
+    count++;
+  });
+  if (activeFlashGameId) loadAndApplyFlashLayout(activeFlashGameId);
+  return count;
+}
+
+function exportFlashConfigs() {
+  const configs = buildFlashConfigPayload();
+  if (configs.length === 0) {
+    showToast('Chưa có game Flash nào được cài đặt phím!', 'warning');
+    return;
+  }
+  const payload = { version: 1, exported_at: new Date().toISOString(), total: configs.length, configs };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `flash-config-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`Đã xuất config của ${configs.length} game Flash!`, 'success');
+}
+
+function copyFlashConfigsToClipboard() {
+  const configs = buildFlashConfigPayload();
+  if (configs.length === 0) {
+    showToast('Chưa có game Flash nào được cài đặt phím!', 'warning');
+    return;
+  }
+  const payload = { version: 1, exported_at: new Date().toISOString(), total: configs.length, configs };
+  const text = JSON.stringify(payload);
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(`Đã copy config ${configs.length} game vào clipboard!`, 'success');
+  }).catch(() => {
+    // fallback for WebView without clipboard API
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast(`Đã copy config ${configs.length} game vào clipboard!`, 'success');
+  });
+}
+
+function pasteFlashConfigsFromClipboard() {
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    navigator.clipboard.readText().then(text => {
+      try {
+        const count = applyFlashConfigPayload(text);
+        showToast(`Đã nhập config ${count} game từ clipboard!`, 'success');
+      } catch (err) {
+        showToast('Clipboard không chứa config hợp lệ: ' + err.message, 'error');
+      }
+    }).catch(() => {
+      showToast('Không đọc được clipboard. Dùng nút 📥 để nhập từ file.', 'warning');
+    });
+  } else {
+    showToast('Trình duyệt này không hỗ trợ đọc clipboard tự động. Dùng nút 📥 để nhập từ file.', 'warning');
+  }
+}
+
+function importFlashConfigs(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const count = applyFlashConfigPayload(e.target.result);
+      showToast(`Đã nhập config của ${count} game Flash!`, 'success');
+    } catch (err) {
+      showToast('Lỗi khi đọc file: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById('exportFlashConfigBtn')?.addEventListener('click', exportFlashConfigs);
+document.getElementById('copyFlashConfigBtn')?.addEventListener('click', copyFlashConfigsToClipboard);
+document.getElementById('pasteFlashConfigBtn')?.addEventListener('click', pasteFlashConfigsFromClipboard);
+
+document.getElementById('importFlashConfigBtn')?.addEventListener('click', () => {
+  document.getElementById('importFlashConfigFile')?.click();
+});
+
+document.getElementById('importFlashConfigFile')?.addEventListener('change', (e) => {
+  importFlashConfigs(e.target.files[0]);
+  e.target.value = '';
 });
 
 const controlsToggleBtn = document.getElementById('controlsToggleBtn');
