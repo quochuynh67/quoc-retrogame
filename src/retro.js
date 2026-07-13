@@ -1196,6 +1196,17 @@ function showToast(msg, type = 'success') {
 
 // --- TIMED PLAYTIME LOGIC ---
 let emulator = null;
+
+// Danh sách player nhận input từ bộ điều khiển trên máy này.
+// Hiện tại 1 người điều khiển song song cả player1 và player2.
+// Khi thêm tính năng 2 máy join chơi cùng, mỗi máy chỉ cần đổi mảng này
+// (vd: máy chủ = [1], máy khách = [2]).
+let localPlayers = [1, 2];
+
+function emulatorPress(method, button) {
+  if (!emulator || typeof emulator[method] !== 'function') return;
+  localPlayers.forEach((player) => emulator[method]({ button, player }));
+}
 let isLaunching = false;
 let flashButtonsHidden = localStorage.getItem('flash_buttons_hidden') === 'true';
 let activeFlashGameId = null;
@@ -2948,16 +2959,20 @@ async function launchGame() {
         input_player1_start: 'enter',
 
 
+        // Player 2 PHẢI bind phím khác player 1: Nostalgist pressDown() hoạt động
+        // bằng cách giả lập phím theo bind của từng player, phím trùng nhau thì
+        // RetroArch chỉ tính cho player 1. Tránh dùng 'num1'..'num9' vì Nostalgist
+        // dịch sai thành phím Numpad trong khi RetroArch hiểu là phím số hàng trên.
         input_player2_up: 'up',
         input_player2_left: 'left',
         input_player2_down: 'down',
         input_player2_right: 'right',
-        input_player2_x: 'num1',
-        input_player2_y: 'num2',
-        input_player2_a: 'num3',
-        input_player2_b: 'num4',
-        input_player2_select: 'num5',
-        input_player2_start: 'num6',
+        input_player2_x: 'c',
+        input_player2_y: 'x',
+        input_player2_a: 'v',
+        input_player2_b: 'b',
+        input_player2_select: 'q',
+        input_player2_start: 'e',
       },
       onLaunch() {
         setStatus('Đang chạy');
@@ -3180,9 +3195,7 @@ window.addEventListener('keydown', (e) => {
       if (e.repeat) return;
       handleExtendPlayTime();
 
-      if (emulator.pressDown) {
-        emulator.pressDown({ button: 'select', player: 1 });
-      }
+      emulatorPress('pressDown', 'select');
       const btn = document.querySelector('.sys-btn[data-key="Shift"]');
       if (btn) btn.classList.add('active');
       return;
@@ -3212,7 +3225,7 @@ window.addEventListener('keydown', (e) => {
   if (action.startsWith('combo-') && emulator && emulator.pressDown) {
     const comboButtons = action === 'combo-ab' ? ['a', 'b'] : ['y', 'a', 'b'];
     comboButtons.forEach(b => {
-      emulator.pressDown({ button: b, player: 1 });
+      emulatorPress('pressDown', b);
       const el = document.querySelector(`.btn-${b}`);
       if (el) el.classList.add('active');
     });
@@ -3222,9 +3235,7 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('keyup', (e) => {
   if (e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'Space' || e.code === 'Shift') {
     if (emulator) {
-      if (emulator.pressUp) {
-        emulator.pressUp({ button: 'select', player: 1 });
-      }
+      emulatorPress('pressUp', 'select');
       const btn = document.querySelector('.sys-btn[data-key="Shift"]');
       if (btn) btn.classList.remove('active');
     }
@@ -3252,7 +3263,7 @@ window.addEventListener('keyup', (e) => {
   if (action.startsWith('combo-') && emulator && emulator.pressUp) {
     const comboButtons = action === 'combo-ab' ? ['a', 'b'] : ['y', 'a', 'b'];
     comboButtons.forEach(b => {
-      emulator.pressUp({ button: b, player: 1 });
+      emulatorPress('pressUp', b);
       const el = document.querySelector(`.btn-${b}`);
       if (el) el.classList.remove('active');
     });
@@ -3712,9 +3723,7 @@ function pressVirtualAction(action, pressed) {
   if (!button || !emulator) return;
 
   const method = pressed ? 'pressDown' : 'pressUp';
-  if (emulator[method]) {
-    emulator[method]({ button, player: 1 });
-  }
+  emulatorPress(method, button);
 }
 
 function executeCustomControl(control, el) {
@@ -4625,7 +4634,7 @@ vButtons.forEach(btn => {
           keys.forEach(k => {
             const pb = nostalgistMap[k];
             if (pb) {
-              emulator.pressDown({ button: pb, player: 1 });
+              emulatorPress('pressDown', pb);
               const el = document.querySelector(`.btn-${pb}`);
               if (el) el.classList.add('active');
             }
@@ -4647,7 +4656,7 @@ vButtons.forEach(btn => {
           if (dirs) {
             dirs.forEach((btnKey, idx) => {
               setTimeout(() => {
-                emulator.pressDown({ button: btnKey, player: 1 });
+                emulatorPress('pressDown', btnKey);
                 // Visual highlight
                 if (['up', 'down', 'left', 'right'].includes(btnKey)) {
                   const knob = document.getElementById('joystickKnob');
@@ -4660,7 +4669,7 @@ vButtons.forEach(btn => {
               }, idx * 100);
 
               setTimeout(() => {
-                emulator.pressUp({ button: btnKey, player: 1 });
+                emulatorPress('pressUp', btnKey);
                 // Remove visual highlight
                 if (['up', 'down', 'left', 'right'].includes(btnKey)) {
                   const knob = document.getElementById('joystickKnob');
@@ -4677,7 +4686,7 @@ vButtons.forEach(btn => {
             });
           }
         } else if (padBtn) {
-          emulator.pressDown({ button: padBtn, player: 1 });
+          emulatorPress('pressDown', padBtn);
         }
       }
     }
@@ -4695,13 +4704,13 @@ vButtons.forEach(btn => {
           keys.forEach(k => {
             const pb = nostalgistMap[k];
             if (pb) {
-              emulator.pressUp({ button: pb, player: 1 });
+              emulatorPress('pressUp', pb);
               const el = document.querySelector(`.btn-${pb}`);
               if (el) el.classList.remove('active');
             }
           });
         } else if (padBtn) {
-          emulator.pressUp({ button: padBtn, player: 1 });
+          emulatorPress('pressUp', padBtn);
         }
       }
     }
@@ -4805,15 +4814,15 @@ function triggerJoystickRun(dir) {
   joystickRunDir = dir;
   joystickLastRunAt = now;
 
-  emulator.pressUp({ button: dir, player: 1 });
+  emulatorPress('pressUp', dir);
   joystickRunTimers.push(setTimeout(() => {
-    emulator.pressDown({ button: dir, player: 1 });
+    emulatorPress('pressDown', dir);
   }, 20));
   joystickRunTimers.push(setTimeout(() => {
-    emulator.pressUp({ button: dir, player: 1 });
+    emulatorPress('pressUp', dir);
   }, 70));
   joystickRunTimers.push(setTimeout(() => {
-    emulator.pressDown({ button: dir, player: 1 });
+    emulatorPress('pressDown', dir);
     currentDirs[dir] = true;
   }, 120));
 }
@@ -4857,9 +4866,9 @@ function handleJoystickEvent(e) {
   for (const dir in newDirs) {
     if (newDirs[dir] !== currentDirs[dir]) {
       if (newDirs[dir]) {
-        if (emulator && emulator.pressDown) emulator.pressDown({ button: dir, player: 1 });
+        emulatorPress('pressDown', dir);
       } else {
-        if (emulator && emulator.pressUp) emulator.pressUp({ button: dir, player: 1 });
+        emulatorPress('pressUp', dir);
       }
       currentDirs[dir] = newDirs[dir];
     }
@@ -4899,7 +4908,7 @@ function resetJoystick(e) {
   clearJoystickRunTimers();
   for (const dir in currentDirs) {
     if (currentDirs[dir]) {
-      if (emulator && emulator.pressUp) emulator.pressUp({ button: dir, player: 1 });
+      emulatorPress('pressUp', dir);
       currentDirs[dir] = false;
     }
   }
