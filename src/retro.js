@@ -1,5 +1,6 @@
 import './style.css';
 import { Nostalgist } from 'nostalgist';
+import { NetPlay } from './netplay.js';
 import ARCADE_MAP from '../fbneo_rom_boxarts.json';
 
 // const isDev = new URLSearchParams(window.location.search).get('dev') === '1';
@@ -311,6 +312,19 @@ app.innerHTML = `
       <div class="stack">
         <label class="label">Trạng Thái</label>
         <span id="status" class="status">Đang chờ...</span>
+      </div>
+
+      <div class="stack" id="netplayStack">
+        <label class="label">Chơi 2 máy (LAN)</label>
+        <div style="display: flex; gap: 8px;">
+          <input id="netplayRoom" class="input" placeholder="Tên phòng" maxlength="24" style="flex: 1; min-width: 0;" />
+          <button id="netplayJoinBtn" class="secondary" type="button">Vào phòng</button>
+        </div>
+        <span id="netplayStatus" class="status">Chưa kết nối</span>
+        <div id="netplayShare" style="display: none; flex-direction: column; gap: 6px;">
+          <span id="netplayShareLink" style="font-size: 12px; word-break: break-all; opacity: 0.85;"></span>
+          <button id="netplayCopyLinkBtn" class="secondary" type="button">📋 Copy link cho máy 2</button>
+        </div>
       </div>
 
       <div class="stack" id="romStack">
@@ -1198,14 +1212,37 @@ function showToast(msg, type = 'success') {
 let emulator = null;
 
 // Danh sách player nhận input từ bộ điều khiển trên máy này.
-// Hiện tại 1 người điều khiển song song cả player1 và player2.
-// Khi thêm tính năng 2 máy join chơi cùng, mỗi máy chỉ cần đổi mảng này
-// (vd: máy chủ = [1], máy khách = [2]).
+// Chơi 1 máy: 1 người điều khiển song song cả player1 và player2.
+// Chơi 2 máy (netplay): mỗi máy chỉ điều khiển đúng player của mình
+// (máy vào phòng trước = [1], vào sau = [2]) — xem syncNetplayState().
 let localPlayers = [1, 2];
+
+// Game gần nhất đã launch (rom URL + core) để host gửi cho máy 2 vào sau
+let netplayLastLaunch = null;
+
+// 2 bộ phím bind cho RetroArch: LOCAL cho player do máy này điều khiển
+// (trùng bộ phím vật lý quen thuộc), REMOTE cho player của máy kia —
+// Nostalgist pressDown() giả lập phím theo bind nên 2 bộ PHẢI khác nhau.
+const LOCAL_KEY_BINDS = { up: 'w', left: 'a', down: 's', right: 'd', x: 'i', y: 'j', a: 'k', b: 'l', select: 'space', start: 'enter' };
+const REMOTE_KEY_BINDS = { up: 'up', left: 'left', down: 'down', right: 'right', x: 'c', y: 'x', a: 'v', b: 'b', select: 'q', start: 'e' };
+
+function buildPlayerKeyBinds() {
+  // Vào phòng là tách vai ngay (không đợi đủ 2 máy) để keybind ổn định
+  const localPlayer = NetPlay.connected && NetPlay.role > 0 ? NetPlay.role : 1;
+  const binds = {};
+  for (const player of [1, 2]) {
+    const keys = player === localPlayer ? LOCAL_KEY_BINDS : REMOTE_KEY_BINDS;
+    for (const [button, key] of Object.entries(keys)) {
+      binds[`input_player${player}_${button}`] = key;
+    }
+  }
+  return binds;
+}
 
 function emulatorPress(method, button) {
   if (!emulator || typeof emulator[method] !== 'function') return;
   localPlayers.forEach((player) => emulator[method]({ button, player }));
+  NetPlay.sendInput(method, button);
 }
 let isLaunching = false;
 let flashButtonsHidden = localStorage.getItem('flash_buttons_hidden') === 'true';
@@ -2946,33 +2983,11 @@ async function launchGame() {
         log_verbosity: true,
         libretro_log_level: 0,
 
-        // Native keyboard mappings for maximum performance and fluid combinations
-        input_player1_up: 'w',
-        input_player1_left: 'a',
-        input_player1_down: 's',
-        input_player1_right: 'd',
-        input_player1_x: 'i',
-        input_player1_y: 'j',
-        input_player1_a: 'k',
-        input_player1_b: 'l',
-        input_player1_select: 'space',
-        input_player1_start: 'enter',
-
-
-        // Player 2 PHẢI bind phím khác player 1: Nostalgist pressDown() hoạt động
-        // bằng cách giả lập phím theo bind của từng player, phím trùng nhau thì
-        // RetroArch chỉ tính cho player 1. Tránh dùng 'num1'..'num9' vì Nostalgist
-        // dịch sai thành phím Numpad trong khi RetroArch hiểu là phím số hàng trên.
-        input_player2_up: 'up',
-        input_player2_left: 'left',
-        input_player2_down: 'down',
-        input_player2_right: 'right',
-        input_player2_x: 'c',
-        input_player2_y: 'x',
-        input_player2_a: 'v',
-        input_player2_b: 'b',
-        input_player2_select: 'q',
-        input_player2_start: 'e',
+        // Native keyboard mappings: player do máy này điều khiển nhận bộ phím
+        // LOCAL (w/a/s/d, i/j/k/l...), player còn lại nhận bộ REMOTE. Tránh dùng
+        // 'num1'..'num9' trong bind vì Nostalgist dịch sai thành phím Numpad
+        // trong khi RetroArch hiểu là phím số hàng trên.
+        ...buildPlayerKeyBinds(),
       },
       onLaunch() {
         setStatus('Đang chạy');
@@ -3012,6 +3027,23 @@ async function launchGame() {
     }
 
     emulator = await Nostalgist.launch(launchOptions);
+
+    // Netplay: nhớ game đang chạy để khi máy 2 vào phòng sau thì host gửi
+    // cho họ tự tải theo (chỉ sync được ROM dạng URL, không sync file local)
+    const romIsSyncable = typeof rom === 'string' || (Array.isArray(rom) && rom.every((r) => typeof r === 'string'));
+    netplayLastLaunch = romIsSyncable ? { rom, core } : null;
+    if (NetPlay.active && NetPlay.role === 1 && romIsSyncable) {
+      NetPlay.send({ type: 'launch', rom, core });
+    }
+    // Máy 2 vừa tải game xong thì xin savestate của host để 2 màn hình
+    // giống nhau, sau đó Player 2 tự nhét xu/bấm bắt đầu để vào chơi
+    if (NetPlay.active && NetPlay.role === 2) {
+      setTimeout(() => {
+        if (emulator && NetPlay.active && NetPlay.role === 2) {
+          NetPlay.send({ type: 'state-request' });
+        }
+      }, 1500);
+    }
 
     ParentBridge.post('retro:gameLaunched', window._currentGame || {});
     setControlState(true);
@@ -5296,3 +5328,238 @@ ParentBridge.listen();
     }
   }, 1500);
 })();
+
+// --- NETPLAY: 2 MÁY CHƠI CÙNG QUA LAN ---
+// Máy chủ phòng chạy `npm run dev:lan` (vite --host), máy kia mở link mời
+// hiện trong sidebar (vd http://192.168.1.5:5173/?room=abc). Vào phòng
+// trước = player 1, vào sau = player 2. Luồng chơi: 2 máy vào phòng →
+// Player 1 bấm Tải Game → cả 2 máy cùng bắt đầu, mỗi người tự chọn nhân
+// vật và điều khiển player của mình; input được relay 2 chiều.
+const netplayRoomInput = document.getElementById('netplayRoom');
+const netplayJoinBtn = document.getElementById('netplayJoinBtn');
+const netplayStatusEl = document.getElementById('netplayStatus');
+const netplayShareEl = document.getElementById('netplayShare');
+const netplayShareLinkEl = document.getElementById('netplayShareLink');
+const netplayCopyLinkBtn = document.getElementById('netplayCopyLinkBtn');
+
+function setNetplayStatus(text) {
+  if (netplayStatusEl) netplayStatusEl.textContent = text;
+}
+
+// Hiện link mời máy 2 (chỉ máy chủ phòng / player 1 cần)
+async function updateNetplayShare() {
+  const show = NetPlay.connected && NetPlay.role === 1;
+  if (!netplayShareEl) return;
+  if (!show) {
+    netplayShareEl.style.display = 'none';
+    return;
+  }
+  try {
+    const info = await fetch('/netplay-info').then((r) => r.json());
+    if (!NetPlay.connected) return;
+    if (!info.exposed) {
+      netplayShareLinkEl.textContent = '⚠ Server chưa mở ra mạng LAN. Tắt server và chạy lại bằng: npm run dev:lan';
+      netplayCopyLinkBtn.style.display = 'none';
+    } else if (info.addresses.length === 0) {
+      netplayShareLinkEl.textContent = '⚠ Không tìm thấy IP LAN — kiểm tra máy đã nối Wi-Fi/mạng chưa.';
+      netplayCopyLinkBtn.style.display = 'none';
+    } else {
+      const link = `http://${info.addresses[0]}:${location.port || 80}/?room=${encodeURIComponent(NetPlay.room)}`;
+      netplayShareLinkEl.textContent = `Máy 2 mở link: ${link}`;
+      netplayCopyLinkBtn.style.display = '';
+      netplayCopyLinkBtn.dataset.link = link;
+    }
+    netplayShareEl.style.display = 'flex';
+  } catch {
+    // Không có endpoint /netplay-info (vd bản build production) — bỏ qua
+    netplayShareEl.style.display = 'none';
+  }
+}
+
+netplayCopyLinkBtn?.addEventListener('click', async () => {
+  const link = netplayCopyLinkBtn.dataset.link;
+  if (!link) return;
+  try {
+    await navigator.clipboard.writeText(link);
+    showToast('Đã copy link — gửi cho máy 2 mở là vào phòng luôn.', 'success');
+  } catch {
+    showToast(`Copy thất bại, chép tay: ${link}`, 'error');
+  }
+});
+
+function syncNetplayState() {
+  localPlayers = NetPlay.connected && NetPlay.role > 0 ? [NetPlay.role] : [1, 2];
+  updateNetplayShare();
+  if (!NetPlay.connected) {
+    setNetplayStatus('Chưa kết nối');
+    if (netplayJoinBtn) netplayJoinBtn.textContent = 'Vào phòng';
+    return;
+  }
+  if (netplayJoinBtn) netplayJoinBtn.textContent = 'Rời phòng';
+  const roleLabel = `bạn là Player ${NetPlay.role}`;
+  let activeHint;
+  if (!NetPlay.active) {
+    activeHint = `${roleLabel}, đang chờ máy thứ 2...`;
+  } else if (NetPlay.role === 1) {
+    activeHint = `đủ 2 máy — ${roleLabel} (host). Cứ chơi bình thường, máy 2 sẽ tự theo.`;
+  } else {
+    activeHint = `đủ 2 máy — ${roleLabel}. Game tự tải theo host, sau đó nhét xu + bắt đầu để vào chơi.`;
+  }
+  setNetplayStatus(`Phòng "${NetPlay.room}": ${activeHint}`);
+}
+
+NetPlay.handlers.role = () => {
+  syncNetplayState();
+  // Máy 2 vào phòng khi đang chơi dở: dọn game cũ (keybind sai vai),
+  // chờ Player 1 chọn game để cả 2 bắt đầu cùng lúc
+  if (NetPlay.role === 2 && emulator) {
+    destroyRunningGame().then(() => {
+      setLog('Đã vào phòng 2 máy. Chờ Player 1 chọn game để bắt đầu cùng nhau.');
+    });
+  }
+};
+
+NetPlay.handlers.peers = (count) => {
+  syncNetplayState();
+  if (count >= 2) {
+    showToast(`Máy thứ 2 đã vào phòng — bạn là Player ${NetPlay.role}!`, 'success');
+    // Host đang chơi thì KHÔNG khởi động lại — chỉ gửi thông tin game cho
+    // máy 2 tự tải theo; tải xong máy 2 sẽ xin savestate để bắt kịp host,
+    // rồi Player 2 tự nhét xu/bấm bắt đầu để nhảy vào chơi
+    if (NetPlay.role === 1 && emulator && netplayLastLaunch) {
+      NetPlay.send({ type: 'launch', ...netplayLastLaunch });
+      showToast('Đã gửi game cho máy 2 tải theo — cứ chơi tiếp, không cần chờ.', 'success');
+    }
+  } else {
+    showToast('Máy kia đã rời phòng.', 'error');
+  }
+};
+
+// Chuyển savestate qua WebSocket (JSON) nên phải mã hoá base64
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function base64ToBlob(base64) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: 'application/octet-stream' });
+}
+
+// Máy 2 tải game xong sẽ xin savestate — host lưu trạng thái và gửi qua
+NetPlay.handlers['state-request'] = async () => {
+  if (NetPlay.role !== 1 || !emulator) return;
+  try {
+    const saved = await emulator.saveState();
+    const blob = saved?.state || saved;
+    if (!(blob instanceof Blob)) return;
+    NetPlay.send({ type: 'state', data: await blobToBase64(blob) });
+  } catch (err) {
+    console.error('[Netplay] Không gửi được savestate:', err);
+  }
+};
+
+// Máy 2 nhận savestate của host -> nạp vào để 2 màn hình giống nhau
+NetPlay.handlers.state = async ({ data }) => {
+  if (!emulator || !data) return;
+  try {
+    await emulator.loadState(base64ToBlob(data));
+    showToast('Đã đồng bộ với máy Player 1 — nhét xu + bắt đầu để vào chơi!', 'success');
+    setLog('Đã đồng bộ trạng thái game với Player 1.\nNhét xu và bấm Bắt đầu để Player 2 vào trận.');
+  } catch (err) {
+    console.error('[Netplay] Không nạp được savestate:', err);
+  }
+};
+
+NetPlay.handlers.close = () => {
+  syncNetplayState();
+  setNetplayStatus('Mất kết nối phòng — bấm Vào phòng để thử lại.');
+  showToast('Đã mất kết nối phòng chơi 2 máy.', 'error');
+};
+
+NetPlay.handlers.error = (msg) => {
+  setNetplayStatus(`Lỗi kết nối: ${msg}`);
+  showToast(msg, 'error');
+};
+
+// Nhận input của người chơi bên máy kia và đưa vào giả lập ở máy này
+NetPlay.handlers.input = ({ method, button, player }) => {
+  if (!emulator) return;
+  if ((method === 'pressDown' || method === 'pressUp') && typeof emulator[method] === 'function') {
+    emulator[method]({ button, player });
+  }
+};
+
+// Player 1 chọn game xong thì máy này tự tải đúng game đó
+NetPlay.handlers.launch = async ({ rom, core }) => {
+  if (!rom || NetPlay.role !== 2) return;
+  if (emulator) await destroyRunningGame();
+
+  if (core && coreNameEl && [...coreNameEl.options].some((o) => o.value === core)) {
+    coreNameEl.value = core;
+  }
+  const romValue = Array.isArray(rom) ? rom.join('\n') : rom;
+  if (romUrlEl) {
+    if (![...romUrlEl.options].some((o) => o.value === romValue)) {
+      const opt = document.createElement('option');
+      opt.value = romValue;
+      opt.textContent = `[Netplay] ${romValue.split('/').pop()}`;
+      romUrlEl.append(opt);
+    }
+    romUrlEl.value = romValue;
+  }
+  romSource = 'list';
+  showToast('Player 1 đã chọn game — đang tải...', 'success');
+  launchGame();
+};
+
+netplayJoinBtn?.addEventListener('click', () => {
+  if (NetPlay.connected) {
+    NetPlay.leave();
+    syncNetplayState();
+    return;
+  }
+  const room = (netplayRoomInput?.value || '').trim();
+  if (!room) {
+    showToast('Nhập tên phòng trước đã.', 'error');
+    netplayRoomInput?.focus();
+    return;
+  }
+  setNetplayStatus('Đang kết nối...');
+  NetPlay.join(room);
+});
+
+// Tự vào phòng nếu URL có ?room=... (tiện gửi link cho máy thứ 2)
+{
+  const roomParam = new URLSearchParams(location.search).get('room');
+  if (roomParam && netplayRoomInput && netplayJoinBtn) {
+    netplayRoomInput.value = roomParam;
+    netplayJoinBtn.click();
+  }
+}
+
+// Phím vật lý được RetroArch xử lý native (không qua emulatorPress),
+// nên phải bắt riêng ở đây để relay sang máy kia. Bộ phím LOCAL luôn là
+// phím của người chơi trên máy này, bất kể vai là player 1 hay 2.
+const NETPLAY_PHYSICAL_KEYS = {
+  KeyW: 'up', KeyA: 'left', KeyS: 'down', KeyD: 'right',
+  KeyI: 'x', KeyJ: 'y', KeyK: 'a', KeyL: 'b',
+  Space: 'select', Enter: 'start',
+};
+
+function relayPhysicalKey(e, method) {
+  if (!NetPlay.active || !emulator || e.repeat) return;
+  const el = document.activeElement;
+  if (el && (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA')) return;
+  const button = NETPLAY_PHYSICAL_KEYS[e.code];
+  if (button) NetPlay.sendInput(method, button);
+}
+
+window.addEventListener('keydown', (e) => relayPhysicalKey(e, 'pressDown'));
+window.addEventListener('keyup', (e) => relayPhysicalKey(e, 'pressUp'));
