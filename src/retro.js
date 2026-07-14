@@ -1,6 +1,7 @@
 import './style.css';
 import { Nostalgist } from 'nostalgist';
 import { NetPlay } from './netplay.js';
+import { NetStream } from './netstream.js';
 import ARCADE_MAP from '../fbneo_rom_boxarts.json';
 
 // const isDev = new URLSearchParams(window.location.search).get('dev') === '1';
@@ -315,16 +316,12 @@ app.innerHTML = `
       </div>
 
       <div class="stack" id="netplayStack">
-        <label class="label">Chơi 2 máy (LAN)</label>
+        <label class="label">Chơi 2 máy</label>
         <div style="display: flex; gap: 8px;">
           <input id="netplayRoom" class="input" placeholder="Tên phòng" maxlength="24" style="flex: 1; min-width: 0;" />
           <button id="netplayJoinBtn" class="secondary" type="button">Vào phòng</button>
         </div>
         <span id="netplayStatus" class="status">Chưa kết nối</span>
-        <div id="netplayShare" style="display: none; flex-direction: column; gap: 6px;">
-          <span id="netplayShareLink" style="font-size: 12px; word-break: break-all; opacity: 0.85;"></span>
-          <button id="netplayCopyLinkBtn" class="secondary" type="button">📋 Copy link cho máy 2</button>
-        </div>
       </div>
 
       <div class="stack" id="romStack">
@@ -1220,6 +1217,10 @@ let localPlayers = [1, 2];
 // Game gần nhất đã launch (rom URL + core) để host gửi cho máy 2 vào sau
 let netplayLastLaunch = null;
 
+// true khi launchGame() được kích hoạt từ lệnh 'launch' của host (phân biệt
+// với việc máy 2 tự bấm Tải Game — trong phòng chỉ host được chọn game)
+let netplayLaunchFromHost = false;
+
 // 2 bộ phím bind cho RetroArch: LOCAL cho player do máy này điều khiển
 // (trùng bộ phím vật lý quen thuộc), REMOTE cho player của máy kia —
 // Nostalgist pressDown() giả lập phím theo bind nên 2 bộ PHẢI khác nhau.
@@ -1239,10 +1240,38 @@ function buildPlayerKeyBinds() {
   return binds;
 }
 
+// Mở stream màn hình cho máy 2 (host). Trả false nếu không lấy được canvas
+// hoặc máy không hỗ trợ — caller rơi về cách cũ (gửi 'launch' + sync state).
+// Nostalgist thay canvas #game bằng canvas riêng nên phải hỏi emulator.
+function netplayStartStream() {
+  if (!NetStream.supported || !emulator) return false;
+  let canvas = null;
+  try {
+    canvas = typeof emulator.getCanvas === 'function' ? emulator.getCanvas() : null;
+  } catch { canvas = null; }
+  canvas = canvas || document.querySelector('.screen-shell canvas');
+  if (!canvas || typeof canvas.captureStream !== 'function') return false;
+  NetStream.startHost(canvas);
+  return true;
+}
+
+// Gửi input cho máy kia: ưu tiên data channel WebRTC (nhanh, P2P),
+// chưa nối được thì đi đường relay như cũ
+function netplayRelayInput(method, button) {
+  if (!NetPlay.active) return;
+  if (NetStream.sendInput({ type: 'input', method, button, player: NetPlay.role })) return;
+  NetPlay.sendInput(method, button);
+}
+
 function emulatorPress(method, button) {
+  // Máy 2 đang xem stream: không có giả lập local, gửi thẳng phím cho host
+  if (NetStream.mode === 'view') {
+    if (method === 'pressDown' || method === 'pressUp') netplayRelayInput(method, button);
+    return;
+  }
   if (!emulator || typeof emulator[method] !== 'function') return;
   localPlayers.forEach((player) => emulator[method]({ button, player }));
-  NetPlay.sendInput(method, button);
+  netplayRelayInput(method, button);
 }
 let isLaunching = false;
 let flashButtonsHidden = localStorage.getItem('flash_buttons_hidden') === 'true';
@@ -2524,6 +2553,8 @@ function setControlState(running) {
 async function destroyRunningGame() {
   stopPlayTimer();
   stopContinueCountdown();
+  // Host đóng game (hoặc máy 2 thoát màn hình xem) thì dừng stream luôn
+  if (NetStream.mode) NetStream.stop(true);
 
   if (!emulator) {
     if (flashEditMode) setFlashEditMode(false);
@@ -2634,6 +2665,20 @@ function detectBiosForRom(romUrl) {
 
 async function launchGame() {
   if (isLaunching) return;
+
+  // Trong phòng 2 máy, chỉ host (Player 1) chọn game. Máy 2 bấm Tải Game
+  // thì xin host gửi game hiện tại thay vì tự tải game khác trận.
+  if (NetPlay.active && NetPlay.role === 2 && !netplayLaunchFromHost) {
+    if (NetStream.mode === 'view') {
+      showToast('Bạn đang chơi trực tiếp qua stream từ host — không cần tải game.', 'success');
+      return;
+    }
+    // Xin host mở stream; host không stream được sẽ tự chuyển sang gửi game
+    NetPlay.send({ type: 'stream-request' });
+    showToast('Trong phòng 2 máy, host (Player 1) là người chọn game — đã xin vào trận của host.', 'success');
+    return;
+  }
+
   isLaunching = true;
 
   const activeCard = document.querySelector('.game-card.active');
@@ -3032,8 +3077,10 @@ async function launchGame() {
     // cho họ tự tải theo (chỉ sync được ROM dạng URL, không sync file local)
     const romIsSyncable = typeof rom === 'string' || (Array.isArray(rom) && rom.every((r) => typeof r === 'string'));
     netplayLastLaunch = romIsSyncable ? { rom, core } : null;
-    if (NetPlay.active && NetPlay.role === 1 && romIsSyncable) {
-      NetPlay.send({ type: 'launch', rom, core });
+    if (NetPlay.active && NetPlay.role === 1) {
+      // Ưu tiên stream WebRTC (máy 2 xem trực tiếp, chơi được cả ROM file
+      // local); không mở được thì gửi 'launch' cho máy 2 tự tải như cũ
+      if (!netplayStartStream() && romIsSyncable) NetPlay.send({ type: 'launch', rom, core });
     }
     // Máy 2 vừa tải game xong thì xin savestate của host để 2 màn hình
     // giống nhau, sau đó Player 2 tự nhét xu/bấm bắt đầu để vào chơi
@@ -4222,7 +4269,7 @@ function openFlashKeyPopover(el, isNew = false) {
 function focusGame() {
   const canvas = document.getElementById('game');
   const isTouchOnly = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-  try { document.activeElement?.blur(); } catch (_) {}
+  try { document.activeElement?.blur(); } catch (_) { }
   if (canvas) {
     if (!canvas.hasAttribute('tabindex')) canvas.setAttribute('tabindex', '-1');
     if (!isTouchOnly) {
@@ -5354,6 +5401,17 @@ async function updateNetplayShare() {
     netplayShareEl.style.display = 'none';
     return;
   }
+
+  // Chơi online (public broadcast/Supabase): máy 2 mở đúng trang này kèm ?room là vào
+  if (NetPlay.transport === 'public' || NetPlay.transport === 'supabase') {
+    const link = `${location.origin}${location.pathname}?room=${encodeURIComponent(NetPlay.room)}`;
+    netplayCopyLinkBtn.style.display = '';
+    netplayCopyLinkBtn.dataset.link = link;
+    netplayShareEl.style.display = 'flex';
+    return;
+  }
+
+  // Chơi LAN qua relay của dev server: link dùng IP LAN của máy chủ phòng
   try {
     const info = await fetch('/netplay-info').then((r) => r.json());
     if (!NetPlay.connected) return;
@@ -5365,13 +5423,11 @@ async function updateNetplayShare() {
       netplayCopyLinkBtn.style.display = 'none';
     } else {
       const link = `http://${info.addresses[0]}:${location.port || 80}/?room=${encodeURIComponent(NetPlay.room)}`;
-      netplayShareLinkEl.textContent = `Máy 2 mở link: ${link}`;
       netplayCopyLinkBtn.style.display = '';
       netplayCopyLinkBtn.dataset.link = link;
     }
     netplayShareEl.style.display = 'flex';
   } catch {
-    // Không có endpoint /netplay-info (vd bản build production) — bỏ qua
     netplayShareEl.style.display = 'none';
   }
 }
@@ -5381,9 +5437,10 @@ netplayCopyLinkBtn?.addEventListener('click', async () => {
   if (!link) return;
   try {
     await navigator.clipboard.writeText(link);
-    showToast('Đã copy link — gửi cho máy 2 mở là vào phòng luôn.', 'success');
+    showToast('Đã copy link — gửi cho máy 2 mở là vào phòng.', 'success');
   } catch {
-    showToast(`Copy thất bại, chép tay: ${link}`, 'error');
+    // Clipboard API cần HTTPS/localhost; mở link qua IP LAN (http) thì bị chặn
+    showToast('Không copy tự động được — chép tay link bên dưới nhé.', 'error');
   }
 });
 
@@ -5397,6 +5454,7 @@ function syncNetplayState() {
   }
   if (netplayJoinBtn) netplayJoinBtn.textContent = 'Rời phòng';
   const roleLabel = `bạn là Player ${NetPlay.role}`;
+  const viaLabel = NetPlay.transport === 'ws' ? 'LAN' : 'online';
   let activeHint;
   if (!NetPlay.active) {
     activeHint = `${roleLabel}, đang chờ máy thứ 2...`;
@@ -5405,11 +5463,13 @@ function syncNetplayState() {
   } else {
     activeHint = `đủ 2 máy — ${roleLabel}. Game tự tải theo host, sau đó nhét xu + bắt đầu để vào chơi.`;
   }
-  setNetplayStatus(`Phòng "${NetPlay.room}": ${activeHint}`);
+  setNetplayStatus(`Phòng "${NetPlay.room}" (${viaLabel}): ${activeHint}`);
 }
 
 NetPlay.handlers.role = () => {
   syncNetplayState();
+  netplayLastStateTs = 0;
+  netplaySyncedToastShown = false;
   // Máy 2 vào phòng khi đang chơi dở: dọn game cũ (keybind sai vai),
   // chờ Player 1 chọn game để cả 2 bắt đầu cùng lúc
   if (NetPlay.role === 2 && emulator) {
@@ -5423,14 +5483,19 @@ NetPlay.handlers.peers = (count) => {
   syncNetplayState();
   if (count >= 2) {
     showToast(`Máy thứ 2 đã vào phòng — bạn là Player ${NetPlay.role}!`, 'success');
-    // Host đang chơi thì KHÔNG khởi động lại — chỉ gửi thông tin game cho
-    // máy 2 tự tải theo; tải xong máy 2 sẽ xin savestate để bắt kịp host,
-    // rồi Player 2 tự nhét xu/bấm bắt đầu để nhảy vào chơi
-    if (NetPlay.role === 1 && emulator && netplayLastLaunch) {
-      NetPlay.send({ type: 'launch', ...netplayLastLaunch });
-      showToast('Đã gửi game cho máy 2 tải theo — cứ chơi tiếp, không cần chờ.', 'success');
+    // Host đang chơi thì KHÔNG khởi động lại: mở stream WebRTC cho máy 2
+    // xem trực tiếp (1 giả lập duy nhất). Máy không hỗ trợ WebRTC thì quay
+    // về cách cũ — gửi game cho máy 2 tự tải rồi đồng bộ savestate.
+    if (NetPlay.role === 1 && emulator) {
+      if (netplayStartStream()) {
+        showToast('Đang mở stream màn hình cho máy 2 — cứ chơi tiếp.', 'success');
+      } else if (netplayLastLaunch) {
+        NetPlay.send({ type: 'launch', ...netplayLastLaunch });
+        showToast('Đã gửi game cho máy 2 tải theo — cứ chơi tiếp, không cần chờ.', 'success');
+      }
     }
   } else {
+    NetStream.stop();
     showToast('Máy kia đã rời phòng.', 'error');
   }
 };
@@ -5452,32 +5517,89 @@ function base64ToBlob(base64) {
   return new Blob([bytes], { type: 'application/octet-stream' });
 }
 
-// Máy 2 tải game xong sẽ xin savestate — host lưu trạng thái và gửi qua
-NetPlay.handlers['state-request'] = async () => {
-  if (NetPlay.role !== 1 || !emulator) return;
+// Savestate nén gzip trước khi gửi: nhỏ hơn nhiều lần → ít chunk hơn,
+// truyền nhanh hơn → state đến máy 2 "tươi" hơn → cú nhảy khi nạp nhỏ hơn.
+// CompressionStream có sẵn trong mọi browser hiện đại; msg đánh dấu enc:'gz'
+// để bên nhận biết cần giải nén (phòng khi 2 máy chạy bản app khác nhau).
+function gzipBlob(blob) {
+  return new Response(blob.stream().pipeThrough(new CompressionStream('gzip'))).blob();
+}
+
+function gunzipBlob(blob) {
+  return new Response(blob.stream().pipeThrough(new DecompressionStream('gzip'))).blob();
+}
+
+// Host là NGUỒN SỰ THẬT của trận đấu: chỉ relay input thì 2 giả lập chạy
+// độc lập sẽ lệch dần (input đến trễ, áp vào frame khác nhau) → host định
+// kỳ đẩy savestate sang để máy 2 luôn bám đúng trận của host.
+// Chu kỳ ngắn = mỗi lần lệch ít = cú nhảy nhỏ; nhờ nén gzip nên đẩy dày
+// hơn trước mà băng thông vẫn thấp hơn (supabase giữ thưa vì rate limit).
+const NETPLAY_STATE_SYNC_MS = { ws: 2000, public: 3000, supabase: 5000 };
+let netplayStatePushBusy = false;
+let netplayLastStatePushAt = 0;
+
+async function netplayPushState() {
+  // Đang stream WebRTC thì máy 2 xem trực tiếp, không cần đồng bộ savestate
+  if (NetStream.mode === 'host') return;
+  if (netplayStatePushBusy || NetPlay.role !== 1 || !NetPlay.active || !emulator) return;
+  netplayStatePushBusy = true;
   try {
     const saved = await emulator.saveState();
-    const blob = saved?.state || saved;
-    if (!(blob instanceof Blob)) return;
-    NetPlay.send({ type: 'state', data: await blobToBase64(blob) });
+    let blob = saved?.state || saved;
+    if (blob instanceof Blob) {
+      let enc = '';
+      if (typeof CompressionStream === 'function') {
+        blob = await gzipBlob(blob);
+        enc = 'gz';
+      }
+      await NetPlay.send({ type: 'state', ts: Date.now(), enc, data: await blobToBase64(blob) });
+    }
   } catch (err) {
-    console.error('[Netplay] Không gửi được savestate:', err);
+    // Game không hỗ trợ savestate (vd Flash) hoặc đang chuyển cảnh — bỏ qua lượt này
+    console.warn('[Netplay] Bỏ qua một lượt đồng bộ state:', err?.message || err);
+  } finally {
+    netplayStatePushBusy = false;
   }
+}
+
+setInterval(() => {
+  if (NetPlay.role !== 1 || !NetPlay.active || !emulator || netplayStatePushBusy) return;
+  const interval = NETPLAY_STATE_SYNC_MS[NetPlay.transport] || NETPLAY_STATE_SYNC_MS.supabase;
+  if (Date.now() - netplayLastStatePushAt < interval) return;
+  netplayLastStatePushAt = Date.now();
+  netplayPushState();
+}, 1000);
+
+// Máy 2 tải game xong sẽ xin savestate ngay (không đợi chu kỳ)
+NetPlay.handlers['state-request'] = () => {
+  netplayLastStatePushAt = Date.now();
+  netplayPushState();
 };
 
-// Máy 2 nhận savestate của host -> nạp vào để 2 màn hình giống nhau
-NetPlay.handlers.state = async ({ data }) => {
-  if (!emulator || !data) return;
+// Máy 2 nhận savestate của host -> nạp vào để bám đúng trận của host
+let netplayLastStateTs = 0;
+let netplaySyncedToastShown = false;
+
+NetPlay.handlers.state = async ({ data, ts, enc }) => {
+  if (!emulator || !data || NetPlay.role !== 2) return;
+  if (ts && ts < netplayLastStateTs) return; // state cũ đến muộn, bỏ
+  netplayLastStateTs = ts || Date.now();
   try {
-    await emulator.loadState(base64ToBlob(data));
-    showToast('Đã đồng bộ với máy Player 1 — nhét xu + bắt đầu để vào chơi!', 'success');
-    setLog('Đã đồng bộ trạng thái game với Player 1.\nNhét xu và bấm Bắt đầu để Player 2 vào trận.');
+    let blob = base64ToBlob(data);
+    if (enc === 'gz') blob = await gunzipBlob(blob);
+    await emulator.loadState(blob);
+    if (!netplaySyncedToastShown) {
+      netplaySyncedToastShown = true;
+      showToast('Đã đồng bộ với máy Player 1 — nhét xu + bắt đầu để vào chơi!', 'success');
+      setLog('Đã đồng bộ trạng thái game với Player 1.\nNhét xu và bấm Bắt đầu để Player 2 vào trận.\nMàn hình sẽ tự bám theo host trong suốt trận.');
+    }
   } catch (err) {
     console.error('[Netplay] Không nạp được savestate:', err);
   }
 };
 
 NetPlay.handlers.close = () => {
+  NetStream.stop();
   syncNetplayState();
   setNetplayStatus('Mất kết nối phòng — bấm Vào phòng để thử lại.');
   showToast('Đã mất kết nối phòng chơi 2 máy.', 'error');
@@ -5515,12 +5637,114 @@ NetPlay.handlers.launch = async ({ rom, core }) => {
     romUrlEl.value = romValue;
   }
   romSource = 'list';
+  netplayLastStateTs = 0;
+  netplaySyncedToastShown = false;
   showToast('Player 1 đã chọn game — đang tải...', 'success');
-  launchGame();
+  netplayLaunchFromHost = true;
+  try {
+    await launchGame();
+  } finally {
+    netplayLaunchFromHost = false;
+  }
 };
+
+// Máy 2 bấm Tải Game khi chưa xem stream -> host thử mở stream trước,
+// không được thì rơi xuống cách cũ (gửi game + đồng bộ state)
+NetPlay.handlers['stream-request'] = () => {
+  if (NetPlay.role !== 1) return;
+  if (emulator && netplayStartStream()) return;
+  NetPlay.handlers['launch-request']({});
+};
+
+// Máy 2 xin game theo cách cũ (stream WebRTC không nối được, hoặc bản app
+// cũ) -> host dừng stream rồi gửi game cho máy 2 tự tải + đồng bộ state
+NetPlay.handlers['launch-request'] = () => {
+  if (NetPlay.role !== 1) return;
+  NetStream.stop(true);
+  if (emulator && netplayLastLaunch) {
+    NetPlay.send({ type: 'launch', ...netplayLastLaunch });
+  } else if (emulator) {
+    showToast('Máy 2 không xem được stream và game này (file local) không gửi qua mạng được.', 'error');
+  } else {
+    showToast('Máy 2 đang chờ bạn chọn game — bấm Tải Game để bắt đầu.', 'success');
+  }
+};
+
+// ==== Netplay stream (WebRTC): host chạy 1 giả lập duy nhất, máy 2 xem hình ====
+let netplayVideoEl = null;
+
+NetStream.handlers.stream = (stream) => {
+  if (!stream) {
+    netplayVideoEl?.remove();
+    netplayVideoEl = null;
+    // Trả máy 2 về giao diện sảnh (máy 2 xem stream không có giả lập local)
+    if (!emulator) {
+      document.body.classList.remove('playing');
+      if (exitBtn) exitBtn.disabled = true;
+      setStatus('Đang chờ...');
+    }
+    return;
+  }
+  const shell = document.querySelector('.screen-shell');
+  if (!shell) return;
+  if (netplayVideoEl && netplayVideoEl.srcObject === stream && shell.contains(netplayVideoEl)) return; // ontrack gọi 2 lần (video + audio)
+  if (!netplayVideoEl || !shell.contains(netplayVideoEl)) {
+    netplayVideoEl?.remove();
+    netplayVideoEl = document.createElement('video');
+    netplayVideoEl.id = 'netplayStreamVideo';
+    netplayVideoEl.autoplay = true;
+    netplayVideoEl.playsInline = true;
+    // image-rendering: pixelated — phóng to kiểu nearest-neighbor cho khớp
+    // canvas giả lập local (style.css), không thì bilinear làm nhòe pixel art
+    netplayVideoEl.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:5;image-rendering:pixelated;';
+    shell.append(netplayVideoEl);
+  }
+  // Vào giao diện chơi fullscreen như khi có giả lập local: hiện gamepad
+  // ảo (input relay sang host) và mở nút Thoát để rời màn hình xem
+  document.body.classList.add('playing');
+  if (exitBtn) exitBtn.disabled = false;
+  netplayVideoEl.srcObject = stream;
+  netplayVideoEl.play()?.catch(() => {
+    // Browser chặn autoplay có tiếng khi chưa có tương tác → phát câm trước
+    if (!netplayVideoEl) return;
+    netplayVideoEl.muted = true;
+    netplayVideoEl.play().catch(() => { /* kệ, video hiện khi có frame */ });
+    netplayVideoEl.addEventListener('click', () => { if (netplayVideoEl) netplayVideoEl.muted = false; }, { once: true });
+    showToast('Chạm vào màn hình để bật tiếng.', 'success');
+  });
+  setStatus('Đang chơi qua stream');
+  setLog('Đang chơi trực tiếp trên máy host qua stream.\nMọi phím bấm được gửi thẳng sang host — nhét xu + bắt đầu như bình thường.');
+  showToast('Đã kết nối stream từ host — chơi trực tiếp, không còn trễ đồng bộ!', 'success');
+};
+
+// Input máy 2 gửi qua data channel → áp vào giả lập của host
+NetStream.handlers.input = (msg) => {
+  if (msg?.type === 'input') NetPlay.handlers.input(msg);
+};
+
+// Máy 2 không nối được stream (NAT chặt, không TURN) → xin đường cũ
+NetStream.handlers.viewFailed = () => {
+  if (!NetPlay.active) return;
+  showToast('Không kết nối được stream — chuyển sang chế độ tải game về máy...', 'error');
+  NetPlay.send({ type: 'launch-request' });
+};
+
+// Máy 2 không trả lời offer (bản app cũ?) → host gửi 'launch' như cũ
+NetStream.handlers.hostNoAnswer = () => {
+  if (NetPlay.active && NetPlay.role === 1 && emulator && netplayLastLaunch) {
+    NetPlay.send({ type: 'launch', ...netplayLastLaunch });
+    showToast('Máy 2 không hỗ trợ stream — đã gửi game cho máy 2 tải theo.', 'success');
+  }
+};
+
+if (isDev) {
+  window.NetPlay = NetPlay;
+  window.NetStream = NetStream;
+}
 
 netplayJoinBtn?.addEventListener('click', () => {
   if (NetPlay.connected) {
+    NetStream.stop(true);
     NetPlay.leave();
     syncNetplayState();
     return;
@@ -5554,11 +5778,13 @@ const NETPLAY_PHYSICAL_KEYS = {
 };
 
 function relayPhysicalKey(e, method) {
-  if (!NetPlay.active || !emulator || e.repeat) return;
+  if (!NetPlay.active || e.repeat) return;
+  // Máy 2 xem stream không có giả lập local nhưng phím vẫn phải gửi đi
+  if (!emulator && NetStream.mode !== 'view') return;
   const el = document.activeElement;
   if (el && (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA')) return;
   const button = NETPLAY_PHYSICAL_KEYS[e.code];
-  if (button) NetPlay.sendInput(method, button);
+  if (button) netplayRelayInput(method, button);
 }
 
 window.addEventListener('keydown', (e) => relayPhysicalKey(e, 'pressDown'));
