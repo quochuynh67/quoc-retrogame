@@ -45,9 +45,14 @@ if (typeof AudioNode === 'function' && typeof AudioContext === 'function') {
 }
 
 export const NetStream = {
+  // supported = làm HOST được (cần captureStream để bắt hình canvas).
+  // viewSupported = XEM được — chỉ cần RTCPeerConnection; webview nhúng
+  // (Zalo mini app...) có thể thiếu captureStream nhưng xem stream vẫn ok,
+  // đừng bắt máy 2 rơi về đường cũ oan.
   supported: typeof RTCPeerConnection === 'function'
     && typeof HTMLCanvasElement !== 'undefined'
     && typeof HTMLCanvasElement.prototype.captureStream === 'function',
+  viewSupported: typeof RTCPeerConnection === 'function',
   mode: '', // 'host' | 'view' | '' (không stream)
   lastCanvas: null, // canvas đang stream — để mở lại stream khi audio tới muộn
   pc: null,
@@ -55,7 +60,7 @@ export const NetStream = {
   pendingIce: [],
   answerTimer: 0,
   connectTimer: 0,
-  handlers: {}, // { stream(MediaStream|null), input(msg), viewFailed(), hostNoAnswer() }
+  handlers: {}, // { stream(MediaStream|null), input(msg), viewFailed(), hostNoAnswer(), rtcState(state) }
 
   closePc() {
     clearTimeout(this.answerTimer);
@@ -168,7 +173,7 @@ export const NetStream = {
 
   // Máy 2: nhận offer của host, trả answer, chờ hình đổ về
   async acceptOffer(sdp) {
-    if (!this.supported || NetPlay.role !== 2 || !sdp) return;
+    if (!this.viewSupported || NetPlay.role !== 2 || !sdp) return;
     this.stop();
 
     this.mode = 'view';
@@ -189,6 +194,7 @@ export const NetStream = {
     };
     pc.onconnectionstatechange = () => {
       if (this.pc !== pc) return;
+      this.handlers.rtcState?.(pc.connectionState);
       if (pc.connectionState === 'connected') clearTimeout(this.connectTimer);
       if (pc.connectionState === 'failed') {
         this.stop();

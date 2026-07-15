@@ -5672,9 +5672,11 @@ NetPlay.handlers['launch-request'] = () => {
 
 // ==== Netplay stream (WebRTC): host chạy 1 giả lập duy nhất, máy 2 xem hình ====
 let netplayVideoEl = null;
+let netplayVideoWatchdog = 0;
 
 NetStream.handlers.stream = (stream) => {
   if (!stream) {
+    clearTimeout(netplayVideoWatchdog);
     netplayVideoEl?.remove();
     netplayVideoEl = null;
     // Trả máy 2 về giao diện sảnh (máy 2 xem stream không có giả lập local)
@@ -5694,6 +5696,10 @@ NetStream.handlers.stream = (stream) => {
     netplayVideoEl.id = 'netplayStreamVideo';
     netplayVideoEl.autoplay = true;
     netplayVideoEl.playsInline = true;
+    // WKWebView (Zalo mini app trên iOS) đọc ATTRIBUTE chứ không phải
+    // property — thiếu là video bị đẩy ra player fullscreen hoặc không chạy
+    netplayVideoEl.setAttribute('playsinline', '');
+    netplayVideoEl.setAttribute('webkit-playsinline', '');
     // image-rendering: pixelated — phóng to kiểu nearest-neighbor cho khớp
     // canvas giả lập local (style.css), không thì bilinear làm nhòe pixel art
     netplayVideoEl.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:5;image-rendering:pixelated;';
@@ -5704,14 +5710,56 @@ NetStream.handlers.stream = (stream) => {
   document.body.classList.add('playing');
   if (exitBtn) exitBtn.disabled = false;
   netplayVideoEl.srcObject = stream;
-  netplayVideoEl.play()?.catch(() => {
+  const video = netplayVideoEl;
+  video.play()?.catch(async () => {
+    if (netplayVideoEl !== video) return;
     // Browser chặn autoplay có tiếng khi chưa có tương tác → phát câm trước
-    if (!netplayVideoEl) return;
-    netplayVideoEl.muted = true;
-    netplayVideoEl.play().catch(() => { /* kệ, video hiện khi có frame */ });
-    netplayVideoEl.addEventListener('click', () => { if (netplayVideoEl) netplayVideoEl.muted = false; }, { once: true });
-    showToast('Chạm vào màn hình để bật tiếng.', 'success');
+    video.muted = true;
+    try {
+      await video.play();
+      // Hình đã chạy (câm) — chờ người dùng chạm để bật tiếng. Nghe ở
+      // document vì gamepad ảo phủ lên trên video, click không tới video.
+      document.addEventListener('pointerdown', () => {
+        if (netplayVideoEl === video) video.muted = false;
+      }, { once: true });
+      showToast('Chạm vào màn hình để bật tiếng.', 'success');
+    } catch {
+      // Nhúng trong iframe cross-origin không có allow="autoplay" thì đến cả
+      // phát câm cũng bị chặn (Permissions Policy mặc định chỉ cho 'self')
+      // → video kẹt ở màn hình đen dù stream đã đổ về. Phải chờ người dùng
+      // chạm vào trang rồi mới play lại được.
+      const resume = () => {
+        if (netplayVideoEl !== video) return;
+        video.muted = false;
+        video.play().catch(() => {
+          // Gesture đủ cho phát câm nhưng chưa đủ cho tiếng → ưu tiên có hình
+          video.muted = true;
+          video.play().catch(() => { /* hết cách, chờ gesture sau */ });
+        });
+      };
+      document.addEventListener('pointerdown', resume, { once: true });
+      showToast('Chạm vào màn hình để bắt đầu xem.', 'success');
+    }
   });
+  // Webview nhúng có thể nhận track nhưng không decode được frame nào
+  // (video kẹt đen dù kết nối 'connected') → sau 8s chưa thấy hình thì coi
+  // như xem thất bại, xin host gửi game về chơi kiểu cũ thay vì đen mãi.
+  // videoWidth > 0 hoặc readyState >= 2 nghĩa là frame đã về (kể cả khi
+  // đang pause chờ người dùng chạm) — trường hợp đó KHÔNG fallback.
+  clearTimeout(netplayVideoWatchdog);
+  netplayVideoWatchdog = setTimeout(() => {
+    if (netplayVideoEl !== video) return;
+    const gotFrames = video.videoWidth > 0 || video.readyState >= 2;
+    ParentBridge.post('retro:streamHealth', {
+      gotFrames,
+      videoWidth: video.videoWidth,
+      readyState: video.readyState,
+      paused: video.paused,
+    });
+    if (gotFrames) return;
+    NetStream.stop();
+    NetStream.handlers.viewFailed?.();
+  }, 8000);
   setStatus('Đang chơi qua stream');
   setLog('Đang chơi trực tiếp trên máy host qua stream.\nMọi phím bấm được gửi thẳng sang host — nhét xu + bắt đầu như bình thường.');
   showToast('Đã kết nối stream từ host — chơi trực tiếp, không còn trễ đồng bộ!', 'success');
@@ -5725,8 +5773,15 @@ NetStream.handlers.input = (msg) => {
 // Máy 2 không nối được stream (NAT chặt, không TURN) → xin đường cũ
 NetStream.handlers.viewFailed = () => {
   if (!NetPlay.active) return;
+  ParentBridge.post('retro:streamFailed', {});
   showToast('Không kết nối được stream — chuyển sang chế độ tải game về máy...', 'error');
   NetPlay.send({ type: 'launch-request' });
+};
+
+// Đẩy trạng thái WebRTC ra app nhúng (Zalo mini app log mọi postMessage) —
+// debug được "kẹt ở bước nào" khi không mở được devtools trong webview
+NetStream.handlers.rtcState = (state) => {
+  ParentBridge.post('retro:rtcState', { state });
 };
 
 // Máy 2 không trả lời offer (bản app cũ?) → host gửi 'launch' như cũ
