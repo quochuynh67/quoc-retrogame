@@ -17,7 +17,7 @@ Các khóa API được quản lý bảo mật thông qua file `supabase_keys.js
 ```json
 {
   "SUPABASE_URL": "https://meddohfaywowscwmefxn.supabase.co",
-  "SUPABASE_ANON_KEY": "sb_publishable_aQ3IuBvqzVXqKNEGb5QT0A_f2Kjok0y"
+  "SUPABASE_ANON_KEY": "<THAY-BANG-PUBLISHABLE-KEY-CUA-BAN>"
 }
 ```
 
@@ -58,7 +58,7 @@ Các cấu hình Supabase được quản lý qua biến môi trường của Vi
 **Cấu trúc file `.env`:**
 ```env
 VITE_SUPABASE_URL=https://meddohfaywowscwmefxn.supabase.co
-VITE_SUPABASE_ANON_KEY=sb_publishable_aQ3IuBvqzVXqKNEGb5QT0A_f2Kjok0y
+VITE_SUPABASE_ANON_KEY=<THAY-BANG-PUBLISHABLE-KEY-CUA-BAN>
 ```
 
 ### 🏃‍♂️ Chạy thử (Local Run)

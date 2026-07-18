@@ -7,6 +7,65 @@ const isDev = true;
 
 let romSource = 'list';
 
+// ---- EMBED COUNTER-ROTATION ----
+// Một số trang (vd: chimia.vn) nhúng game qua iframe và xoay iframe 90°,
+// nên phải xoay ngược giao diện -90° và quy đổi tọa độ chạm về không gian layout.
+const ROTATED_EMBED_HOSTS = ['chimia.vn'];
+
+function isEmbeddedInRotatedHost() {
+  if (window.parent === window) return false;
+  const hosts = [];
+  try {
+    const origins = window.location.ancestorOrigins;
+    if (origins) for (const origin of origins) hosts.push(new URL(origin).hostname);
+  } catch (_) { }
+  try {
+    if (document.referrer) hosts.push(new URL(document.referrer).hostname);
+  } catch (_) { }
+  return hosts.some(h => ROTATED_EMBED_HOSTS.some(r => h === r || h.endsWith('.' + r)));
+}
+
+// ?embedRotate=-90 để ép bật (test local), ?embedRotate=0 để ép tắt
+const embedRotateParam = new URLSearchParams(window.location.search).get('embedRotate');
+const isEmbedRotated = embedRotateParam === '-90'
+  || (embedRotateParam !== '0' && isEmbeddedInRotatedHost());
+if (isEmbedRotated) {
+  document.documentElement.classList.add('embed-rotate-ccw');
+}
+
+// Tọa độ sự kiện (viewport thật) → không gian layout đã xoay -90°
+function normPointXY(clientX, clientY) {
+  if (!isEmbedRotated) return { clientX, clientY };
+  return { clientX: window.innerHeight - clientY, clientY: clientX };
+}
+
+// getBoundingClientRect (viewport thật) → không gian layout
+function normRect(rect) {
+  if (!isEmbedRotated) return rect;
+  const left = window.innerHeight - rect.bottom;
+  return {
+    left,
+    top: rect.left,
+    width: rect.height,
+    height: rect.width,
+    right: left + rect.height,
+    bottom: rect.left + rect.width,
+  };
+}
+
+// Kích thước viewport theo không gian layout
+function layoutViewport() {
+  return isEmbedRotated
+    ? { width: window.innerHeight, height: window.innerWidth }
+    : { width: window.innerWidth, height: window.innerHeight };
+}
+
+// Không gian layout → viewport thật (để bắn sự kiện chuột giả lập)
+function layoutToViewportXY(x, y) {
+  if (!isEmbedRotated) return { x, y };
+  return { x: y, y: window.innerHeight - x };
+}
+
 // Capture console logs and append to the status log panel for easier troubleshooting
 const originalLog = console.log;
 const originalWarn = console.warn;
@@ -48,7 +107,7 @@ console.error = function (...args) {
 const app = document.querySelector('#app');
 
 app.innerHTML = `
-  <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background-image: url('/background-tuoitho.jpg'); background-size: cover; background-position: center; filter: blur(8px) brightness(0.5); transform: scale(1.1); pointer-events: none;"></div>
+  <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background-image: url('/background-tuoitho.jpg'); background-size: cover; background-position: center; filter: blur(8px) brightness(0.5); transform: scale(1.1); pointer-events: none;"></div>
   <div id="rotatePrompt" class="rotate-prompt" aria-hidden="true">
     <div class="rotate-phone">
       <div class="rotate-phone-screen"></div>
@@ -720,6 +779,7 @@ app.innerHTML = `
           <button type="button" class="category-btn" data-system="recent">⏱️ Vừa chơi</button>
           <button type="button" class="category-btn" data-system="arcade">🕹️ Arcade</button>
           <button type="button" class="category-btn" data-system="flash">⚡ Flash</button>
+          <button type="button" class="category-btn" data-system="web">🌐 Web</button>
         </div>
 
         <!-- SEARCH INPUT -->
@@ -773,6 +833,7 @@ app.innerHTML = `
         <label class="label" for="coreName">Trình Giả Lập (Core)</label>
         <select id="coreName" class="input">
           <option value="ruffle">ruffle (Flash / SWF)</option>
+          <option value="webiframe">webiframe (Game Web)</option>
           <option value="fbneo">fbneo (FinalBurn Neo)</option>
           <option value="fbalpha2012_cps1">fbalpha2012_cps1 (Arcade)</option>
           <option value="fbalpha2012">fbalpha2012 (Arcade)</option>
@@ -1765,6 +1826,21 @@ function initGameLibraryGrid() {
   // 2. Predefined high-quality console ROM databases
   const consoleGames = [];
 
+  // Game web chạy trực tiếp qua iframe.
+  // rotate: -90 → trang nguồn render game bị xoay 90° khi nhúng iframe,
+  // nên xoay ngược iframe -90° để hiển thị đúng chiều.
+  const webGames = [
+    {
+      title: 'Chimia',
+      rom: 'chimia',
+      url: 'https://www.chimia.vn/',
+      system: 'web',
+      thumbnail: '',
+      core: 'webiframe',
+      rotate: -90,
+    },
+  ];
+
   // Flash games played via Ruffle
   const flashGames = [
     {
@@ -2133,7 +2209,7 @@ function initGameLibraryGrid() {
   });
 
   ALL_FLASH_GAMES = flashGames;
-  const allGames = [...arcadeGames, ...consoleGames, ...flashGames];
+  const allGames = [...arcadeGames, ...consoleGames, ...flashGames, ...webGames];
   let activeSystemFilter = 'all';
   let activeSearchQuery = '';
   let currentlySelectedUrl = romUrlEl.value;
@@ -2187,7 +2263,7 @@ function initGameLibraryGrid() {
     urlParams.delete('game');
     history.replaceState(null, '', '?' + urlParams.toString());
 
-    window._currentGame = { type: game.system, id: game.rom, title: game.title, url: game.url };
+    window._currentGame = { type: game.system, id: game.rom, title: game.title, url: game.url, rotate: game.rotate || 0 };
     ParentBridge.post('retro:gameSelected', { type: game.system, id: game.rom, title: game.title });
 
     const cards = gridContainer.querySelectorAll('.game-card');
@@ -2455,6 +2531,7 @@ function setControlState(running) {
     document.body.classList.remove('flash-mode');
     document.body.classList.remove('flash-no-buttons');
     document.body.classList.remove('mouse-mode');
+    document.body.classList.remove('web-mode');
     const vmouseToggle = document.getElementById('vmouseToggle');
     if (vmouseToggle) vmouseToggle.checked = false;
     setControlEditMode(false);
@@ -2751,6 +2828,61 @@ async function launchGame() {
   }
 
   await destroyRunningGame();
+
+  // Web game (iframe) branch
+  if (core === 'webiframe') {
+    const webUrl = typeof rom === 'string' ? rom : (Array.isArray(rom) ? rom[0] : '');
+    try {
+      const rotate = Number(window._currentGame?.rotate) || 0;
+      const frame = document.createElement('iframe');
+      frame.id = 'webGameFrame';
+      frame.className = 'web-game-frame';
+      frame.setAttribute('allow', 'autoplay; fullscreen; gamepad');
+      frame.setAttribute('allowfullscreen', '');
+      if (rotate === -90) frame.classList.add('web-rotate-ccw');
+      if (rotate === 90) frame.classList.add('web-rotate-cw');
+      frame.src = webUrl;
+
+      const gameCanvas = document.getElementById('game');
+      if (gameCanvas) gameCanvas.replaceWith(frame);
+
+      emulator = {
+        async pause() { },
+        async resume() { },
+        async exit() { },
+        async saveState() { throw new Error('Game web không hỗ trợ Save State'); },
+        async loadState() { throw new Error('Game web không hỗ trợ Load State'); },
+      };
+
+      setStatus('Đang chạy');
+      setLog([
+        'Tải game web thành công!',
+        `URL: ${webUrl}`,
+        '',
+        rotate ? `Iframe được xoay ${rotate}° để hiển thị đúng chiều.` : 'Game chạy trực tiếp trong iframe.',
+      ].join('\n'));
+      ParentBridge.post('retro:gameLaunched', window._currentGame || {});
+      CoinSystem.consumeCoin();
+      startPlayTimer();
+      RecentSystem.add(webUrl);
+      setControlState(true);
+      document.body.classList.add('web-mode');
+    } catch (error) {
+      emulator = null;
+      setControlState(false);
+      setStatus('Lỗi');
+      setLog(['Không thể tải game web.', '', `Lỗi: ${error?.message || String(error)}`].join('\n'));
+    } finally {
+      launchBtn.disabled = false;
+      launchBtn.innerHTML = originalBtnHtml || 'Tải Game';
+      if (sidebarLaunchBtn) {
+        sidebarLaunchBtn.disabled = false;
+        sidebarLaunchBtn.innerHTML = originalSidebarBtnHtml || 'Bắt Đầu Chơi';
+      }
+      resetLaunchState();
+    }
+    return;
+  }
 
   // Ruffle Flash Player branch
   if (core === 'ruffle') {
@@ -3591,9 +3723,10 @@ function startControlDrag(e, el) {
   e.stopPropagation();
 
   isDraggingControl = true;
-  const rect = el.getBoundingClientRect();
-  const shiftX = e.clientX - rect.left;
-  const shiftY = e.clientY - rect.top;
+  const rect = normRect(el.getBoundingClientRect());
+  const startPoint = normPointXY(e.clientX, e.clientY);
+  const shiftX = startPoint.clientX - rect.left;
+  const shiftY = startPoint.clientY - rect.top;
   el.classList.add('is-dragging-control');
   el.setPointerCapture?.(e.pointerId);
 
@@ -3602,8 +3735,10 @@ function startControlDrag(e, el) {
     const layout = readControlLayout();
     const currentConfig = layout[el.dataset.controlId] || {};
     const bounds = getControlBounds(el);
-    const rawX = ((moveEvent.clientX - shiftX + rect.width / 2) / window.innerWidth) * 100;
-    const rawY = ((moveEvent.clientY - shiftY + rect.height / 2) / window.innerHeight) * 100;
+    const movePoint = normPointXY(moveEvent.clientX, moveEvent.clientY);
+    const vp = layoutViewport();
+    const rawX = ((movePoint.clientX - shiftX + rect.width / 2) / vp.width) * 100;
+    const rawY = ((movePoint.clientY - shiftY + rect.height / 2) / vp.height) * 100;
     const nextConfig = getBoundedControlConfig(el, {
       ...currentConfig,
       x: rawX,
@@ -4048,16 +4183,19 @@ function startFlashBtnDrag(e, el) {
   e.preventDefault();
   e.stopPropagation();
   isDraggingFlashBtn = true;
-  const rect = el.getBoundingClientRect();
-  const shiftX = e.clientX - rect.left;
-  const shiftY = e.clientY - rect.top;
+  const rect = normRect(el.getBoundingClientRect());
+  const startPoint = normPointXY(e.clientX, e.clientY);
+  const shiftX = startPoint.clientX - rect.left;
+  const shiftY = startPoint.clientY - rect.top;
   el.classList.add('is-dragging-flash');
   el.setPointerCapture?.(e.pointerId);
 
   const onMove = (me) => {
     me.preventDefault();
-    const rawX = ((me.clientX - shiftX + rect.width / 2) / window.innerWidth) * 100;
-    const rawY = ((me.clientY - shiftY + rect.height / 2) / window.innerHeight) * 100;
+    const movePoint = normPointXY(me.clientX, me.clientY);
+    const vp = layoutViewport();
+    const rawX = ((movePoint.clientX - shiftX + rect.width / 2) / vp.width) * 100;
+    const rawY = ((movePoint.clientY - shiftY + rect.height / 2) / vp.height) * 100;
     el.style.left = `${Math.min(96, Math.max(2, rawX))}%`;
     el.style.top = `${Math.min(95, Math.max(2, rawY))}%`;
   };
@@ -4739,29 +4877,30 @@ function getPointFromEvent(e) {
 
   if (e.changedTouches && activeJoystickPointerId !== null) {
     const matchingTouch = Array.from(e.changedTouches).find(t => t.identifier === activeJoystickPointerId);
-    return matchingTouch ? { clientX: matchingTouch.clientX, clientY: matchingTouch.clientY } : null;
+    return matchingTouch ? normPointXY(matchingTouch.clientX, matchingTouch.clientY) : null;
   }
 
   if (e.touches && e.touches.length > 0) {
     const touch = activeJoystickPointerId === null
       ? e.touches[0]
       : Array.from(e.touches).find(t => t.identifier === activeJoystickPointerId) || e.touches[0];
-    return { clientX: touch.clientX, clientY: touch.clientY };
+    return normPointXY(touch.clientX, touch.clientY);
   }
 
-  return { clientX: e.clientX, clientY: e.clientY };
+  return normPointXY(e.clientX, e.clientY);
 }
 
 function placeJoystickAt(clientX, clientY) {
   if (!joystickBase || !joystickTouchZone) return;
-  const wrapperRect = joystickTouchZone.getBoundingClientRect();
-  const baseRect = joystickBase.getBoundingClientRect();
+  const wrapperRect = normRect(joystickTouchZone.getBoundingClientRect());
+  const baseRect = normRect(joystickBase.getBoundingClientRect());
 
   joystickWasFloating = true;
   joystickBase.classList.add('joystick-floating');
   if (joystickBase.classList.contains('custom-control-positioned')) {
-    joystickBase.style.left = `${(clientX / window.innerWidth) * 100}%`;
-    joystickBase.style.top = `${(clientY / window.innerHeight) * 100}%`;
+    const vp = layoutViewport();
+    joystickBase.style.left = `${(clientX / vp.width) * 100}%`;
+    joystickBase.style.top = `${(clientY / vp.height) * 100}%`;
   } else {
     joystickBase.style.left = `${clientX - wrapperRect.left - baseRect.width / 2}px`;
     joystickBase.style.top = `${clientY - wrapperRect.top - baseRect.height / 2}px`;
@@ -4827,7 +4966,7 @@ function handleJoystickEvent(e) {
 
   const { clientX, clientY } = point;
 
-  const rect = joystickBase.getBoundingClientRect();
+  const rect = normRect(joystickBase.getBoundingClientRect());
   const radius = rect.width / 2;
   const centerX = activeJoystickCenter?.x ?? rect.left + radius;
   const centerY = activeJoystickCenter?.y ?? rect.top + radius;
@@ -4908,7 +5047,8 @@ function resetJoystick(e) {
 
 function shouldStartJoystickFromPoint(e) {
   if (e.target.closest('[data-key], button, .control-edit-handle')) return false;
-  return e.clientX <= window.innerWidth * 0.48;
+  const p = normPointXY(e.clientX, e.clientY);
+  return p.clientX <= layoutViewport().width * 0.48;
 }
 
 function startJoystick(e, allowWideZone = false) {
@@ -4919,7 +5059,8 @@ function startJoystick(e, allowWideZone = false) {
   e.preventDefault();
   isDragging = true;
   activeJoystickPointerId = e.pointerId ?? null;
-  placeJoystickAt(e.clientX, e.clientY);
+  const startPoint = normPointXY(e.clientX, e.clientY);
+  placeJoystickAt(startPoint.clientX, startPoint.clientY);
   e.currentTarget?.setPointerCapture?.(e.pointerId);
   handleJoystickEvent(e);
 }
@@ -5044,10 +5185,11 @@ document.querySelectorAll('.flash-btn').forEach(btn => {
   function getGamePos(ndx, ndy) {
     const rect = getGameRect();
     if (!rect) return null;
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const r = Math.min(rect.width, rect.height) * 0.4;
-    return { x: cx + ndx * r, y: cy + ndy * r };
+    const lrect = normRect(rect);
+    const cx = lrect.left + lrect.width / 2;
+    const cy = lrect.top + lrect.height / 2;
+    const r = Math.min(lrect.width, lrect.height) * 0.4;
+    return layoutToViewportXY(cx + ndx * r, cy + ndy * r);
   }
 
   function moveKnob(clientX, clientY) {
@@ -5066,11 +5208,12 @@ document.querySelectorAll('.flash-btn').forEach(btn => {
   base.addEventListener('pointerdown', (e) => {
     e.preventDefault();
     pressing = true;
-    baseRect = base.getBoundingClientRect();
+    baseRect = normRect(base.getBoundingClientRect());
     base.setPointerCapture(e.pointerId);
     base.classList.add('active');
 
-    const { ndx, ndy } = moveKnob(e.clientX, e.clientY);
+    const downPoint = normPointXY(e.clientX, e.clientY);
+    const { ndx, ndy } = moveKnob(downPoint.clientX, downPoint.clientY);
     const pos = getGamePos(ndx, ndy);
     if (!pos) return;
     lastPos = pos;
@@ -5083,7 +5226,8 @@ document.querySelectorAll('.flash-btn').forEach(btn => {
   base.addEventListener('pointermove', (e) => {
     if (!pressing) return;
     e.preventDefault();
-    const { ndx, ndy } = moveKnob(e.clientX, e.clientY);
+    const movePoint = normPointXY(e.clientX, e.clientY);
+    const { ndx, ndy } = moveKnob(movePoint.clientX, movePoint.clientY);
     const pos = getGamePos(ndx, ndy);
     if (!pos) return;
     lastPos = pos;

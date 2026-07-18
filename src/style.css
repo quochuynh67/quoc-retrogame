@@ -3223,3 +3223,98 @@ body.playing.mouse-mode .action-buttons {
   transform-origin: bottom right;
   opacity: 0.75;
 }
+/* ===== EMBED COUNTER-ROTATION =====
+   Trang nhúng (vd: chimia.vn) xoay iframe 90° → xoay ngược body -90° để
+   giao diện hiển thị đúng chiều. Class .embed-rotate-ccw được gắn vào <html>
+   trong retro.js khi phát hiện parent nằm trong ROTATED_EMBED_HOSTS. */
+html.embed-rotate-ccw {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+html.embed-rotate-ccw body {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vh;
+  height: 100vw;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transform: rotate(-90deg) translateX(-100vh);
+  transform-origin: left top;
+}
+
+/* Chiều hiển thị đã do trang nhúng quyết định, không gợi ý xoay máy nữa */
+html.embed-rotate-ccw .rotate-prompt {
+  display: none !important;
+}
+
+/* Các lớp phủ position:fixed dùng 100vw/100vh sẽ sai kích thước khi body bị
+   xoay (vw/vh vẫn tính theo viewport thật) → đổi sang % của body đã xoay */
+html.embed-rotate-ccw body.playing #app,
+html.embed-rotate-ccw body.playing .main-content,
+html.embed-rotate-ccw body.playing .game-area,
+html.embed-rotate-ccw body.playing .screen-shell,
+html.embed-rotate-ccw body.playing.flash-mode .game-area,
+html.embed-rotate-ccw body.playing.flash-mode .screen-shell,
+html.embed-rotate-ccw body.playing.flash-mode .virtual-gamepad {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+html.embed-rotate-ccw .shop-modal {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+  html.embed-rotate-ccw body:not(.playing) #app,
+  html.embed-rotate-ccw body:not(.playing) .main-content {
+    height: 100%;
+  }
+
+  html.embed-rotate-ccw body:not(.playing) .sidebar {
+    height: 100% !important;
+  }
+}
+
+/* ===== WEB GAME (IFRAME) =====
+   Game web chạy trực tiếp qua iframe trong screen-shell (system: 'web'). */
+.web-game-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #000;
+}
+
+/* Game web tự có điều khiển riêng → ẩn gamepad ảo */
+body.playing.web-mode .virtual-gamepad {
+  display: none !important;
+}
+
+/* Trang nguồn (vd: chimia.vn) render game bị xoay 90° khi nhúng
+   → xoay ngược iframe -90° (hoán đổi width/height) để hiển thị đúng chiều */
+body.playing .web-game-frame.web-rotate-ccw {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vh;
+  height: 100vw;
+  transform: rotate(-90deg) translateX(-100vh);
+  transform-origin: left top;
+}
+
+body.playing .web-game-frame.web-rotate-cw {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vh;
+  height: 100vw;
+  transform: rotate(90deg) translateY(-100vw);
+  transform-origin: left top;
+}
