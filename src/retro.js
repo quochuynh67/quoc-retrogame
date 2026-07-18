@@ -2841,7 +2841,24 @@ async function launchGame() {
       frame.setAttribute('allowfullscreen', '');
       if (rotate === -90) frame.classList.add('web-rotate-ccw');
       if (rotate === 90) frame.classList.add('web-rotate-cw');
-      frame.src = webUrl;
+
+      // Chuyển tiếp danh tính người dùng (user_name + user_id) từ URL của app
+      // sang URL của trang game web (vd chimia.vn). Vì iframe khác origin nên
+      // app không thể thao tác trực tiếp DOM bên trong; trang game tự đọc param
+      // này để auto-fill form đăng ký (xem chimia-auth-autofill.js).
+      let frameUrl = webUrl;
+      try {
+        const appParams = new URLSearchParams(window.location.search);
+        const userName = appParams.get('user_name');
+        const userId = appParams.get('user_id');
+        if ((userName || userId) && /chimia\.vn/i.test(webUrl)) {
+          const u = new URL(webUrl);
+          if (userName) u.searchParams.set('user_name', userName);
+          if (userId) u.searchParams.set('user_id', userId);
+          frameUrl = u.toString();
+        }
+      } catch (_) { }
+      frame.src = frameUrl;
 
       const gameCanvas = document.getElementById('game');
       if (gameCanvas) gameCanvas.replaceWith(frame);

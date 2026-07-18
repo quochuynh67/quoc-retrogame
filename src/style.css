@@ -3297,6 +3297,12 @@ body.playing.web-mode .virtual-gamepad {
   display: none !important;
 }
 
+/* Game web (vd: chimia.vn) không cần menu cài đặt
+   → chỉ hiện menu khi chơi arcade / flash / console */
+body.playing.web-mode .controls-bar {
+  display: none !important;
+}
+
 /* Trang nguồn (vd: chimia.vn) render game bị xoay 90° khi nhúng
    → xoay ngược iframe -90° (hoán đổi width/height) để hiển thị đúng chiều */
 body.playing .web-game-frame.web-rotate-ccw {
